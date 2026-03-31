@@ -1,0 +1,11 @@
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\bin\Debug\net8.0\CarLoan.Domain.deps.json
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\bin\Debug\net8.0\CarLoan.Domain.dll
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\bin\Debug\net8.0\CarLoan.Domain.pdb
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\CarLoan.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\CarLoan.Domain.AssemblyInfoInputs.cache
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\CarLoan.Domain.AssemblyInfo.cs
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\CarLoan.Domain.csproj.CoreCompileInputs.cache
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\CarLoan.Domain.dll
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\refint\CarLoan.Domain.dll
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\CarLoan.Domain.pdb
+C:\Users\arnar\source\repos\CarLoan\CarLoan.Domain\obj\Debug\net8.0\ref\CarLoan.Domain.dll
