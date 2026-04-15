@@ -9,13 +9,13 @@ public class LoanCalculatorTests
 
     public LoanCalculatorTests()
     {
-        _loanTerms = new(7500m, 20000m, 5000m, 11.10m, 7, 90);
+        _loanTerms = new(750000m, 2000000m, 500000m, 10.60m, 6, 75m);
         _loanCalculator = new(_loanTerms);
     }
 
     [Fact]
-    public void CalculatePrincipal_CorrectAmount_WhenInterestRateIs11_10()
+    public void CalculateMonthlyPayment_CorrectAmount_WhenLoanTermsProvided()
     {
-        Assert.Equal(16650, _loanCalculator.CalculatePrincipal());
+        Assert.Equal(257785.81m, _loanCalculator.CalculateMonthlyPayment());
     }
 }

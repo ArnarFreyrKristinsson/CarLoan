@@ -2,14 +2,14 @@
 
 public class LoanCalculator(LoanTerms loanTerms)
 {
-    private readonly LoanTerms _loanTerms = loanTerms;
-
-    public decimal CalculatePrincipal()
+    public decimal CalculateMonthlyPayment()
     {
-        decimal loanAmount = _loanTerms.LoanAmount;
-        decimal interestRateFraction = decimal.Round(_loanTerms.InterestRate / 100m, 2);
-        decimal interests = interestRateFraction * loanAmount;
-        decimal principal = loanAmount + interests;
-        return principal;
+        decimal monthlyRate = loanTerms.InterestRate / 100m / 12m;
+        decimal compoundFactor = DecimalPow(1 + monthlyRate, loanTerms.LoanPeriodInMonths);
+
+        return Math.Round(loanTerms.LoanAmount * monthlyRate * compoundFactor / (compoundFactor - 1), 2);
     }
+
+    private static decimal DecimalPow(decimal baseValue, int exponent) =>
+        (decimal)Math.Pow((double)baseValue, exponent);
 }

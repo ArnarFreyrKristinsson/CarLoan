@@ -5,22 +5,31 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 public class MinimumDownPaymentTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 11.10m, 84, 90m);
+    private readonly Car _defaultCar = new(CarCondition.New);
+    private readonly MinimumDownPaymentValidator _validator = new();
 
     [Fact]
-    public void IsMinimumDownPaymentSatisfied_False_WhenDownPaymentLessThan150k()
+    public void Evaluate_IsNotValid_WhenDownPaymentLessThan150k()
     {
         var loanTerms = _defaultLoanTerms with { DownPayment = 100000m };
-        var loanValidator = new LoanValidator(loanTerms);
+        var loan = new Loan(loanTerms, _defaultCar);
 
-        Assert.False(loanValidator.IsMinimumDownPaymentSatisfied());
+        var result = _validator.Evaluate(loan);
+
+        Assert.False(result.IsValid);
+        Assert.Equal("MinimumDownPayment", result.RuleName);
+        Assert.NotNull(result.ErrorMessage);
     }
 
     [Fact]
-    public void IsMinimumDownPaymentSatisfied_True_WhenDownPaymentMoreThan150k()
+    public void Evaluate_IsValid_WhenDownPaymentMoreThan150k()
     {
-        var loanTerms = _defaultLoanTerms;
-        var loanValidator = new LoanValidator(loanTerms);
+        var loan = new Loan(_defaultLoanTerms, _defaultCar);
 
-        Assert.True(loanValidator.IsMinimumDownPaymentSatisfied());
+        var result = _validator.Evaluate(loan);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("MinimumDownPayment", result.RuleName);
+        Assert.Null(result.ErrorMessage);
     }
 }

@@ -5,6 +5,7 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 public class MaximumLoanPeriodTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 11.10m, 84, 90m);
+    private readonly MaximumLoanPeriodValidator _validator = new();
 
     [Theory]
     [InlineData(CarCondition.New, 84, 90)]
@@ -18,14 +19,16 @@ public class MaximumLoanPeriodTests
     [InlineData(CarCondition.New, 84, 85)]
     [InlineData(CarCondition.New, 84, 50)]
     [InlineData(CarCondition.Used, 84, 50)]
-    public void IsMaximumLoanPeriodSatisfied_True_WhenLoanPeriodIsWithinMaximum(CarCondition carCondition, int loanPeriodInMonths, decimal loanRatio)
+    public void Evaluate_IsValid_WhenLoanPeriodIsWithinMaximum(CarCondition carCondition, int loanPeriodInMonths, decimal loanRatio)
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, LoanRatio = loanRatio };
-        var validator = new LoanValidator(loanTerms);
+        var loan = new Loan(loanTerms, new Car(carCondition));
 
-        var result = validator.IsMaximumLoanPeriodSatisfied(carCondition);
+        var result = _validator.Evaluate(loan);
 
-        Assert.True(result);
+        Assert.True(result.IsValid);
+        Assert.Equal("MaximumLoanPeriod", result.RuleName);
+        Assert.Null(result.ErrorMessage);
     }
 
     [Theory]
@@ -37,13 +40,15 @@ public class MaximumLoanPeriodTests
     [InlineData(CarCondition.New, 85, 80)]
     [InlineData(CarCondition.Used, 85, 80)]
     [InlineData(CarCondition.Used, 73, 85)]
-    public void IsMaximumLoanPeriodSatisfied_False_WhenLoanPeriodExceedsMaximum(CarCondition carCondition, int loanPeriodInMonths, decimal loanRatio)
+    public void Evaluate_IsNotValid_WhenLoanPeriodExceedsMaximum(CarCondition carCondition, int loanPeriodInMonths, decimal loanRatio)
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, LoanRatio = loanRatio };
-        var validator = new LoanValidator(loanTerms);
+        var loan = new Loan(loanTerms, new Car(carCondition));
 
-        var result = validator.IsMaximumLoanPeriodSatisfied(carCondition);
+        var result = _validator.Evaluate(loan);
 
-        Assert.False(result);
+        Assert.False(result.IsValid);
+        Assert.Equal("MaximumLoanPeriod", result.RuleName);
+        Assert.NotNull(result.ErrorMessage);
     }
 }
