@@ -1,6 +1,7 @@
 # Car Loan Calculator
 
-A .NET 8 car loan calculation system built around composable business rules.
+A .NET 8 car loan calculator applying SOLID and the Specification pattern. Building it up toward a MAUI mobile app that compares loan terms across Icelandic lenders.  Currently only has couple of validation rules such as minimum loan amount, maximum period, maximum ratio and more. 
+Only calculates monthly payments at the moment. 
 
 ## What It Does
 
