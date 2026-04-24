@@ -10,7 +10,7 @@ public class LoanCalculatorTests
     public LoanCalculatorTests()
     {
         _loanTerms = new(750000m, 2000000m, 500000m, 10.60m, 6, 75m);
-        _loanCalculator = new(_loanTerms);
+        _loanCalculator = new LoanCalculator(_loanTerms);
     }
 
     [Fact]

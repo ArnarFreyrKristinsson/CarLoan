@@ -1,6 +1,6 @@
 ﻿namespace CarLoan.Domain;
 
-public class LoanCalculator(LoanTerms loanTerms)
+public class LoanCalculator(LoanTerms loanTerms) : ILoanCalculator
 {
     public decimal CalculateMonthlyPayment()
     {

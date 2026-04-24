@@ -15,9 +15,20 @@
 
 ## Testing
 
+Follow **Test-Driven Development (TDD)** strictly using the **Red → Green → Refactor** cycle:
+
+1. **Red** – Write a failing test that captures the next small piece of required behaviour. Run it and confirm it fails.
+2. **Green** – Write the minimum production code needed to make the test pass. No more, no less.
+3. **Refactor** – Clean up both production and test code without changing behaviour. Re-run tests to confirm they still pass.
+4. Repeat until only the necessary code is implemented.
+
+Always write automatic tests when implementing any feature or fix. 
+
+Never write production code without a failing test driving it first.
+
 - Use **xUnit** as the test framework.
-- Test method names should follow the **Osherove naming convention**: `[UnitOfWork]_[ExpectedResult]_[StateUnderTest]`. 
-- When describing state, refer to the broader context (e.g., "WhenLoanTermsProvided" instead of listing specific fields 
+- Test method names should follow the **Osherove naming convention**: `[UnitOfWork]_[ExpectedResult]_[StateUnderTest]`.
+- When describing state, refer to the broader context (e.g., "WhenLoanTermsProvided" instead of listing specific fields
   like "WhenPurchasePriceAndDownPaymentProvided").
 - Use `[Fact]` for single-case tests and `[Theory]` with `[InlineData]` for parameterized tests.
 
