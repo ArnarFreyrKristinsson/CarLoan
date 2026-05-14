@@ -1,4 +1,4 @@
-﻿namespace CarLoan.Domain;
+﻿namespace CarLoan.Domain.Models;
 
 public sealed record Car(CarCondition Condition);
 

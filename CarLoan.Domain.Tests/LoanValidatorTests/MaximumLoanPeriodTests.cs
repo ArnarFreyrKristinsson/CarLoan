@@ -1,3 +1,4 @@
+using CarLoan.Domain.Models;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -19,7 +20,8 @@ public class MaximumLoanPeriodTests
     [InlineData(CarCondition.New, 84, 85)]
     [InlineData(CarCondition.New, 84, 50)]
     [InlineData(CarCondition.Used, 84, 50)]
-    public void Evaluate_IsValid_WhenLoanPeriodIsWithinMaximum(CarCondition carCondition, int loanPeriodInMonths, decimal loanRatio)
+    public void Evaluate_IsValid_WhenLoanPeriodIsWithinMaximum(CarCondition carCondition, 
+                                                                int loanPeriodInMonths, decimal loanRatio)
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, LoanRatio = loanRatio };
         var loan = new Loan(loanTerms, new Car(carCondition));
@@ -40,7 +42,9 @@ public class MaximumLoanPeriodTests
     [InlineData(CarCondition.New, 85, 80)]
     [InlineData(CarCondition.Used, 85, 80)]
     [InlineData(CarCondition.Used, 73, 85)]
-    public void Evaluate_IsNotValid_WhenLoanPeriodExceedsMaximum(CarCondition carCondition, int loanPeriodInMonths, decimal loanRatio)
+    public void Evaluate_IsNotValid_WhenLoanPeriodExceedsMaximum(CarCondition carCondition, 
+                                                                 int loanPeriodInMonths, 
+                                                                 decimal loanRatio)
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, LoanRatio = loanRatio };
         var loan = new Loan(loanTerms, new Car(carCondition));

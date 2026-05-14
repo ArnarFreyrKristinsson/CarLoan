@@ -1,4 +1,6 @@
-﻿namespace CarLoan.Domain;
+﻿using CarLoan.Domain.Models;
+
+namespace CarLoan.Domain.Calculators;
 
 public class LoanCalculator(LoanTerms loanTerms) : ILoanCalculator
 {

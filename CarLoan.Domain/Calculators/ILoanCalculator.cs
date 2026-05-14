@@ -1,4 +1,4 @@
-namespace CarLoan.Domain;
+namespace CarLoan.Domain.Calculators;
 
 public interface ILoanCalculator
 {

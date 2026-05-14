@@ -1,3 +1,5 @@
+using CarLoan.Domain.Models;
+
 namespace CarLoan.Domain;
 
 public class MinimumLoanAmountValidator : ILoanValidator

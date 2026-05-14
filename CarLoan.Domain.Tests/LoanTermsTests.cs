@@ -1,3 +1,4 @@
+using CarLoan.Domain.Models;
 using Xunit;
 
 namespace CarLoan.Domain.Tests;
