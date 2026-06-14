@@ -5,7 +5,7 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 
 public class MaximumLoanPeriodTests
 {
-    private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 11.10m, 84, 90m);
+    private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 84, 90m);
     private readonly MaximumLoanPeriodValidator _validator = new();
 
     [Theory]

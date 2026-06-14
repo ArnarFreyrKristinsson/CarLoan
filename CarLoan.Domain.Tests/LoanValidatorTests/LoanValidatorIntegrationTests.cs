@@ -1,4 +1,5 @@
 using CarLoan.Domain.Models;
+using CarLoan.Domain.Validators;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -22,7 +23,7 @@ public class LoanValidatorIntegrationTests
         decimal loanRatio = 75m,
         CarCondition condition = CarCondition.New)
     {
-        var terms = new LoanTerms(750_000m, purchasePrice, downPayment, 11.10m, loanPeriodInMonths, loanRatio);
+        var terms = new LoanTerms(750_000m, purchasePrice, downPayment, loanPeriodInMonths, loanRatio);
         return new Loan(terms, new Car(condition));
     }
 

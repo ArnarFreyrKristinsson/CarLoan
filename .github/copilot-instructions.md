@@ -15,12 +15,17 @@
 
 ## Testing
 
-Follow **Test-Driven Development (TDD)** strictly using the **Red → Green → Refactor** cycle:
+Follow **Test-Driven Development (TDD)** strictly using the **Red → Green → Refactor** cycle for each test case, always run the function each time after writing the test:
+
+First, write the test and implementation only so the function builds, no less no more. 
+That means the function signature is in place, and the function body is empty or contains just enough code to compile. 
+
+Then follow the TDD cycle:
 
 1. **Red** – Write a failing test that captures the next small piece of required behaviour. Run it and confirm it fails.
 2. **Green** – Write the minimum production code needed to make the test pass. No more, no less.
 3. **Refactor** – Clean up both production and test code without changing behaviour. Re-run tests to confirm they still pass.
-4. Repeat until only the necessary code is implemented.
+4. Repeat until only the necessary code is implemented°.
 
 Always write automatic tests when implementing any feature or fix. 
 

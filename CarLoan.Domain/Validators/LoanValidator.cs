@@ -1,6 +1,6 @@
 using CarLoan.Domain.Models;
 
-namespace CarLoan.Domain;
+namespace CarLoan.Domain.Validators;
 
 public class LoanValidator(IEnumerable<ILoanValidator> rules)
 {

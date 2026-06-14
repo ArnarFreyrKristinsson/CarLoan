@@ -1,11 +1,12 @@
 using CarLoan.Domain.Models;
+using CarLoan.Domain.Validators;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
 
 public class MinimumLoanPeriodTests
 {
-    private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 11.10m, 84, 90m);
+    private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 84, 90m);
     private readonly Car _defaultCar = new(CarCondition.New);
     private readonly MinimumLoanPeriodValidator _validator = new();
 
