@@ -18,6 +18,8 @@
 Follow **Test-Driven Development (TDD)** strictly using the **Red → Green → Refactor** cycle for each test case, always run the function each time after writing the test:
 
 First, write the test and implementation only so the function builds, no less no more. 
+Write one test per path for example if you have a function that has 3 paths, write 3 tests, one for each path, testing each path separately.
+
 That means the function signature is in place, and the function body is empty or contains just enough code to compile. 
 
 Then follow the TDD cycle:

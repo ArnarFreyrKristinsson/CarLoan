@@ -7,9 +7,9 @@ public sealed record LoanTerms(
     decimal PurchasePrice,
     decimal DownPayment,
     int LoanPeriodInMonths,
-    decimal LoanRatio)
+    decimal LoanRatio) : ILoanTerms
 {
-    private static readonly ILoanInterestRateProvider _loanInterestRateProvider = new LoanInterestRateProvider();
+    private static readonly LoanInterestRateProvider _loanInterestRateProvider = new();
 
     public decimal LoanAmount => PurchasePrice - DownPayment;
 

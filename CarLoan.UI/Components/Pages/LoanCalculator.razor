@@ -1,0 +1,18 @@
+@page "/loan-calculator"
+@rendermode InteractiveServer
+@inject CarLoan.Application.ILoanApplicationService LoanApplicationService
+
+<PageTitle>Loan Calculator</PageTitle>
+
+<h1>Monthly Payment</h1>
+
+<p>Estimated monthly payment: <strong>@_monthlyPayment.ToString("N2")</strong></p>
+
+@code {
+    private decimal _monthlyPayment;
+
+    protected override void OnInitialized()
+    {
+        _monthlyPayment = LoanApplicationService.GetMonthlyPayment();
+    }
+}

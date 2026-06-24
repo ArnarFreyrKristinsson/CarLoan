@@ -2,7 +2,7 @@
 
 namespace CarLoan.Domain.Calculators;
 
-public class LoanCalculator(LoanTerms loanTerms) : ILoanCalculator
+public class LoanCalculator(ILoanTerms loanTerms) : ILoanCalculator
 {
     public decimal CalculateMonthlyPayment()
     {
