@@ -1,4 +1,4 @@
-using CarLoan.Domain.Calculators;
+using CarLoan.Domain.Providers;
 
 namespace CarLoan.Domain.Models;
 
@@ -10,8 +10,6 @@ public sealed record LoanTerms(
     decimal LoanRatio) : ILoanTerms
 {
     private static readonly LoanInterestRateProvider _loanInterestRateProvider = new();
-
     public decimal LoanAmount => PurchasePrice - DownPayment;
-
     public decimal InterestRate => _loanInterestRateProvider.GetInterestRate(this);
 }

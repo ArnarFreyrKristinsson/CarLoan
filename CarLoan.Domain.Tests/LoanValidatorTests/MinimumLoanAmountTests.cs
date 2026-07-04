@@ -1,4 +1,5 @@
 using CarLoan.Domain.Models;
+using CarLoan.Domain.Validators;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -32,5 +33,27 @@ public class MinimumLoanAmountTests
         Assert.True(result.IsValid);
         Assert.Equal("MinimumLoanAmount", result.RuleName);
         Assert.Null(result.ErrorMessage);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsParametersWithMinimum_WhenLoanAmountLessThan750k()
+    {
+        var loanTerms = _defaultLoanTerms with { PurchasePrice = 800000m, DownPayment = 100000m };
+        var loan = new Loan(loanTerms, _defaultCar);
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(750000m, result.Parameters["min"]);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsNullParameters_WhenLoanAmountIsValid()
+    {
+        var loan = new Loan(_defaultLoanTerms, _defaultCar);
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.Null(result.Parameters);
     }
 }

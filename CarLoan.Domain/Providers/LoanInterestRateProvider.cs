@@ -1,6 +1,6 @@
 using CarLoan.Domain.Models;
 
-namespace CarLoan.Domain.Calculators;
+namespace CarLoan.Domain.Providers;
 
 public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
 {
@@ -12,7 +12,7 @@ public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
         (200000m, 12.20m)
     ];
 
-    public decimal GetInterestRate(LoanTerms loanTerms)
+    public decimal GetInterestRate(ILoanTerms loanTerms)
     {
         foreach (var (minimumDownPayment, interestRate) in _interestLookupTable)
         {

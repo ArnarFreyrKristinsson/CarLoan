@@ -1,36 +1,28 @@
 using CarLoan.Domain.Models;
+using Params = System.Collections.Generic.Dictionary<string, object>;
 
-namespace CarLoan.Domain;
+namespace CarLoan.Domain.Validators;
 
 public class MaximumLoanPeriodValidator : ILoanValidator
 {
     private const string RuleName = "MaximumLoanPeriod";
-    private const decimal MaximumLoanRatio = 90m;
-    private const decimal UsedCarLoanRatioThreshold = 80m;
-    private const int MaximumLoanPeriodMonths = 84;
-    private const int UsedCarMaximumLoanPeriodMonths = 72;
-
-    private static bool ExceedsGeneralLimits(decimal ratio, int period) =>
-        ratio > MaximumLoanRatio || period > MaximumLoanPeriodMonths;
-
-    private static bool ExceedsUsedCarRatio(decimal ratio, CarCondition carCondition) =>
-        carCondition == CarCondition.Used && ratio > UsedCarLoanRatioThreshold;
-
-    private static LoanRuleResult Fail(string message) => new(false, RuleName, message);
-    private static LoanRuleResult Pass() => new(true, RuleName, null);
 
     public LoanRuleResult Evaluate(Loan loan)
     {
         int period = loan.Terms.LoanPeriodInMonths;
         decimal ratio = loan.Terms.LoanRatio;
-        var carCondition = loan.Car.Condition;
+        var condition = loan.Car.Condition;
 
-        if (ExceedsGeneralLimits(ratio, period))
-            return Fail($"Loan ratio must not exceed {MaximumLoanRatio}% and period must not exceed {MaximumLoanPeriodMonths} months.");
+        if (LoanPeriodLimits.ExceedsGeneralLimits(ratio, period))
+            return LoanRuleResult.Create(RuleName, false,
+                $"Loan ratio must not exceed {LoanPeriodLimits.MaximumLoanRatio}% and period must not exceed {LoanPeriodLimits.MaximumLoanPeriodMonths} months.",
+                new Params { ["maxRatio"] = LoanPeriodLimits.MaximumLoanRatio, ["maxMonths"] = LoanPeriodLimits.MaximumLoanPeriodMonths });
 
-        if (ExceedsUsedCarRatio(ratio, carCondition) && period > UsedCarMaximumLoanPeriodMonths)
-            return Fail($"Used cars with a loan ratio above {UsedCarLoanRatioThreshold}% must not exceed {UsedCarMaximumLoanPeriodMonths} months.");
+        if (LoanPeriodLimits.ExceedsUsedCarLimits(ratio, condition, period))
+            return LoanRuleResult.Create(RuleName, false,
+                $"Used cars with a loan ratio above {LoanPeriodLimits.UsedCarLoanRatioThreshold}% must not exceed {LoanPeriodLimits.UsedCarMaximumLoanPeriodMonths} months.",
+                new Params { ["ratioThreshold"] = LoanPeriodLimits.UsedCarLoanRatioThreshold, ["maxMonths"] = LoanPeriodLimits.UsedCarMaximumLoanPeriodMonths });
 
-        return Pass();
+        return LoanRuleResult.Create(RuleName, true);
     }
 }

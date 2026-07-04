@@ -1,4 +1,5 @@
 using CarLoan.Domain.Models;
+using CarLoan.Domain.Validators;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -54,5 +55,41 @@ public class MaximumLoanPeriodTests
         Assert.False(result.IsValid);
         Assert.Equal("MaximumLoanPeriod", result.RuleName);
         Assert.NotNull(result.ErrorMessage);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsGeneralLimitParameters_WhenGeneralLimitsExceeded()
+    {
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 85, LoanRatio = 90m };
+        var loan = new Loan(loanTerms, new Car(CarCondition.New));
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(90m, result.Parameters["maxRatio"]);
+        Assert.Equal(84, result.Parameters["maxMonths"]);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsUsedCarLimitParameters_WhenUsedCarLimitsExceeded()
+    {
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 73, LoanRatio = 85m };
+        var loan = new Loan(loanTerms, new Car(CarCondition.Used));
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(80m, result.Parameters["ratioThreshold"]);
+        Assert.Equal(72, result.Parameters["maxMonths"]);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsNullParameters_WhenLoanPeriodIsValid()
+    {
+        var loan = new Loan(_defaultLoanTerms, new Car(CarCondition.New));
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.Null(result.Parameters);
     }
 }

@@ -5,4 +5,6 @@ public interface ILoanTerms
     decimal InterestRate { get; }
     decimal LoanAmount { get; }
     int LoanPeriodInMonths { get; }
+    decimal DownPayment { get;  }
+
 }

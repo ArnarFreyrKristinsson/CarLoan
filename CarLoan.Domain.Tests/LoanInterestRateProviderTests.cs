@@ -1,5 +1,5 @@
-using CarLoan.Domain.Calculators;
 using CarLoan.Domain.Models;
+using CarLoan.Domain.Providers;
 using Xunit;
 
 namespace CarLoan.Domain.Tests;

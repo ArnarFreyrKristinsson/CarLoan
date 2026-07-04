@@ -47,4 +47,26 @@ public class MinimumLoanPeriodTests
         Assert.Equal("MinimumLoanPeriod", result.RuleName);
         Assert.Null(result.ErrorMessage);
     }
+
+    [Fact]
+    public void Evaluate_ReturnsParametersWithMinimum_WhenLoanPeriodLessThan6Months()
+    {
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 4 };
+        var loan = new Loan(loanTerms, _defaultCar);
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(6, result.Parameters["min"]);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsNullParameters_WhenLoanPeriodIsValid()
+    {
+        var loan = new Loan(_defaultLoanTerms, _defaultCar);
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.Null(result.Parameters);
+    }
 }
