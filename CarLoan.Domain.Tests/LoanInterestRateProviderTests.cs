@@ -1,4 +1,3 @@
-using CarLoan.Domain.Models;
 using CarLoan.Domain.Providers;
 using Xunit;
 
@@ -13,10 +12,8 @@ public class LoanInterestRateProviderTests
     [InlineData(600000, 11.20)]
     [InlineData(400000, 11.45)]
     [InlineData(200000, 12.20)]
-    public void GetInterestRate_CorrectValue_WhenLoanTermsProvided(decimal downPayment, decimal expectedRate)
+    public void GetInterestRate_CorrectValue_WhenDownPaymentProvided(decimal downPayment, decimal expectedRate)
     {
-        var loanTerms = new LoanTerms(750000m, 2000000m, downPayment, 36, 75m);
-
-        Assert.Equal(expectedRate, _provider.GetInterestRate(loanTerms));
+        Assert.Equal(expectedRate, _provider.GetInterestRate(downPayment));
     }
 }

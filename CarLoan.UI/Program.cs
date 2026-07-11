@@ -1,6 +1,7 @@
 using CarLoan.Application;
 using CarLoan.Domain.Calculators;
 using CarLoan.Domain.Models;
+using CarLoan.Domain.Providers;
 using CarLoan.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,12 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<ILoanTerms>(new LoanTerms(
-    MinimumLoanAmount: 750_000m,
+var provider = new LoanInterestRateProvider();
+var downPayment = 500_000m;
+var loanTerms = new LoanTerms(
     PurchasePrice: 2_000_000m,
-    DownPayment: 500_000m,
+    DownPayment: downPayment,
     LoanPeriodInMonths: 6,
-    LoanRatio: 75m));
+    InterestRate: provider.GetInterestRate(downPayment));
+
+builder.Services.AddSingleton(loanTerms);
+builder.Services.AddSingleton<ILoanInterestRateProvider>(provider);
 builder.Services.AddSingleton<ILoanCalculator, LoanCalculator>();
 builder.Services.AddSingleton<ILoanApplicationService, LoanApplicationService>();
 

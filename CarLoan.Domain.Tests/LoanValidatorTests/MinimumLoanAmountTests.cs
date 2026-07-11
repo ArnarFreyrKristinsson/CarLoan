@@ -6,9 +6,15 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 
 public class MinimumLoanAmountTests
 {
-    private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 84, 90m);
+    private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
     private readonly Car _defaultCar = new(CarCondition.New);
     private readonly MinimumLoanAmountValidator _validator = new();
+
+    [Fact]
+    public void Evaluate_ThrowsArgumentNullException_WhenLoanIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
+    }
 
     [Fact]
     public void Evaluate_IsNotValid_WhenLoanAmountLessThan750k()

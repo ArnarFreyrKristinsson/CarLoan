@@ -6,25 +6,31 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 
 public class MaximumLoanPeriodTests
 {
-    private readonly LoanTerms _defaultLoanTerms = new(750000m, 2000000m, 1000000m, 84, 90m);
+    private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
     private readonly MaximumLoanPeriodValidator _validator = new();
 
-    [Theory]
-    [InlineData(CarCondition.New, 84, 90)]
-    [InlineData(CarCondition.New, 72, 90)]
-    [InlineData(CarCondition.New, 84, 80)]
-    [InlineData(CarCondition.Used, 72, 90)]
-    [InlineData(CarCondition.Used, 60, 90)]
-    [InlineData(CarCondition.Used, 84, 80)]
-    [InlineData(CarCondition.Used, 72, 80)]
-    [InlineData(CarCondition.Used, 73, 80)]
-    [InlineData(CarCondition.New, 84, 85)]
-    [InlineData(CarCondition.New, 84, 50)]
-    [InlineData(CarCondition.Used, 84, 50)]
-    public void Evaluate_IsValid_WhenLoanPeriodIsWithinMaximum(CarCondition carCondition, 
-                                                                int loanPeriodInMonths, decimal loanRatio)
+    [Fact]
+    public void Evaluate_ThrowsArgumentNullException_WhenLoanIsNull()
     {
-        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, LoanRatio = loanRatio };
+        Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
+    }
+
+    [Theory]
+    [InlineData(CarCondition.New, 84, 200000)]
+    [InlineData(CarCondition.New, 72, 200000)]
+    [InlineData(CarCondition.New, 84, 400000)]
+    [InlineData(CarCondition.Used, 72, 200000)]
+    [InlineData(CarCondition.Used, 60, 200000)]
+    [InlineData(CarCondition.Used, 84, 400000)]
+    [InlineData(CarCondition.Used, 72, 400000)]
+    [InlineData(CarCondition.Used, 73, 400000)]
+    [InlineData(CarCondition.New, 84, 300000)]
+    [InlineData(CarCondition.New, 84, 1000000)]
+    [InlineData(CarCondition.Used, 84, 1000000)]
+    public void Evaluate_IsValid_WhenLoanPeriodIsWithinMaximum(CarCondition carCondition,
+                                                                int loanPeriodInMonths, decimal downPayment)
+    {
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, DownPayment = downPayment };
         var loan = new Loan(loanTerms, new Car(carCondition));
 
         var result = _validator.Evaluate(loan);
@@ -35,19 +41,19 @@ public class MaximumLoanPeriodTests
     }
 
     [Theory]
-    [InlineData(CarCondition.Used, 84, 90)]
-    [InlineData(CarCondition.Used, 85, 90)]
-    [InlineData(CarCondition.Used, 85, 70)]
-    [InlineData(CarCondition.New, 85, 90)]
-    [InlineData(CarCondition.Used, 73, 90)]
-    [InlineData(CarCondition.New, 85, 80)]
-    [InlineData(CarCondition.Used, 85, 80)]
-    [InlineData(CarCondition.Used, 73, 85)]
-    public void Evaluate_IsNotValid_WhenLoanPeriodExceedsMaximum(CarCondition carCondition, 
-                                                                 int loanPeriodInMonths, 
-                                                                 decimal loanRatio)
+    [InlineData(CarCondition.Used, 84, 200000)]
+    [InlineData(CarCondition.Used, 85, 200000)]
+    [InlineData(CarCondition.Used, 85, 600000)]
+    [InlineData(CarCondition.New, 85, 200000)]
+    [InlineData(CarCondition.Used, 73, 200000)]
+    [InlineData(CarCondition.New, 85, 400000)]
+    [InlineData(CarCondition.Used, 85, 400000)]
+    [InlineData(CarCondition.Used, 73, 300000)]
+    public void Evaluate_IsNotValid_WhenLoanPeriodExceedsMaximum(CarCondition carCondition,
+                                                                 int loanPeriodInMonths,
+                                                                 decimal downPayment)
     {
-        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, LoanRatio = loanRatio };
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, DownPayment = downPayment };
         var loan = new Loan(loanTerms, new Car(carCondition));
 
         var result = _validator.Evaluate(loan);
@@ -60,7 +66,7 @@ public class MaximumLoanPeriodTests
     [Fact]
     public void Evaluate_ReturnsGeneralLimitParameters_WhenGeneralLimitsExceeded()
     {
-        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 85, LoanRatio = 90m };
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 85, DownPayment = 200000m };
         var loan = new Loan(loanTerms, new Car(CarCondition.New));
 
         var result = _validator.Evaluate(loan);
@@ -73,7 +79,7 @@ public class MaximumLoanPeriodTests
     [Fact]
     public void Evaluate_ReturnsUsedCarLimitParameters_WhenUsedCarLimitsExceeded()
     {
-        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 73, LoanRatio = 85m };
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 73, DownPayment = 300000m };
         var loan = new Loan(loanTerms, new Car(CarCondition.Used));
 
         var result = _validator.Evaluate(loan);

@@ -9,6 +9,8 @@ public class MinimumLoanAmountValidator : ILoanValidator
 
     public LoanRuleResult Evaluate(Loan loan)
     {
+        ArgumentNullException.ThrowIfNull(loan);
+
         bool isValid = loan.Terms.LoanAmount >= MinimumLoanAmount;
         return LoanRuleResult.Create(
             "MinimumLoanAmount",

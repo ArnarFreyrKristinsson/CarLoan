@@ -4,6 +4,16 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<AnalysisLevel>latest-all</AnalysisLevel>
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <Target Name="FormatCode" BeforeTargets="Build">
+		<Exec Command="dotnet format" />
+  </Target>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CarLoan.Domain.Tests" />
+  </ItemGroup>
 
 </Project>

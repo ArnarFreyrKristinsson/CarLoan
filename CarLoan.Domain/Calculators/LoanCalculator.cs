@@ -2,16 +2,21 @@
 
 namespace CarLoan.Domain.Calculators;
 
-public class LoanCalculator(ILoanTerms loanTerms) : ILoanCalculator
+public class LoanCalculator() : ILoanCalculator
 {
-    public decimal CalculateMonthlyPayment()
+    public decimal CalculateMonthlyPayment(LoanTerms loanTerms)
     {
+        ArgumentNullException.ThrowIfNull(loanTerms);
+
+        if (loanTerms.LoanPeriodInMonths <= 0)
+            throw new ArgumentOutOfRangeException(nameof(loanTerms), "Loan period must be greater than zero.");
+
         decimal monthlyRate = loanTerms.InterestRate / 100m / 12m;
         decimal compoundFactor = DecimalPow(1 + monthlyRate, loanTerms.LoanPeriodInMonths);
 
         return Math.Round(loanTerms.LoanAmount * monthlyRate * compoundFactor / (compoundFactor - 1), 2);
     }
 
-    private static decimal DecimalPow(decimal baseValue, int exponent) =>
-        (decimal)Math.Pow((double)baseValue, exponent);
+    internal static decimal DecimalPow(decimal baseValue, int exponent) =>
+        Enumerable.Repeat(baseValue, exponent).Aggregate(1m, (acc, x) => acc * x);
 }

@@ -1,5 +1,3 @@
-using CarLoan.Domain.Models;
-
 namespace CarLoan.Domain.Providers;
 
 public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
@@ -12,17 +10,16 @@ public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
         (200000m, 12.20m)
     ];
 
-    public decimal GetInterestRate(ILoanTerms loanTerms)
+    public decimal GetInterestRate(decimal downPayment)
     {
         foreach (var (minimumDownPayment, interestRate) in _interestLookupTable)
         {
-            if (loanTerms.DownPayment >= minimumDownPayment)
+            if (downPayment >= minimumDownPayment)
             {
                 return interestRate;
             }
         }
 
         return _interestLookupTable[^1].InterestRate;
-
     }
 }

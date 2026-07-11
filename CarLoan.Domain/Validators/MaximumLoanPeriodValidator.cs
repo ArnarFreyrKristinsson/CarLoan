@@ -9,6 +9,8 @@ public class MaximumLoanPeriodValidator : ILoanValidator
 
     public LoanRuleResult Evaluate(Loan loan)
     {
+        ArgumentNullException.ThrowIfNull(loan);
+
         int period = loan.Terms.LoanPeriodInMonths;
         decimal ratio = loan.Terms.LoanRatio;
         var condition = loan.Car.Condition;

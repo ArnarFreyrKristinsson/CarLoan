@@ -20,10 +20,9 @@ public class LoanValidatorIntegrationTests
         decimal purchasePrice = 2_000_000m,
         decimal downPayment = 200_000m,
         int loanPeriodInMonths = 36,
-        decimal loanRatio = 75m,
         CarCondition condition = CarCondition.New)
     {
-        var terms = new LoanTerms(750_000m, purchasePrice, downPayment, loanPeriodInMonths, loanRatio);
+        var terms = new LoanTerms(purchasePrice, downPayment, loanPeriodInMonths, 12.20m);
         return new Loan(terms, new Car(condition));
     }
 
@@ -31,10 +30,17 @@ public class LoanValidatorIntegrationTests
     public void Validate_AllResultsAreValid_WhenAllRulesPass()
     {
         var loan = CreateLoan();
+        var expectedResults = new[]
+        {
+            LoanRuleResult.Create("MinimumLoanAmount", true),
+            LoanRuleResult.Create("MinimumLoanPeriod", true),
+            LoanRuleResult.Create("MinimumDownPayment", true),
+            LoanRuleResult.Create("MaximumLoanPeriod", true),
+        };
 
         var results = _validator.Validate(loan);
 
-        Assert.All(results, r => Assert.True(r.IsValid));
+        Assert.Equivalent(expectedResults, results);
     }
 
     [Fact]
@@ -61,7 +67,7 @@ public class LoanValidatorIntegrationTests
     [Fact]
     public void Validate_ContainsOnlyMinimumDownPaymentFailure_WhenDownPaymentTooLow()
     {
-        var loan = CreateLoan(downPayment: 100_000m);
+        var loan = CreateLoan(purchasePrice: 900_000m, downPayment: 100_000m);
 
         var results = _validator.Validate(loan);
 
