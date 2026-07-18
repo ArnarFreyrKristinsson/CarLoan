@@ -3,7 +3,7 @@ using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MaximumLoanPeriodValidator : ILoanValidator
+internal class MaximumLoanPeriodValidator : ILoanRule
 {
     private const string RuleName = "MaximumLoanPeriod";
 

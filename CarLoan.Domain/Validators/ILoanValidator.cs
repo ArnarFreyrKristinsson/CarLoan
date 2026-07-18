@@ -1,8 +1,8 @@
 using CarLoan.Domain.Models;
 
-namespace CarLoan.Domain;
+namespace CarLoan.Domain.Validators;
 
 public interface ILoanValidator
 {
-    LoanRuleResult Evaluate(Loan loan);
+    IReadOnlyList<LoanRuleResult> Validate(Loan loan);
 }

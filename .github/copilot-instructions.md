@@ -27,9 +27,12 @@ Then follow the TDD cycle:
 1. **Red** – Write a failing test that captures the next small piece of required behaviour. Run it and confirm it fails.
 2. **Green** – Write the minimum production code needed to make the test pass. No more, no less.
 3. **Refactor** – Clean up both production and test code without changing behaviour. Re-run tests to confirm they still pass.
-4. Repeat until only the necessary code is implemented°.
+4. Repeat until only the necessary code is implemented.
 
-Always write automatic tests when implementing any feature or fix. 
+
+Mock only process-boundary dependencies such as: network, database, filesystem, third-party SDKs, time and randomness.
+
+Always write automatic tests when implementing any feature or fix.
 
 Never write production code without a failing test driving it first.
 

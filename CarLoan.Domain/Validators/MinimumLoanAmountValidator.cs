@@ -3,7 +3,7 @@ using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MinimumLoanAmountValidator : ILoanValidator
+internal class MinimumLoanAmountValidator : ILoanRule
 {
     private const decimal MinimumLoanAmount = 750000m;
 

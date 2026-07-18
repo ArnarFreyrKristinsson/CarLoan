@@ -2,9 +2,9 @@ using CarLoan.Domain.Models;
 
 namespace CarLoan.Domain.Validators;
 
-public class LoanValidator(IEnumerable<ILoanValidator> rules)
+public class LoanValidator(IEnumerable<ILoanRule> rules) : ILoanValidator
 {
-    private readonly IEnumerable<ILoanValidator> _rules = rules;
+    private readonly IEnumerable<ILoanRule> _rules = rules;
 
     public IReadOnlyList<LoanRuleResult> Validate(Loan loan)
     {

@@ -6,7 +6,7 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 
 public class LoanValidatorIntegrationTests
 {
-    private static readonly ILoanValidator[] _allRules =
+    private static readonly ILoanRule[] _allRules =
     [
         new MinimumLoanAmountValidator(),
         new MinimumLoanPeriodValidator(),

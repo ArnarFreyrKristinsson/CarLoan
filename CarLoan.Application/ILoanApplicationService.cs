@@ -1,6 +1,8 @@
+using CarLoan.Domain.Models;
+
 namespace CarLoan.Application;
 
 public interface ILoanApplicationService
 {
-    decimal GetMonthlyPayment();
+    LoanEvaluationResult EvaluateLoan(Car car);
 }

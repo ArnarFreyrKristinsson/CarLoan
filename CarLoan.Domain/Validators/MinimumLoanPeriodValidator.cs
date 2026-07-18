@@ -3,7 +3,7 @@ using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MinimumLoanPeriodValidator : ILoanValidator
+internal class MinimumLoanPeriodValidator : ILoanRule
 {
     private const int MinimumLoanPeriodMonths = 6;
 
