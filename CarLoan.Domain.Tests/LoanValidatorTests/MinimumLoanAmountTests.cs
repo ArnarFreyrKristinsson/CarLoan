@@ -42,6 +42,19 @@ public class MinimumLoanAmountTests
     }
 
     [Fact]
+    public void Evaluate_IsValid_WhenLoanAmountExactly750k()
+    {
+        var loanTerms = _defaultLoanTerms with { PurchasePrice = 900000m, DownPayment = 150000m };
+        var loan = new Loan(loanTerms, _defaultCar);
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("MinimumLoanAmount", result.RuleName);
+        Assert.Null(result.ErrorMessage);
+    }
+
+    [Fact]
     public void Evaluate_ReturnsParametersWithMinimum_WhenLoanAmountLessThan750k()
     {
         var loanTerms = _defaultLoanTerms with { PurchasePrice = 800000m, DownPayment = 100000m };

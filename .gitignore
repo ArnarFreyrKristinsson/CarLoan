@@ -1,3 +1,9 @@
 .vs/
 bin/
 obj/
+
+# Stryker mutation testing output
+StrykerOutput/
+
+# Test results
+TestResults/

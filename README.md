@@ -7,6 +7,10 @@ Only calculates monthly payments at the moment. The project will also use Blazor
 
 Validates loan applications against a set of independent business rules and calculates monthly payments when conditions are met.
 
+## Scope
+
+The current stage covers the happy path: inputs are assumed to be structurally valid (positive prices, positive periods, sensible rates). Behavior outside of that is undefined.
+
 **Validation rules:**
 
 | Rule | Description |
@@ -22,7 +26,6 @@ Validates loan applications against a set of independent business rules and calc
 
 ## How It's Built
 
-- **Dependency Injection** — rules are registered in .NET's built-in DI container and injected as `IEnumerable<ILoanValidator>`, so the `LoanValidator` never knows which rules exist
 - **TDD** — built test-first using xUnit with Osherove naming conventions (`MethodName_ExpectedResult_StateUnderTest`), following red-green-refactor
 - **SOLID** — Is followed where applicable for example: Open/Closed Principle in practice - new rules are new classes, existing code stays untouched.
 
@@ -46,4 +49,4 @@ dotnet test
 
 ## Why This Architecture
 
-So far the project demonstrates how to handle business logic that changes frequently. When a rule changes, you change one class. When a new rule is added, you add one class and register it. Nothing else moves. The test suite verifies each rule in isolation, so you know exactly what broke and why.
+So far the project demonstrates how to handle business logic that changes frequently. When a rule changes, you change one class. When a new rule is added, you add one class. Nothing else moves. The test suite verifies each rule in isolation, so you know exactly what broke and why.

@@ -42,6 +42,19 @@ public class MinimumDownPaymentTests
     }
 
     [Fact]
+    public void Evaluate_IsValid_WhenDownPaymentExactly150k()
+    {
+        var loanTerms = _defaultLoanTerms with { DownPayment = 150000m };
+        var loan = new Loan(loanTerms, _defaultCar);
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("MinimumDownPayment", result.RuleName);
+        Assert.Null(result.ErrorMessage);
+    }
+
+    [Fact]
     public void Evaluate_ReturnsParametersWithMinimum_WhenDownPaymentLessThan150k()
     {
         var loanTerms = _defaultLoanTerms with { DownPayment = 100000m };

@@ -1,0 +1,33 @@
+name: Stryker Mutation Testing
+
+on:
+  schedule:
+    # Every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  mutation-testing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore dotnet tools
+        run: dotnet tool restore
+
+      - name: Run Stryker
+        run: dotnet stryker --output ./StrykerOutput
+
+      - name: Upload mutation report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stryker-report
+          path: ./StrykerOutput/reports

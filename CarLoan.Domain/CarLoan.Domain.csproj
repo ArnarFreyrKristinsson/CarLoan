@@ -8,10 +8,6 @@
 	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <Target Name="FormatCode" BeforeTargets="Build">
-		<Exec Command="dotnet format" />
-  </Target>
-
   <ItemGroup>
     <InternalsVisibleTo Include="CarLoan.Domain.Tests" />
   </ItemGroup>
