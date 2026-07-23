@@ -9,7 +9,7 @@ public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
         (1000000m, 10.35m),
         (600000m, 11.20m),
         (400000m, 11.45m),
-        (200000m,  LowestInterestRate)
+        (200000m, LowestInterestRate)
     ];
 
     public decimal GetInterestRate(decimal downPayment)
