@@ -43,6 +43,7 @@ public class LoanCalculatorTests
     [Fact]
     public void CalculateMonthlyPayment_CorrectAmount_WhenLoanTermsProvided()
     {
+        // Matches an independent recomputation of the standard formula.
         Assert.Equal(258415.03m, _loanCalculator.CalculateMonthlyPayment(_loanTerms));
     }
 }

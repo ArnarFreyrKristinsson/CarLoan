@@ -16,4 +16,10 @@ public class LoanInterestRateProviderTests
     {
         Assert.Equal(expectedRate, _provider.GetInterestRate(downPayment));
     }
+
+    [Fact]
+    public void GetInterestRate_ReturnsLowestInterestRate_WhenDownPaymentBelowLowestTier()
+    {
+        Assert.Equal(12.20m, _provider.GetInterestRate(150_000m));
+    }
 }
