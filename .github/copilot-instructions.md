@@ -41,6 +41,7 @@ Never write production code without a failing test driving it first.
 - When describing state, refer to the broader context (e.g., "WhenLoanTermsProvided" instead of listing specific fields
   like "WhenPurchasePriceAndDownPaymentProvided").
 - Use `[Fact]` for single-case tests and `[Theory]` with `[InlineData]` for parameterized tests.
+- Prefer **FluentAssertions** (Should().BeEquivalentTo) style assertions for collection comparisons in tests.
 
 ## SOLID Principles
 

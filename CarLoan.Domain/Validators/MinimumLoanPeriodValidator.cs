@@ -3,19 +3,19 @@ using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-internal class MinimumLoanPeriodValidator : ILoanRule
+public class MinimumLoanPeriodValidator(int minimumLoanPeriodMonths) : ILoanRule
 {
-    private const int MinimumLoanPeriodMonths = 6;
+    private readonly int _minimumLoanPeriodMonths = minimumLoanPeriodMonths;
 
     public LoanRuleResult Evaluate(Loan loan)
     {
         ArgumentNullException.ThrowIfNull(loan);
 
-        bool isValid = loan.Terms.LoanPeriodInMonths >= MinimumLoanPeriodMonths;
+        bool isValid = loan.Terms.LoanPeriodInMonths >= _minimumLoanPeriodMonths;
         return LoanRuleResult.Create(
             "MinimumLoanPeriod",
             isValid,
-            $"Loan period must be at least {MinimumLoanPeriodMonths} months.",
-            new Params { ["min"] = MinimumLoanPeriodMonths });
+            $"Loan period must be at least {_minimumLoanPeriodMonths} months.",
+            new Params { ["min"] = _minimumLoanPeriodMonths });
     }
 }
