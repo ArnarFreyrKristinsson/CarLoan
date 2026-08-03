@@ -1,3 +1,5 @@
+using CarLoan.Application.Mapping;
+using CarLoan.Application.Requests;
 using CarLoan.Domain.Calculators;
 using CarLoan.Domain.Lenders;
 using CarLoan.Domain.Models;
@@ -9,7 +11,10 @@ public class MultiLenderLoanApplicationService(
     ILoanCalculator loanCalculator,
     IReadOnlyDictionary<string, LenderProfile> lenderProfiles) : IMultiLenderLoanApplicationService
 {
-    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoan(Loan loan) =>
+    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request) =>
+        EvaluateLoan(LoanRequestMapper.ToLoan(request));
+
+    private IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoan(Loan loan) =>
 
         [.. lenderProfiles.Values.Select(profile => EvaluateForLender(profile, loan))];
 

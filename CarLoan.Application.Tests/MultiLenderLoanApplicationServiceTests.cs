@@ -1,3 +1,4 @@
+using CarLoan.Application.Requests;
 using CarLoan.Domain.Calculators;
 using CarLoan.Domain.Lenders;
 using CarLoan.Domain.Models;
@@ -9,9 +10,7 @@ namespace CarLoan.Application.Tests;
 
 public class MultiLenderLoanApplicationServiceTests
 {
-    private static readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 0m);
-    private static readonly Car _defaultCar = new(CarCondition.New);
-    private static readonly Loan _defaultLoan = new(_defaultLoanTerms, _defaultCar);
+    private static readonly LoanRequest _defaultRequest = new(2000000m, 1000000m, 84, RequestedCarCondition.New);
 
     private static readonly IReadOnlyDictionary<string, LenderProfile> _profiles = new Dictionary<string, LenderProfile>
     {
@@ -28,22 +27,30 @@ public class MultiLenderLoanApplicationServiceTests
     private readonly MultiLenderLoanApplicationService _service = new(new LoanCalculator(), _profiles);
 
     [Fact]
-    public void EvaluateLoan_LabelsEachResultWithLenderName_WhenMultipleLendersProvided()
+    public void EvaluateLoanRequest_LabelsEachResultWithLenderName_WhenMultipleLendersProvided()
     {
-        var results = _service.EvaluateLoan(_defaultLoan);
+        var results = _service.EvaluateLoanRequest(_defaultRequest);
 
         results.Select(result => result.LenderName).Should().BeEquivalentTo(_profiles.Keys);
     }
 
     [Fact]
-    public void EvaluateLoan_ValidatesAgainstEachLendersRules_WhenRulesDiffer()
+    public void EvaluateLoanRequest_ValidatesAgainstEachLendersRules_WhenRulesDiffer()
     {
-        var results = _service.EvaluateLoan(_defaultLoan);
+        var results = _service.EvaluateLoanRequest(_defaultRequest);
 
         var lenderA = results.Single(result => result.LenderName == "LenderA");
         var lenderB = results.Single(result => result.LenderName == "LenderB");
 
         Assert.All(lenderA.ValidationResults, ruleResult => Assert.True(ruleResult.IsValid));
         Assert.Contains(lenderB.ValidationResults, ruleResult => !ruleResult.IsValid);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_AppliesEachLendersInterestRate_WhenLoanRequestProvided()
+    {
+        var results = _service.EvaluateLoanRequest(_defaultRequest);
+
+        results.Select(result => result.MonthlyPayment).Should().OnlyHaveUniqueItems();
     }
 }
