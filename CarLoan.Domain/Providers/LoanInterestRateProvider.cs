@@ -1,9 +1,17 @@
 namespace CarLoan.Domain.Providers;
 
-public sealed class LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal lowestInterestRate) : ILoanInterestRateProvider
+public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
 {
-    private readonly IReadOnlyList<RateTier> _interestLookupTable = interestLookupTable;
-    private readonly decimal _lowestInterestRate = lowestInterestRate;
+    private readonly IReadOnlyList<RateTier> _interestLookupTable;
+    private readonly decimal _defaultInterestRate;
+
+    public LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal defaultInterestRate)
+    {
+        ArgumentNullException.ThrowIfNull(interestLookupTable);
+
+        _interestLookupTable = [.. interestLookupTable.OrderByDescending(tier => tier.MinimumDownPayment)];
+        _defaultInterestRate = defaultInterestRate;
+    }
 
     public decimal GetInterestRate(decimal downPayment)
     {
@@ -15,6 +23,6 @@ public sealed class LoanInterestRateProvider(IReadOnlyList<RateTier> interestLoo
             }
         }
 
-        return _lowestInterestRate;
+        return _defaultInterestRate;
     }
 }

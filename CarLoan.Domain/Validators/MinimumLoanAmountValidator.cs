@@ -3,9 +3,16 @@ using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MinimumLoanAmountValidator(decimal minimumLoanAmount) : ILoanRule
+public class MinimumLoanAmountValidator : ILoanRule
 {
-    private readonly decimal _minimumLoanAmount = minimumLoanAmount;
+    private readonly decimal _minimumLoanAmount;
+
+    public MinimumLoanAmountValidator(decimal minimumLoanAmount)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(minimumLoanAmount);
+
+        _minimumLoanAmount = minimumLoanAmount;
+    }
 
     public LoanRuleResult Evaluate(Loan loan)
     {

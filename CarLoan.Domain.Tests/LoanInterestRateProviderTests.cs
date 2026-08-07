@@ -26,9 +26,29 @@ public class LoanInterestRateProviderTests
     }
 
     [Fact]
-    public void GetInterestRate_ReturnsLowestInterestRate_WhenDownPaymentBelowLowestTier()
+    public void GetInterestRate_ReturnsDefaultInterestRate_WhenDownPaymentBelowLowestTier()
     {
         Assert.Equal(12.20m, _provider.GetInterestRate(150_000m));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenTierListIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new LoanInterestRateProvider(null!, 12.20m));
+    }
+
+    [Fact]
+    public void GetInterestRate_ReturnsMatchingTierRate_WhenTiersProvidedUnordered()
+    {
+        var provider = new LoanInterestRateProvider(
+        [
+            new RateTier(200000m, 12.20m),
+            new RateTier(1000000m, 10.35m),
+            new RateTier(400000m, 11.45m),
+            new RateTier(600000m, 11.20m)
+        ], 12.20m);
+
+        Assert.Equal(11.20m, provider.GetInterestRate(700000m));
     }
 
     [Fact]

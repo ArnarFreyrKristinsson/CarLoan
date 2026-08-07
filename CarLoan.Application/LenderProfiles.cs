@@ -6,7 +6,7 @@ namespace CarLoan.Application;
 
 public static class LenderProfiles
 {
-    private readonly static LenderSettings LykillLenderSettings = new(
+    private static readonly LenderSettings _lykillLenderSettings = new(
             Name: "Lykill",
             MinAmount: 750000m,
             MinPeriod: 6,
@@ -19,10 +19,10 @@ public static class LenderProfiles
                 new RateTier(400000m, 11.45m),
                 new RateTier(200000m, 12.20m)
             ],
-            LowestInterestRate: 12.20m);
+            DefaultInterestRate: 12.20m);
     public static IReadOnlyDictionary<string, LenderProfile> Build()
     {
-        var lykill = CreateStandardProfile(LykillLenderSettings);
+        var lykill = CreateStandardProfile(_lykillLenderSettings);
 
         return new Dictionary<string, LenderProfile>
         {
@@ -37,19 +37,19 @@ public static class LenderProfiles
         decimal MinDownPayment,
         LoanPeriodLimits PeriodLimits,
         IReadOnlyList<RateTier> RateTiers,
-        decimal LowestInterestRate);
+        decimal DefaultInterestRate);
 
-    private static IEnumerable<ILoanRule> StandardRules(LenderSettings lendersettings) =>
+    private static IEnumerable<ILoanRule> StandardRules(LenderSettings lenderSettings) =>
     [
-        new MinimumLoanAmountValidator(lendersettings.MinAmount),
-        new MinimumLoanPeriodValidator(lendersettings.MinPeriod),
-        new MinimumDownPaymentValidator(lendersettings.MinDownPayment),
-        new MaximumLoanPeriodValidator(lendersettings.PeriodLimits)
+        new MinimumLoanAmountValidator(lenderSettings.MinAmount),
+        new MinimumLoanPeriodValidator(lenderSettings.MinPeriod),
+        new MinimumDownPaymentValidator(lenderSettings.MinDownPayment),
+        new MaximumLoanPeriodValidator(lenderSettings.PeriodLimits)
     ];
 
-    private static LoanInterestRateProvider BuildRateProvider(LenderSettings lendersettings) =>
-     new(lendersettings.RateTiers, lendersettings.LowestInterestRate);
+    private static LoanInterestRateProvider BuildRateProvider(LenderSettings lenderSettings) =>
+     new(lenderSettings.RateTiers, lenderSettings.DefaultInterestRate);
 
-    private static LenderProfile CreateStandardProfile(LenderSettings lendersettings) =>
-        new(lendersettings.Name, [.. StandardRules(lendersettings)], BuildRateProvider(lendersettings));
+    private static LenderProfile CreateStandardProfile(LenderSettings lenderSettings) =>
+        new(lenderSettings.Name, [.. StandardRules(lenderSettings)], BuildRateProvider(lenderSettings));
 }

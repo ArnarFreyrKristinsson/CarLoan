@@ -16,6 +16,14 @@ public class MinimumLoanPeriodTests
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-6)]
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumLoanPeriodIsZeroOrNegative(int minimumLoanPeriodMonths)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumLoanPeriodValidator(minimumLoanPeriodMonths));
+    }
+
     [Fact]
     public void Evaluate_IsNotValid_WhenLoanPeriodLessThan6Months()
     {

@@ -16,6 +16,14 @@ public class MinimumDownPaymentTests
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-150000)]
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumDownPaymentIsZeroOrNegative(decimal allowedMinimumDownPayment)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumDownPaymentValidator(allowedMinimumDownPayment));
+    }
+
     [Fact]
     public void Evaluate_IsNotValid_WhenDownPaymentLessThan150k()
     {

@@ -16,6 +16,14 @@ public class MinimumLoanAmountTests
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-750000)]
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumLoanAmountIsZeroOrNegative(decimal minimumLoanAmount)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumLoanAmountValidator(minimumLoanAmount));
+    }
+
     [Fact]
     public void Evaluate_IsNotValid_WhenLoanAmountLessThan750k()
     {
