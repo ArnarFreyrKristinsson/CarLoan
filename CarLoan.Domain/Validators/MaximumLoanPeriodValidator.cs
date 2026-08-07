@@ -3,11 +3,18 @@ using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MaximumLoanPeriodValidator(LoanPeriodLimits limits) : ILoanRule
+public class MaximumLoanPeriodValidator : ILoanRule
 {
     private const string RuleName = "MaximumLoanPeriod";
 
-    private readonly LoanPeriodLimits _limits = limits;
+    private readonly LoanPeriodLimits _limits;
+
+    public MaximumLoanPeriodValidator(LoanPeriodLimits limits)
+    {
+        ArgumentNullException.ThrowIfNull(limits);
+
+        _limits = limits;
+    }
 
     public LoanRuleResult Evaluate(Loan loan)
     {

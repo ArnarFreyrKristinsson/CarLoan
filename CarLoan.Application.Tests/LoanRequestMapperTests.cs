@@ -8,6 +8,12 @@ namespace CarLoan.Application.Tests;
 public class LoanRequestMapperTests
 {
     [Fact]
+    public void ToLoan_ThrowsArgumentNullException_WhenRequestIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => LoanRequestMapper.ToLoan(null!));
+    }
+
+    [Fact]
     public void ToLoan_MapsRequestToLoan_WhenLoanRequestProvided()
     {
         var request = new LoanRequest(2000000m, 500000m, 60, RequestedCarCondition.Used);

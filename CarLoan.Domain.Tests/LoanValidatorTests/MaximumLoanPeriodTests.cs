@@ -16,6 +16,12 @@ public class MaximumLoanPeriodTests
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
     }
 
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLimitsIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MaximumLoanPeriodValidator(null!));
+    }
+
     [Theory]
     [InlineData(CarCondition.New, 84, 200000)]
     [InlineData(CarCondition.New, 72, 200000)]

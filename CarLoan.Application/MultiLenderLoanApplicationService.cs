@@ -11,8 +11,12 @@ public class MultiLenderLoanApplicationService(
     ILoanCalculator loanCalculator,
     IReadOnlyDictionary<string, LenderProfile> lenderProfiles) : IMultiLenderLoanApplicationService
 {
-    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request) =>
-        EvaluateLoan(LoanRequestMapper.ToLoan(request));
+    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return EvaluateLoan(LoanRequestMapper.ToLoan(request));
+    }
 
     private IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoan(Loan loan) =>
 

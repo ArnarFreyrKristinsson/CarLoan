@@ -27,6 +27,12 @@ public class MultiLenderLoanApplicationServiceTests
     private readonly MultiLenderLoanApplicationService _service = new(new LoanCalculator(), _profiles);
 
     [Fact]
+    public void EvaluateLoanRequest_ThrowsArgumentNullException_WhenRequestIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _service.EvaluateLoanRequest(null!));
+    }
+
+    [Fact]
     public void EvaluateLoanRequest_LabelsEachResultWithLenderName_WhenMultipleLendersProvided()
     {
         var results = _service.EvaluateLoanRequest(_defaultRequest);

@@ -5,14 +5,18 @@ namespace CarLoan.Application.Mapping;
 
 public static class LoanRequestMapper
 {
-    public static Loan ToLoan(LoanRequest request) =>
-        new(
+    public static Loan ToLoan(LoanRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return new(
             new LoanTerms(
                 request.PurchasePrice,
                 request.DownPayment,
                 request.LoanPeriodInMonths,
                 InterestRate: 0m),
             new Car(ToCarCondition(request.CarCondition)));
+    }
 
     private static CarCondition ToCarCondition(RequestedCarCondition condition) =>
         condition switch
