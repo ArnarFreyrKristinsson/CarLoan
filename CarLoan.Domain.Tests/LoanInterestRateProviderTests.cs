@@ -37,6 +37,20 @@ public class LoanInterestRateProviderTests
         Assert.Throws<ArgumentNullException>(() => new LoanInterestRateProvider(null!, 12.20m));
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-12.20)]
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenDefaultInterestRateIsZeroOrNegative(decimal defaultInterestRate)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new LoanInterestRateProvider(_defaultTiers, defaultInterestRate));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentException_WhenTierListContainsNullEntry()
+    {
+        Assert.Throws<ArgumentException>(() => new LoanInterestRateProvider([new RateTier(200000m, 12.20m), null!], 12.20m));
+    }
+
     [Fact]
     public void GetInterestRate_ReturnsMatchingTierRate_WhenTiersProvidedUnordered()
     {

@@ -7,10 +7,22 @@ using CarLoan.Domain.Validators;
 
 namespace CarLoan.Application;
 
-public class MultiLenderLoanApplicationService(
-    ILoanCalculator loanCalculator,
-    IReadOnlyDictionary<string, LenderProfile> lenderProfiles) : IMultiLenderLoanApplicationService
+public class MultiLenderLoanApplicationService : IMultiLenderLoanApplicationService
 {
+    private readonly ILoanCalculator _loanCalculator;
+    private readonly IReadOnlyDictionary<string, LenderProfile> _lenderProfiles;
+
+    public MultiLenderLoanApplicationService(
+        ILoanCalculator loanCalculator,
+        IReadOnlyDictionary<string, LenderProfile> lenderProfiles)
+    {
+        ArgumentNullException.ThrowIfNull(loanCalculator);
+        ArgumentNullException.ThrowIfNull(lenderProfiles);
+
+        _loanCalculator = loanCalculator;
+        _lenderProfiles = lenderProfiles;
+    }
+
     public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -20,7 +32,7 @@ public class MultiLenderLoanApplicationService(
 
     private IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoan(Loan loan) =>
 
-        [.. lenderProfiles.Values.Select(profile => EvaluateForLender(profile, loan))];
+        [.. _lenderProfiles.Values.Select(profile => EvaluateForLender(profile, loan))];
 
     private LenderLoanEvaluationResult EvaluateForLender(LenderProfile profile, Loan loan)
     {
@@ -33,6 +45,6 @@ public class MultiLenderLoanApplicationService(
         return new LenderLoanEvaluationResult(
             profile.Name,
             new LoanValidator(profile.Rules).Validate(loan with { Terms = terms }),
-            loanCalculator.CalculateMonthlyPayment(terms));
+            _loanCalculator.CalculateMonthlyPayment(terms));
     }
 }

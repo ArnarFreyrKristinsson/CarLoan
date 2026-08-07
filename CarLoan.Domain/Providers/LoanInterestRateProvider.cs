@@ -8,6 +8,12 @@ public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
     public LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal defaultInterestRate)
     {
         ArgumentNullException.ThrowIfNull(interestLookupTable);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(defaultInterestRate);
+
+        if (interestLookupTable.Any(tier => tier is null))
+        {
+            throw new ArgumentException("Tier list must not contain null entries.", nameof(interestLookupTable));
+        }
 
         _interestLookupTable = [.. interestLookupTable.OrderByDescending(tier => tier.MinimumDownPayment)];
         _defaultInterestRate = defaultInterestRate;

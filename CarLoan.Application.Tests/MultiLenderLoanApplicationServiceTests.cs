@@ -1,7 +1,7 @@
 using CarLoan.Application.Requests;
 using CarLoan.Domain.Calculators;
 using CarLoan.Domain.Lenders;
-using CarLoan.Domain.Models;
+
 using CarLoan.Domain.Providers;
 using CarLoan.Domain.Validators;
 using FluentAssertions;
@@ -25,6 +25,18 @@ public class MultiLenderLoanApplicationServiceTests
     };
 
     private readonly MultiLenderLoanApplicationService _service = new(new LoanCalculator(), _profiles);
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLoanCalculatorIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MultiLenderLoanApplicationService(null!, _profiles));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLenderProfilesIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MultiLenderLoanApplicationService(new LoanCalculator(), null!));
+    }
 
     [Fact]
     public void EvaluateLoanRequest_ThrowsArgumentNullException_WhenRequestIsNull()
