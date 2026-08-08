@@ -39,6 +39,14 @@ public class MultiLenderLoanApplicationServiceTests
     }
 
     [Fact]
+    public void Constructor_ThrowsArgumentException_WhenLenderProfilesContainsNullProfile()
+    {
+        var profiles = new Dictionary<string, LenderProfile> { ["LenderA"] = null! };
+
+        Assert.Throws<ArgumentException>(() => new MultiLenderLoanApplicationService(new LoanCalculator(), profiles));
+    }
+
+    [Fact]
     public void EvaluateLoanRequest_ThrowsArgumentNullException_WhenRequestIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => _service.EvaluateLoanRequest(null!));

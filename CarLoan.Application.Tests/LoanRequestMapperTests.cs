@@ -7,10 +7,20 @@ namespace CarLoan.Application.Tests;
 
 public class LoanRequestMapperTests
 {
+    private const RequestedCarCondition UnsupportedCarCondition = (RequestedCarCondition)999;
+
     [Fact]
     public void ToLoan_ThrowsArgumentNullException_WhenRequestIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => LoanRequestMapper.ToLoan(null!));
+    }
+
+    [Fact]
+    public void ToLoan_ThrowsArgumentOutOfRangeExceptionWithMessage_WhenCarConditionIsUnsupported()
+    {
+        var request = new LoanRequest(2000000m, 500000m, 60, UnsupportedCarCondition);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => LoanRequestMapper.ToLoan(request));
     }
 
     [Fact]

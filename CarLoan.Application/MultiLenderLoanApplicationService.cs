@@ -19,6 +19,11 @@ public class MultiLenderLoanApplicationService : IMultiLenderLoanApplicationServ
         ArgumentNullException.ThrowIfNull(loanCalculator);
         ArgumentNullException.ThrowIfNull(lenderProfiles);
 
+        if (lenderProfiles.Values.Any(profile => profile is null))
+        {
+            throw new ArgumentException("Profile in lender profiles must not be null.", nameof(lenderProfiles));
+        }
+
         _loanCalculator = loanCalculator;
         _lenderProfiles = lenderProfiles;
     }

@@ -23,6 +23,6 @@ public static class LoanRequestMapper
         {
             RequestedCarCondition.New => CarCondition.New,
             RequestedCarCondition.Used => CarCondition.Used,
-            _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unsupported car condition.")
         };
 }
