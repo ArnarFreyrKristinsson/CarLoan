@@ -1,20 +1,14 @@
+using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
 using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MaximumLoanPeriodValidator : ILoanRule
+public class MaximumLoanPeriodValidator(LoanPeriodLimits limits) : ILoanRule
 {
     private const string RuleName = "MaximumLoanPeriod";
 
-    private readonly LoanPeriodLimits _limits;
-
-    public MaximumLoanPeriodValidator(LoanPeriodLimits limits)
-    {
-        ArgumentNullException.ThrowIfNull(limits);
-
-        _limits = limits;
-    }
+    private readonly LoanPeriodLimits _limits = Guard.NotNull(limits, nameof(limits));
 
     public LoanRuleResult Evaluate(Loan loan)
     {

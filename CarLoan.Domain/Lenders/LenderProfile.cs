@@ -1,3 +1,4 @@
+using CarLoan.Domain.Guards;
 using CarLoan.Domain.Providers;
 using CarLoan.Domain.Validators;
 
@@ -8,7 +9,7 @@ public sealed record LenderProfile(
     IReadOnlyList<ILoanRule> Rules,
     ILoanInterestRateProvider RateProvider)
 {
-    public string Name { get; } = Name ?? throw new ArgumentNullException(nameof(Name));
-    public IReadOnlyList<ILoanRule> Rules { get; } = Rules ?? throw new ArgumentNullException(nameof(Rules));
-    public ILoanInterestRateProvider RateProvider { get; } = RateProvider ?? throw new ArgumentNullException(nameof(RateProvider));
+    public string Name { get; } = Guard.NotNull(Name, nameof(Name));
+    public IReadOnlyList<ILoanRule> Rules { get; } = Guard.NoNullElements(Rules, nameof(Rules));
+    public ILoanInterestRateProvider RateProvider { get; } = Guard.NotNull(RateProvider, nameof(RateProvider));
 }

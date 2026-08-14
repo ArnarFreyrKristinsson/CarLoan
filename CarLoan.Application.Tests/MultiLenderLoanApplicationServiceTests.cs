@@ -47,6 +47,19 @@ public class MultiLenderLoanApplicationServiceTests
     }
 
     [Fact]
+    public void EvaluateLoanRequest_UsesProfilesCapturedAtConstruction_WhenCallerMutatesProfilesAfterwards()
+    {
+        var mutableProfiles = new Dictionary<string, LenderProfile>(_profiles);
+        var service = new MultiLenderLoanApplicationService(new LoanCalculator(), mutableProfiles);
+
+        mutableProfiles["LenderC"] = null!;
+
+        var results = service.EvaluateLoanRequest(_defaultRequest);
+
+        results.Select(result => result.LenderName).Should().BeEquivalentTo(_profiles.Keys);
+    }
+
+    [Fact]
     public void EvaluateLoanRequest_ThrowsArgumentNullException_WhenRequestIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => _service.EvaluateLoanRequest(null!));

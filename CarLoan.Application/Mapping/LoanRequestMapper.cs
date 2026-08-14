@@ -8,6 +8,9 @@ public static class LoanRequestMapper
     public static Loan ToLoan(LoanRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(request.PurchasePrice);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(request.LoanPeriodInMonths);
+        ArgumentOutOfRangeException.ThrowIfNegative(request.DownPayment);
 
         return new(
             new LoanTerms(

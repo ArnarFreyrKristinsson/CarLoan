@@ -31,6 +31,13 @@ public class LenderProfileTests
     }
 
     [Fact]
+    public void Constructor_ThrowsArgumentException_WhenRulesContainsNullEntry()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new LenderProfile("Lender", [new MinimumLoanPeriodValidator(6), null!], _defaultRateProvider));
+    }
+
+    [Fact]
     public void Constructor_CreatesProfile_WhenValidValuesProvided()
     {
         var profile = new LenderProfile("Lender", [new MinimumLoanPeriodValidator(6)], _defaultRateProvider);

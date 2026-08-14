@@ -20,6 +20,36 @@ public class LoanRequestMapperTests
     {
         var request = new LoanRequest(2000000m, 500000m, 60, UnsupportedCarCondition);
 
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(() => LoanRequestMapper.ToLoan(request));
+
+        Assert.Contains("Unsupported car condition.", exception.Message);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-2000000)]
+    public void ToLoan_ThrowsArgumentOutOfRangeException_WhenPurchasePriceIsZeroOrNegative(decimal purchasePrice)
+    {
+        var request = new LoanRequest(purchasePrice, 500000m, 60, RequestedCarCondition.New);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => LoanRequestMapper.ToLoan(request));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-60)]
+    public void ToLoan_ThrowsArgumentOutOfRangeException_WhenLoanPeriodIsZeroOrNegative(int loanPeriodInMonths)
+    {
+        var request = new LoanRequest(2000000m, 500000m, loanPeriodInMonths, RequestedCarCondition.New);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => LoanRequestMapper.ToLoan(request));
+    }
+
+    [Fact]
+    public void ToLoan_ThrowsArgumentOutOfRangeException_WhenDownPaymentIsNegative()
+    {
+        var request = new LoanRequest(2000000m, -500000m, 60, RequestedCarCondition.New);
+
         Assert.Throws<ArgumentOutOfRangeException>(() => LoanRequestMapper.ToLoan(request));
     }
 

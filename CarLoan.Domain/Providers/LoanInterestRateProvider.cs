@@ -1,23 +1,11 @@
+using CarLoan.Domain.Guards;
+
 namespace CarLoan.Domain.Providers;
 
-public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
+public sealed class LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal defaultInterestRate) : ILoanInterestRateProvider
 {
-    private readonly IReadOnlyList<RateTier> _interestLookupTable;
-    private readonly decimal _defaultInterestRate;
-
-    public LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal defaultInterestRate)
-    {
-        ArgumentNullException.ThrowIfNull(interestLookupTable);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(defaultInterestRate);
-
-        if (interestLookupTable.Any(tier => tier is null))
-        {
-            throw new ArgumentException("Tier list must not contain null entries.", nameof(interestLookupTable));
-        }
-
-        _interestLookupTable = [.. interestLookupTable.OrderByDescending(tier => tier.MinimumDownPayment)];
-        _defaultInterestRate = defaultInterestRate;
-    }
+    private readonly IReadOnlyList<RateTier> _interestLookupTable = ValidateAndSort(interestLookupTable);
+    private readonly decimal _defaultInterestRate = Guard.Positive(defaultInterestRate, nameof(defaultInterestRate));
 
     public decimal GetInterestRate(decimal downPayment)
     {
@@ -30,5 +18,17 @@ public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
         }
 
         return _defaultInterestRate;
+    }
+
+    private static IReadOnlyList<RateTier> ValidateAndSort(IReadOnlyList<RateTier> interestLookupTable)
+    {
+        Guard.NoNullElements(interestLookupTable, nameof(interestLookupTable));
+
+        if (interestLookupTable.GroupBy(tier => tier.MinimumDownPayment).Any(group => group.Count() > 1))
+        {
+            throw new ArgumentException("Tier list must not contain duplicate minimum down payments.", nameof(interestLookupTable));
+        }
+
+        return [.. interestLookupTable.OrderByDescending(tier => tier.MinimumDownPayment)];
     }
 }

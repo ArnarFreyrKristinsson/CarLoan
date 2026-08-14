@@ -1,18 +1,12 @@
+using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
 using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MinimumDownPaymentValidator : ILoanRule
+public class MinimumDownPaymentValidator(decimal allowedMinimumDownPayment) : ILoanRule
 {
-    private readonly decimal _minimumDownPayment;
-
-    public MinimumDownPaymentValidator(decimal allowedMinimumDownPayment)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(allowedMinimumDownPayment);
-
-        _minimumDownPayment = allowedMinimumDownPayment;
-    }
+    private readonly decimal _minimumDownPayment = Guard.Positive(allowedMinimumDownPayment, nameof(allowedMinimumDownPayment));
 
     public LoanRuleResult Evaluate(Loan loan)
     {

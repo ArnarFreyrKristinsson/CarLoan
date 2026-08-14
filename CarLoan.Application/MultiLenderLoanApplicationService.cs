@@ -7,16 +7,23 @@ using CarLoan.Domain.Validators;
 
 namespace CarLoan.Application;
 
-public class MultiLenderLoanApplicationService : IMultiLenderLoanApplicationService
+public class MultiLenderLoanApplicationService(
+    ILoanCalculator loanCalculator,
+    IReadOnlyDictionary<string, LenderProfile> lenderProfiles) : IMultiLenderLoanApplicationService
 {
-    private readonly ILoanCalculator _loanCalculator;
-    private readonly IReadOnlyDictionary<string, LenderProfile> _lenderProfiles;
+    private readonly ILoanCalculator _loanCalculator = loanCalculator ?? throw new ArgumentNullException(nameof(loanCalculator));
+    private readonly IReadOnlyDictionary<string, LenderProfile> _lenderProfiles = SnapshotProfiles(lenderProfiles);
 
-    public MultiLenderLoanApplicationService(
-        ILoanCalculator loanCalculator,
+    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return EvaluateLoan(LoanRequestMapper.ToLoan(request));
+    }
+
+    private static IReadOnlyDictionary<string, LenderProfile> SnapshotProfiles(
         IReadOnlyDictionary<string, LenderProfile> lenderProfiles)
     {
-        ArgumentNullException.ThrowIfNull(loanCalculator);
         ArgumentNullException.ThrowIfNull(lenderProfiles);
 
         if (lenderProfiles.Values.Any(profile => profile is null))
@@ -24,15 +31,7 @@ public class MultiLenderLoanApplicationService : IMultiLenderLoanApplicationServ
             throw new ArgumentException("Profile in lender profiles must not be null.", nameof(lenderProfiles));
         }
 
-        _loanCalculator = loanCalculator;
-        _lenderProfiles = lenderProfiles;
-    }
-
-    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request);
-
-        return EvaluateLoan(LoanRequestMapper.ToLoan(request));
+        return new Dictionary<string, LenderProfile>(lenderProfiles);
     }
 
     private IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoan(Loan loan) =>

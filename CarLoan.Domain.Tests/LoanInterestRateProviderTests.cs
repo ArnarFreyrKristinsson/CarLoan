@@ -52,6 +52,13 @@ public class LoanInterestRateProviderTests
     }
 
     [Fact]
+    public void Constructor_ThrowsArgumentException_WhenTierListContainsDuplicateMinimumDownPayments()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new LoanInterestRateProvider([new RateTier(400000m, 11.45m), new RateTier(400000m, 9.99m)], 12.20m));
+    }
+
+    [Fact]
     public void GetInterestRate_ReturnsMatchingTierRate_WhenTiersProvidedUnordered()
     {
         var provider = new LoanInterestRateProvider(

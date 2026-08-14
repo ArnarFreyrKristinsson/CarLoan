@@ -1,18 +1,12 @@
+using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
 using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-public class MinimumLoanPeriodValidator : ILoanRule
+public class MinimumLoanPeriodValidator(int minimumLoanPeriodMonths) : ILoanRule
 {
-    private readonly int _minimumLoanPeriodMonths;
-
-    public MinimumLoanPeriodValidator(int minimumLoanPeriodMonths)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(minimumLoanPeriodMonths);
-
-        _minimumLoanPeriodMonths = minimumLoanPeriodMonths;
-    }
+    private readonly int _minimumLoanPeriodMonths = Guard.Positive(minimumLoanPeriodMonths, nameof(minimumLoanPeriodMonths));
 
     public LoanRuleResult Evaluate(Loan loan)
     {
