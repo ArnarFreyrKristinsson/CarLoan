@@ -8,12 +8,20 @@ public class MinimumDownPaymentTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
     private readonly Car _defaultCar = new(CarCondition.New);
-    private readonly MinimumDownPaymentValidator _validator = new();
+    private readonly MinimumDownPaymentValidator _validator = new(150000m);
 
     [Fact]
     public void Evaluate_ThrowsArgumentNullException_WhenLoanIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-150000)]
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumDownPaymentIsZeroOrNegative(decimal allowedMinimumDownPayment)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumDownPaymentValidator(allowedMinimumDownPayment));
     }
 
     [Fact]
@@ -74,5 +82,19 @@ public class MinimumDownPaymentTests
         var result = _validator.Evaluate(loan);
 
         Assert.Null(result.Parameters);
+    }
+
+    [Fact]
+    public void Evaluate_IsNotValid_WhenConfiguredMinimumIsHigherThanAllowedMinimum()
+    {
+        var validator = new MinimumDownPaymentValidator(300000m);
+        var loanTerms = _defaultLoanTerms with { DownPayment = 200000m };
+        var loan = new Loan(loanTerms, _defaultCar);
+
+        var result = validator.Evaluate(loan);
+
+        Assert.False(result.IsValid);
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(300000m, result.Parameters["min"]);
     }
 }

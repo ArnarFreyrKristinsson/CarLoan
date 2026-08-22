@@ -1,0 +1,95 @@
+using CarLoan.Application.Requests;
+using CarLoan.Domain.Calculators;
+using CarLoan.Domain.Lenders;
+
+using CarLoan.Domain.Providers;
+using CarLoan.Domain.Validators;
+using FluentAssertions;
+
+namespace CarLoan.Application.Tests;
+
+public class MultiLenderLoanApplicationServiceTests
+{
+    private static readonly LoanRequest _defaultRequest = new(2000000m, 1000000m, 84, RequestedCarCondition.New);
+
+    private static readonly IReadOnlyDictionary<string, LenderProfile> _profiles = new Dictionary<string, LenderProfile>
+    {
+        ["LenderA"] = new LenderProfile(
+            "LenderA",
+            [new MinimumDownPaymentValidator(150000m)],
+            new LoanInterestRateProvider([new RateTier(200000m, 10.00m)], 12.00m)),
+        ["LenderB"] = new LenderProfile(
+            "LenderB",
+            [new MinimumDownPaymentValidator(2000000m)],
+            new LoanInterestRateProvider([new RateTier(200000m, 8.00m)], 11.00m))
+    };
+
+    private readonly MultiLenderLoanApplicationService _service = new(new LoanCalculator(), _profiles);
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLoanCalculatorIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MultiLenderLoanApplicationService(null!, _profiles));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLenderProfilesIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MultiLenderLoanApplicationService(new LoanCalculator(), null!));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentException_WhenLenderProfilesContainsNullProfile()
+    {
+        var profiles = new Dictionary<string, LenderProfile> { ["LenderA"] = null! };
+
+        Assert.Throws<ArgumentException>(() => new MultiLenderLoanApplicationService(new LoanCalculator(), profiles));
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_UsesProfilesCapturedAtConstruction_WhenCallerMutatesProfilesAfterwards()
+    {
+        var mutableProfiles = new Dictionary<string, LenderProfile>(_profiles);
+        var service = new MultiLenderLoanApplicationService(new LoanCalculator(), mutableProfiles);
+
+        mutableProfiles["LenderC"] = null!;
+
+        var results = service.EvaluateLoanRequest(_defaultRequest);
+
+        results.Select(result => result.LenderName).Should().BeEquivalentTo(_profiles.Keys);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_ThrowsArgumentNullException_WhenRequestIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _service.EvaluateLoanRequest(null!));
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_LabelsEachResultWithLenderName_WhenMultipleLendersProvided()
+    {
+        var results = _service.EvaluateLoanRequest(_defaultRequest);
+
+        results.Select(result => result.LenderName).Should().BeEquivalentTo(_profiles.Keys);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_ValidatesAgainstEachLendersRules_WhenRulesDiffer()
+    {
+        var results = _service.EvaluateLoanRequest(_defaultRequest);
+
+        var lenderA = results.Single(result => result.LenderName == "LenderA");
+        var lenderB = results.Single(result => result.LenderName == "LenderB");
+
+        Assert.All(lenderA.ValidationResults, ruleResult => Assert.True(ruleResult.IsValid));
+        Assert.Contains(lenderB.ValidationResults, ruleResult => !ruleResult.IsValid);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_AppliesEachLendersInterestRate_WhenLoanRequestProvided()
+    {
+        var results = _service.EvaluateLoanRequest(_defaultRequest);
+
+        results.Select(result => result.MonthlyPayment).Should().OnlyHaveUniqueItems();
+    }
+}

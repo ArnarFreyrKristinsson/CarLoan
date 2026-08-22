@@ -8,10 +8,10 @@ public class LoanValidatorIntegrationTests
 {
     private static readonly ILoanRule[] _allRules =
     [
-        new MinimumLoanAmountValidator(),
-        new MinimumLoanPeriodValidator(),
-        new MinimumDownPaymentValidator(),
-        new MaximumLoanPeriodValidator()
+        new MinimumLoanAmountValidator(750000m),
+        new MinimumLoanPeriodValidator(6),
+        new MinimumDownPaymentValidator(150000m),
+        new MaximumLoanPeriodValidator(new LoanPeriodLimits(90m, 80m, 84, 72))
     ];
 
     private readonly LoanValidator _validator = new(_allRules);

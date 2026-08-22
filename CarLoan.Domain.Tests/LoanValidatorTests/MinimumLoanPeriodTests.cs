@@ -8,12 +8,20 @@ public class MinimumLoanPeriodTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
     private readonly Car _defaultCar = new(CarCondition.New);
-    private readonly MinimumLoanPeriodValidator _validator = new();
+    private readonly MinimumLoanPeriodValidator _validator = new(6);
 
     [Fact]
     public void Evaluate_ThrowsArgumentNullException_WhenLoanIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-6)]
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumLoanPeriodIsZeroOrNegative(int minimumLoanPeriodMonths)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumLoanPeriodValidator(minimumLoanPeriodMonths));
     }
 
     [Fact]
@@ -74,5 +82,19 @@ public class MinimumLoanPeriodTests
         var result = _validator.Evaluate(loan);
 
         Assert.Null(result.Parameters);
+    }
+
+    [Fact]
+    public void Evaluate_IsNotValid_WhenConfiguredPeriodMinimumIsHigherThanAllowedPeriodMinimum()
+    {
+        var validator = new MinimumLoanPeriodValidator(12);
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 10 };
+        var loan = new Loan(loanTerms, _defaultCar);
+
+        var result = validator.Evaluate(loan);
+
+        Assert.False(result.IsValid);
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(12, result.Parameters["min"]);
     }
 }
