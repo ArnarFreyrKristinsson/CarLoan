@@ -1,16 +1,11 @@
+using CarLoan.Domain.Guards;
+
 namespace CarLoan.Domain.Providers;
 
-public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
+public sealed class LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal defaultInterestRate) : ILoanInterestRateProvider
 {
-    private const decimal LowestInterestRate = 12.20m;
-
-    private static readonly (decimal MinimumDownPayment, decimal InterestRate)[] _interestLookupTable =
-    [
-        (1000000m, 10.35m),
-        (600000m, 11.20m),
-        (400000m, 11.45m),
-        (200000m, LowestInterestRate)
-    ];
+    private readonly IReadOnlyList<RateTier> _interestLookupTable = ValidateAndSort(interestLookupTable);
+    private readonly decimal _defaultInterestRate = Guard.Positive(defaultInterestRate, nameof(defaultInterestRate));
 
     public decimal GetInterestRate(decimal downPayment)
     {
@@ -22,6 +17,18 @@ public sealed class LoanInterestRateProvider : ILoanInterestRateProvider
             }
         }
 
-        return LowestInterestRate;
+        return _defaultInterestRate;
+    }
+
+    private static IReadOnlyList<RateTier> ValidateAndSort(IReadOnlyList<RateTier> interestLookupTable)
+    {
+        Guard.NoNullElements(interestLookupTable, nameof(interestLookupTable));
+
+        if (interestLookupTable.GroupBy(tier => tier.MinimumDownPayment).Any(group => group.Count() > 1))
+        {
+            throw new ArgumentException("Tier list must not contain duplicate minimum down payments.", nameof(interestLookupTable));
+        }
+
+        return [.. interestLookupTable.OrderByDescending(tier => tier.MinimumDownPayment)];
     }
 }

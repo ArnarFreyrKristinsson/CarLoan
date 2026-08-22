@@ -1,21 +1,22 @@
+using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
 using Params = System.Collections.Generic.Dictionary<string, object>;
 
 namespace CarLoan.Domain.Validators;
 
-internal class MinimumLoanAmountValidator : ILoanRule
+public class MinimumLoanAmountValidator(decimal minimumLoanAmount) : ILoanRule
 {
-    private const decimal MinimumLoanAmount = 750000m;
+    private readonly decimal _minimumLoanAmount = Guard.Positive(minimumLoanAmount, nameof(minimumLoanAmount));
 
     public LoanRuleResult Evaluate(Loan loan)
     {
         ArgumentNullException.ThrowIfNull(loan);
 
-        bool isValid = loan.Terms.LoanAmount >= MinimumLoanAmount;
+        bool isValid = loan.Terms.LoanAmount >= _minimumLoanAmount;
         return LoanRuleResult.Create(
             "MinimumLoanAmount",
             isValid,
-            $"Loan amount must be at least {MinimumLoanAmount:N0}.",
-            new Params { ["min"] = MinimumLoanAmount });
+            $"Loan amount must be at least {_minimumLoanAmount:N0}.",
+            new Params { ["min"] = _minimumLoanAmount });
     }
 }

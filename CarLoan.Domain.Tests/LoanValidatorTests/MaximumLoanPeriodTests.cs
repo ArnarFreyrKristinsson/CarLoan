@@ -7,12 +7,19 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 public class MaximumLoanPeriodTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
-    private readonly MaximumLoanPeriodValidator _validator = new();
+    private static readonly LoanPeriodLimits _defaultLimits = new(90m, 80m, 84, 72);
+    private readonly MaximumLoanPeriodValidator _validator = new(_defaultLimits);
 
     [Fact]
     public void Evaluate_ThrowsArgumentNullException_WhenLoanIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => _validator.Evaluate(null!));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLimitsIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MaximumLoanPeriodValidator(null!));
     }
 
     [Theory]
@@ -97,5 +104,19 @@ public class MaximumLoanPeriodTests
         var result = _validator.Evaluate(loan);
 
         Assert.Null(result.Parameters);
+    }
+
+    [Fact]
+    public void Evaluate_IsNotValid_WhenLoanPeriodExceedsConfiguredLimit()
+    {
+        var validator = new MaximumLoanPeriodValidator(new LoanPeriodLimits(90m, 80m, 60, 48));
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 72, DownPayment = 1000000m };
+        var loan = new Loan(loanTerms, new Car(CarCondition.New));
+
+        var result = validator.Evaluate(loan);
+
+        Assert.False(result.IsValid);
+        Assert.NotNull(result.Parameters);
+        Assert.Equal(60, result.Parameters["maxMonths"]);
     }
 }
