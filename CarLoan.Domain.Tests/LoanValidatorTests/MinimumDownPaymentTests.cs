@@ -7,7 +7,7 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 public class MinimumDownPaymentTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
-    private readonly Car _defaultCar = new(CarCondition.New);
+    private readonly Car _defaultCar = new(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0);
     private readonly MinimumDownPaymentValidator _validator = new(150000m);
 
     [Fact]

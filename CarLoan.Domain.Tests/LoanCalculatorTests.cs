@@ -46,4 +46,21 @@ public class LoanCalculatorTests
         // Matches an independent recomputation of the standard formula.
         Assert.Equal(258415.03m, _loanCalculator.CalculateMonthlyPayment(_loanTerms));
     }
+
+    [Fact]
+    public void CalculateMonthlyPayment_IncludesOriginationFeeInFinancedAmount_WhenOriginationFeeApplied()
+    {
+        var withFee = _loanTerms with { OriginationFee = 48_000m };
+
+        Assert.True(_loanCalculator.CalculateMonthlyPayment(withFee) > _loanCalculator.CalculateMonthlyPayment(_loanTerms));
+    }
+
+    [Fact]
+    public void CalculateMonthlyPayment_CorrectAmount_WhenOriginationFeeApplied()
+    {
+        // 1,500,000 plus a 48,000 fee at 11.45% over 6 months, recomputed independently.
+        var withFee = _loanTerms with { OriginationFee = 48_000m };
+
+        Assert.Equal(266684.31m, _loanCalculator.CalculateMonthlyPayment(withFee));
+    }
 }

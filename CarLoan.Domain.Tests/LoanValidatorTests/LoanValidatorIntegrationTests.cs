@@ -9,9 +9,11 @@ public class LoanValidatorIntegrationTests
     private static readonly ILoanRule[] _allRules =
     [
         new MinimumLoanAmountValidator(750000m),
+        new MaximumLoanAmountValidator(30_000_000m),
         new MinimumLoanPeriodValidator(6),
         new MinimumDownPaymentValidator(150000m),
-        new MaximumLoanPeriodValidator(new LoanPeriodLimits(90m, 80m, 84, 72))
+        new MaximumLoanPeriodValidator(new LoanPeriodLimits(90m, 80m, 84, 72)),
+        new CarAgeValidator(new CarAgeLimits(80m, 12, 20))
     ];
 
     private readonly LoanValidator _validator = new(_allRules);
@@ -23,7 +25,7 @@ public class LoanValidatorIntegrationTests
         CarCondition condition = CarCondition.New)
     {
         var terms = new LoanTerms(purchasePrice, downPayment, loanPeriodInMonths, 12.20m);
-        return new Loan(terms, new Car(condition));
+        return new Loan(terms, new Car(condition, VehicleCategory.PetrolOrDiesel, 0));
     }
 
     [Fact]
@@ -33,9 +35,11 @@ public class LoanValidatorIntegrationTests
         var expectedResults = new[]
         {
             LoanRuleResult.Create("MinimumLoanAmount", true),
+            LoanRuleResult.Create("MaximumLoanAmount", true),
             LoanRuleResult.Create("MinimumLoanPeriod", true),
             LoanRuleResult.Create("MinimumDownPayment", true),
             LoanRuleResult.Create("MaximumLoanPeriod", true),
+            LoanRuleResult.Create("CarAge", true),
         };
 
         var results = _validator.Validate(loan);
@@ -109,5 +113,7 @@ public class LoanValidatorIntegrationTests
         Assert.Contains("MinimumDownPayment", failedRules);
         Assert.Contains("MinimumLoanPeriod", failedRules);
         Assert.DoesNotContain("MaximumLoanPeriod", failedRules);
+        Assert.DoesNotContain("MaximumLoanAmount", failedRules);
+        Assert.DoesNotContain("CarAge", failedRules);
     }
 }

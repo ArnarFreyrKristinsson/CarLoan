@@ -38,7 +38,7 @@ public class MaximumLoanPeriodTests
                                                                 int loanPeriodInMonths, decimal downPayment)
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, DownPayment = downPayment };
-        var loan = new Loan(loanTerms, new Car(carCondition));
+        var loan = new Loan(loanTerms, new Car(carCondition, VehicleCategory.PetrolOrDiesel, 0));
 
         var result = _validator.Evaluate(loan);
 
@@ -61,7 +61,7 @@ public class MaximumLoanPeriodTests
                                                                  decimal downPayment)
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = loanPeriodInMonths, DownPayment = downPayment };
-        var loan = new Loan(loanTerms, new Car(carCondition));
+        var loan = new Loan(loanTerms, new Car(carCondition, VehicleCategory.PetrolOrDiesel, 0));
 
         var result = _validator.Evaluate(loan);
 
@@ -74,7 +74,7 @@ public class MaximumLoanPeriodTests
     public void Evaluate_ReturnsGeneralLimitParameters_WhenGeneralLimitsExceeded()
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 85, DownPayment = 200000m };
-        var loan = new Loan(loanTerms, new Car(CarCondition.New));
+        var loan = new Loan(loanTerms, new Car(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0));
 
         var result = _validator.Evaluate(loan);
 
@@ -87,7 +87,7 @@ public class MaximumLoanPeriodTests
     public void Evaluate_ReturnsUsedCarLimitParameters_WhenUsedCarLimitsExceeded()
     {
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 73, DownPayment = 300000m };
-        var loan = new Loan(loanTerms, new Car(CarCondition.Used));
+        var loan = new Loan(loanTerms, new Car(CarCondition.Used, VehicleCategory.PetrolOrDiesel, 0));
 
         var result = _validator.Evaluate(loan);
 
@@ -99,7 +99,7 @@ public class MaximumLoanPeriodTests
     [Fact]
     public void Evaluate_ReturnsNullParameters_WhenLoanPeriodIsValid()
     {
-        var loan = new Loan(_defaultLoanTerms, new Car(CarCondition.New));
+        var loan = new Loan(_defaultLoanTerms, new Car(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0));
 
         var result = _validator.Evaluate(loan);
 
@@ -111,7 +111,7 @@ public class MaximumLoanPeriodTests
     {
         var validator = new MaximumLoanPeriodValidator(new LoanPeriodLimits(90m, 80m, 60, 48));
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 72, DownPayment = 1000000m };
-        var loan = new Loan(loanTerms, new Car(CarCondition.New));
+        var loan = new Loan(loanTerms, new Car(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0));
 
         var result = validator.Evaluate(loan);
 

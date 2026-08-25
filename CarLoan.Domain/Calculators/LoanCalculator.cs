@@ -1,4 +1,4 @@
-﻿using CarLoan.Domain.Models;
+using CarLoan.Domain.Models;
 
 namespace CarLoan.Domain.Calculators;
 
@@ -14,7 +14,7 @@ public class LoanCalculator() : ILoanCalculator
         decimal monthlyRate = loanTerms.InterestRate / 100m / 12m;
         decimal compoundFactor = DecimalPow(1 + monthlyRate, loanTerms.LoanPeriodInMonths);
 
-        return Math.Round(loanTerms.LoanAmount * monthlyRate * compoundFactor / (compoundFactor - 1), 2);
+        return Math.Round(loanTerms.FinancedAmount * monthlyRate * compoundFactor / (compoundFactor - 1), 2);
     }
 
     internal static decimal DecimalPow(decimal baseValue, int exponent) =>
