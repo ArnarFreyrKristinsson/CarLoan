@@ -11,6 +11,9 @@ public class LoanCalculator() : ILoanCalculator
         if (loanTerms.LoanPeriodInMonths <= 0)
             throw new ArgumentOutOfRangeException(nameof(loanTerms), "Loan period must be greater than zero.");
 
+        if (loanTerms.InterestRate <= 0)
+            throw new ArgumentOutOfRangeException(nameof(loanTerms), "Interest rate must be greater than zero.");
+
         decimal monthlyRate = loanTerms.InterestRate / 100m / 12m;
         decimal compoundFactor = DecimalPow(1 + monthlyRate, loanTerms.LoanPeriodInMonths);
 

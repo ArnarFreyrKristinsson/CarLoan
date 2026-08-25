@@ -3,7 +3,7 @@ using Xunit;
 
 namespace CarLoan.Domain.Tests;
 
-public class RateTierConstructorTests
+public class RateTierTests
 {
     [Theory]
     [InlineData(0)]

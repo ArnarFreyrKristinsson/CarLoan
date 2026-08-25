@@ -1,5 +1,6 @@
 using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
+using FluentAssertions;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -29,6 +30,18 @@ public class LoanValidatorIntegrationTests
     }
 
     [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenRulesIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new LoanValidator(null!));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentException_WhenRulesContainsNullEntry()
+    {
+        Assert.Throws<ArgumentException>(() => new LoanValidator([new MinimumLoanPeriodValidator(6), null!]));
+    }
+
+    [Fact]
     public void Validate_AllResultsAreValid_WhenAllRulesPass()
     {
         var loan = CreateLoan();
@@ -44,7 +57,7 @@ public class LoanValidatorIntegrationTests
 
         var results = _validator.Validate(loan);
 
-        Assert.Equivalent(expectedResults, results);
+        results.Should().BeEquivalentTo(expectedResults);
     }
 
     [Fact]
@@ -108,12 +121,7 @@ public class LoanValidatorIntegrationTests
 
         var results = _validator.Validate(loan);
 
-        var failedRules = results.Where(r => !r.IsValid).Select(r => r.RuleName).ToList();
-        Assert.Contains("MinimumLoanAmount", failedRules);
-        Assert.Contains("MinimumDownPayment", failedRules);
-        Assert.Contains("MinimumLoanPeriod", failedRules);
-        Assert.DoesNotContain("MaximumLoanPeriod", failedRules);
-        Assert.DoesNotContain("MaximumLoanAmount", failedRules);
-        Assert.DoesNotContain("CarAge", failedRules);
+        var failedRules = results.Where(r => !r.IsValid).Select(r => r.RuleName);
+        failedRules.Should().BeEquivalentTo(["MinimumLoanAmount", "MinimumDownPayment", "MinimumLoanPeriod"]);
     }
 }

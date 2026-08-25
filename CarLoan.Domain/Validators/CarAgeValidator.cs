@@ -25,9 +25,12 @@ public class CarAgeValidator(CarAgeLimits limits) : ILoanRule
         decimal combinedYears = loan.Car.AgeInYears + termYears;
         int maximumCombinedYears = _limits.MaximumCombinedYearsFor(loan.Terms.LoanRatio);
 
+        if (combinedYears <= maximumCombinedYears)
+            return LoanRuleResult.Create(RuleName, true);
+
         return LoanRuleResult.Create(
             RuleName,
-            combinedYears <= maximumCombinedYears,
+            false,
             $"Car age plus loan term must not exceed {maximumCombinedYears} years at a loan ratio of {loan.Terms.LoanRatio:0.##}%.",
             new Params
             {

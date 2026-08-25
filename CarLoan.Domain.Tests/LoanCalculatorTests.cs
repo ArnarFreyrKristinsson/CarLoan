@@ -16,7 +16,7 @@ public class LoanCalculatorTests
     }
 
     [Fact]
-    public void LoanCalculator_ThrowsArgumentNullException_WhenLoanTermsIsNull()
+    public void CalculateMonthlyPayment_ThrowsArgumentNullException_WhenLoanTermsIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => new LoanCalculator().CalculateMonthlyPayment(null!));
     }
@@ -27,6 +27,16 @@ public class LoanCalculatorTests
         var loanTerms = new LoanTerms(2000000m, 500000m, 0, 11.45m);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => new LoanCalculator().CalculateMonthlyPayment(loanTerms));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-11.45)]
+    public void CalculateMonthlyPayment_ThrowsArgumentOutOfRangeException_WhenInterestRateIsZeroOrNegative(decimal interestRate)
+    {
+        var loanTerms = _loanTerms with { InterestRate = interestRate };
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => _loanCalculator.CalculateMonthlyPayment(loanTerms));
     }
 
     [Theory]
