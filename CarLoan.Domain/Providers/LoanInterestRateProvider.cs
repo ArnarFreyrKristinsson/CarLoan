@@ -1,34 +1,21 @@
 using CarLoan.Domain.Guards;
+using CarLoan.Domain.Models;
 
 namespace CarLoan.Domain.Providers;
 
-public sealed class LoanInterestRateProvider(IReadOnlyList<RateTier> interestLookupTable, decimal defaultInterestRate) : ILoanInterestRateProvider
+/// <summary>
+/// Picks the rate table by vehicle category — green (V3) or general (V1, V2) — and looks the
+/// rate up by financing ratio.
+/// </summary>
+public sealed class LoanInterestRateProvider(RateTable general, RateTable green) : ILoanInterestRateProvider
 {
-    private readonly IReadOnlyList<RateTier> _interestLookupTable = ValidateAndSort(interestLookupTable);
-    private readonly decimal _defaultInterestRate = Guard.Positive(defaultInterestRate, nameof(defaultInterestRate));
+    private readonly RateTable _general = Guard.NotNull(general, nameof(general));
+    private readonly RateTable _green = Guard.NotNull(green, nameof(green));
 
-    public decimal GetInterestRate(decimal downPayment)
+    public decimal GetInterestRate(Loan loan)
     {
-        foreach (var (minimumDownPayment, interestRate) in _interestLookupTable)
-        {
-            if (downPayment >= minimumDownPayment)
-            {
-                return interestRate;
-            }
-        }
+        ArgumentNullException.ThrowIfNull(loan);
 
-        return _defaultInterestRate;
-    }
-
-    private static IReadOnlyList<RateTier> ValidateAndSort(IReadOnlyList<RateTier> interestLookupTable)
-    {
-        Guard.NoNullElements(interestLookupTable, nameof(interestLookupTable));
-
-        if (interestLookupTable.GroupBy(tier => tier.MinimumDownPayment).Any(group => group.Count() > 1))
-        {
-            throw new ArgumentException("Tier list must not contain duplicate minimum down payments.", nameof(interestLookupTable));
-        }
-
-        return [.. interestLookupTable.OrderByDescending(tier => tier.MinimumDownPayment)];
+        return (loan.Car.IsGreen ? _green : _general).GetRate(loan.Terms.LoanRatio);
     }
 }

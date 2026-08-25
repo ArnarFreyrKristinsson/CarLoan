@@ -13,12 +13,20 @@ The current stage covers the happy path: inputs are assumed to be structurally v
 
 **Validation rules:**
 
+All rules are configured per lender; the values below are the ones wired up for Lykill, per [docs/rules/lykill.md](docs/rules/lykill.md).
+
 | Rule | Description |
 |---|---|
 | `MinimumLoanAmountValidator` | Loan amount must be at least 750,000 |
+| `MaximumLoanAmountValidator` | Loan amount must not exceed 30,000,000 |
 | `MinimumDownPaymentValidator` | Down payment must be at least 150,000 |
-| `MinimumLoanPeriodValidator` | Loan period must be at least 6 months |
-| `MaximumLoanPeriodValidator` | Enforces maximum loan ratio (90%), maximum period (84 months), and stricter limits for used cars (80% ratio / 72 months) |
+| `MinimumLoanPeriodValidator` | Loan period must be at least 1 month |
+| `MaximumLoanPeriodValidator` | Enforces maximum loan ratio (90%), maximum period (84 months), and stricter limits for used cars above 80% ratio (72 months) |
+| `CarAgeValidator` | Used cars only: car age plus loan term must not exceed 12 years above 80% ratio, 20 years at or below it |
+
+**Pricing:**
+
+Interest rates are keyed on the financing ratio (LTV), with separate general and green (electric/hydrogen) rate tables. An origination fee is charged on the loan amount by contract length, with a discount for green vehicles (off the fee amount) and plug-in hybrids (off the fee rate), an 18,000 minimum, and the result financed on top of the loan.
 
 **Calculation:**
 
