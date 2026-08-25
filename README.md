@@ -13,7 +13,7 @@ The current stage covers the happy path: inputs are assumed to be structurally v
 
 **Validation rules:**
 
-All rules are configured per lender; the values below are the ones wired up for Lykill.
+All rules are configured per lender; the values below are the ones wired up for Lykill, per [docs/rules/lykill.md](docs/rules/lykill.md).
 
 | Rule | Description |
 |---|---|
