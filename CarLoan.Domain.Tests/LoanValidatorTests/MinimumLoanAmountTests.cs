@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using Xunit;
 
@@ -85,7 +85,7 @@ public class MinimumLoanAmountTests
     }
 
     [Fact]
-    public void Evaluate_IsNotValid_WhenConfiguredMinimumIsHigherThanAllowedMinimum()
+    public void Evaluate_IsNotValid_WhenLoanAmountBelowConfiguredMinimum()
     {
         var validator = new MinimumLoanAmountValidator(1500000m);
         var loan = new Loan(_defaultLoanTerms, _defaultCar);

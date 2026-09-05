@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using Xunit;
 
@@ -29,6 +29,9 @@ public class CarAgeTests
         Assert.Throws<ArgumentNullException>(() => new CarAgeValidator(null!));
     }
 
+    // The ages are deliberately absurd for a "new" car: both combinations break the used-car
+    // caps (20 + 7 = 27 against 20; 12 + 7 = 19 against 12 at a 90% ratio), so the test fails
+    // the moment the new-car exemption stops short-circuiting the rule.
     [Theory]
     [InlineData(25, 84, 20)]
     [InlineData(90, 84, 12)]

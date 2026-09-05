@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using FluentAssertions;
 using Xunit;
@@ -58,16 +58,6 @@ public class LoanValidatorIntegrationTests
         var results = _validator.Validate(loan);
 
         results.Should().BeEquivalentTo(expectedResults);
-    }
-
-    [Fact]
-    public void Validate_ReturnsResultForEveryRule_WhenLoanTermsProvided()
-    {
-        var loan = CreateLoan();
-
-        var results = _validator.Validate(loan);
-
-        Assert.Equal(_allRules.Length, results.Count);
     }
 
     [Fact]

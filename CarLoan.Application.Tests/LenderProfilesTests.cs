@@ -1,4 +1,6 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
+using CarLoan.Domain.Validators;
+using FluentAssertions;
 
 namespace CarLoan.Application.Tests;
 
@@ -15,7 +17,13 @@ public class LenderProfilesTests
         var lykill = profiles["Lykill"];
 
         Assert.Equal("Lykill", lykill.Name);
-        Assert.Equal(6, lykill.Rules.Count);
+        lykill.Rules.Select(rule => rule.GetType()).Should().Equal(
+            typeof(MinimumLoanAmountValidator),
+            typeof(MaximumLoanAmountValidator),
+            typeof(MinimumLoanPeriodValidator),
+            typeof(MinimumDownPaymentValidator),
+            typeof(MaximumLoanPeriodValidator),
+            typeof(CarAgeValidator));
     }
 
     [Theory]

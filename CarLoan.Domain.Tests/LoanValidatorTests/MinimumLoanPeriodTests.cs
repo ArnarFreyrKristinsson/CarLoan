@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using Xunit;
 
@@ -85,7 +85,7 @@ public class MinimumLoanPeriodTests
     }
 
     [Fact]
-    public void Evaluate_IsNotValid_WhenConfiguredPeriodMinimumIsHigherThanAllowedPeriodMinimum()
+    public void Evaluate_IsNotValid_WhenLoanPeriodBelowConfiguredMinimum()
     {
         var validator = new MinimumLoanPeriodValidator(12);
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 10 };

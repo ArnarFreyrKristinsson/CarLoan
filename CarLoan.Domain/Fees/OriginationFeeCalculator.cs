@@ -4,9 +4,9 @@ using CarLoan.Domain.Models;
 namespace CarLoan.Domain.Fees;
 
 /// <summary>
-/// Computes the origination fee on the pre-fee loan amount. The plug-in hybrid discount comes
-/// off the rate, the green discount comes off the amount, and they are never combined — a
-/// plug-in hybrid is not green.
+/// Computes the origination fee on the pre-fee loan amount, using the discounted rate from the
+/// schedule, then raises it to the minimum fee. What the discounts are lives on
+/// <see cref="OriginationFeeSettings"/>; this type only does the arithmetic.
 /// </summary>
 public sealed class OriginationFeeCalculator(OriginationFeeSettings settings) : IOriginationFeeCalculator
 {
@@ -19,23 +19,16 @@ public sealed class OriginationFeeCalculator(OriginationFeeSettings settings) : 
         ArgumentNullException.ThrowIfNull(loan);
 
         decimal loanAmount = loan.Terms.LoanAmount;
-        decimal baseRate = _settings.FeeRateFor(loan.Terms.LoanPeriodInMonths);
-        decimal effectiveRate = EffectiveRateFor(loan.Car, baseRate);
+        int contractMonths = loan.Terms.LoanPeriodInMonths;
+        decimal effectiveRate = _settings.EffectiveRateFor(loan.Car.Category, contractMonths);
 
         decimal discountedFee = Money(loanAmount * effectiveRate / 100m);
-        decimal undiscountedFee = Money(loanAmount * baseRate / 100m);
+        decimal undiscountedFee = Money(loanAmount * _settings.FeeRateFor(contractMonths) / 100m);
 
         decimal amount = Math.Max(discountedFee, _settings.MinimumFee);
 
         return new OriginationFee(amount, Math.Max(0m, undiscountedFee - amount), effectiveRate);
     }
-
-    private decimal EffectiveRateFor(Car car, decimal baseRate) => car.Category switch
-    {
-        VehicleCategory.PlugInHybrid => Math.Max(0m, baseRate - _settings.PlugInHybridRateDiscount),
-        VehicleCategory.ElectricOrHydrogen => baseRate * (100m - _settings.GreenFeeDiscountPercentage) / 100m,
-        _ => baseRate
-    };
 
     private static decimal Money(decimal value) => Math.Round(value, MoneyDecimals);
 }

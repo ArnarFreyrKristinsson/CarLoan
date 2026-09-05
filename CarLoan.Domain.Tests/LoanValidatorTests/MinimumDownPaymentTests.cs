@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using Xunit;
 
@@ -19,9 +19,9 @@ public class MinimumDownPaymentTests
     [Theory]
     [InlineData(0)]
     [InlineData(-150000)]
-    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumDownPaymentIsZeroOrNegative(decimal allowedMinimumDownPayment)
+    public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumDownPaymentIsZeroOrNegative(decimal configuredMinimumDownPayment)
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumDownPaymentValidator(allowedMinimumDownPayment));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new MinimumDownPaymentValidator(configuredMinimumDownPayment));
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class MinimumDownPaymentTests
     }
 
     [Fact]
-    public void Evaluate_IsNotValid_WhenConfiguredMinimumIsHigherThanAllowedMinimum()
+    public void Evaluate_IsNotValid_WhenDownPaymentBelowConfiguredMinimum()
     {
         var validator = new MinimumDownPaymentValidator(300000m);
         var loanTerms = _defaultLoanTerms with { DownPayment = 200000m };

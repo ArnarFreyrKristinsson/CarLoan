@@ -1,4 +1,5 @@
 using CarLoan.Domain.Guards;
+using CarLoan.Domain.Models;
 
 namespace CarLoan.Domain.Fees;
 
@@ -36,6 +37,24 @@ public sealed record OriginationFeeSettings(
         }
 
         return Tiers[^1].FeeRate;
+    }
+
+    /// <summary>
+    /// Returns the fee rate for the given contract length with the vehicle's discount applied.
+    /// A plug-in hybrid has percentage points taken off the rate; a green vehicle has the fee
+    /// amount discounted, which is the same as scaling the rate by the same percentage. The two
+    /// discounts are never combined — a plug-in hybrid is not green.
+    /// </summary>
+    public decimal EffectiveRateFor(VehicleCategory category, int contractMonths)
+    {
+        decimal baseRate = FeeRateFor(contractMonths);
+
+        return category switch
+        {
+            VehicleCategory.PlugInHybrid => Math.Max(0m, baseRate - PlugInHybridRateDiscount),
+            VehicleCategory.ElectricOrHydrogen => baseRate * (100m - GreenFeeDiscountPercentage) / 100m,
+            _ => baseRate
+        };
     }
 
     private static IReadOnlyList<FeeTier> ValidateAndSort(IReadOnlyList<FeeTier> tiers)

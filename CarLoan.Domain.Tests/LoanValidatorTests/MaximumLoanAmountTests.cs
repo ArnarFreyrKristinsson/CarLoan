@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using Xunit;
 
@@ -74,7 +74,7 @@ public class MaximumLoanAmountTests
     }
 
     [Fact]
-    public void Evaluate_IsNotValid_WhenConfiguredMaximumIsLowerThanAllowedMaximum()
+    public void Evaluate_IsNotValid_WhenLoanAmountAboveConfiguredMaximum()
     {
         var validator = new MaximumLoanAmountValidator(500_000m);
         var loan = new Loan(_defaultLoanTerms, _defaultCar);
