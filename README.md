@@ -1,41 +1,40 @@
-# Car Loan Calculator
+# CarLoan
 
-A .NET 8 car loan calculator applying the SOLID principles where applicable and possible more design patterns or principles learned in the process. This includes validations and calculations. Currently only has couple of validation rules such as minimum loan amount, maximum period, maximum ratio and more. 
-Only calculates monthly payments at the moment. The project will also use Blazor in the future. 
+[![codecov](https://codecov.io/gh/ArnarFreyrKristinsson/CarLoan/branch/master/graph/badge.svg)](https://codecov.io/gh/ArnarFreyrKristinsson/CarLoan)
 
-## What It Does
+A .NET 8 loan comparison engine for car loans. Give it a loan request and it evaluates that request 
+against every lender it knows about, returning each lender's answer: the interest rate, the origination fee, 
+the monthly payment, and when a lender would decline, exactly which rules failed and why.
 
-Validates loan applications against a set of independent business rules and calculates monthly payments when conditions are met.
+A front end is planned but today the engine's only consumer is its test suite.
 
-## Scope
+## Status
 
-The current stage covers the happy path: inputs are assumed to be structurally valid (positive prices, positive periods, sensible rates). Behavior outside of that is undefined.
-
-**Validation rules:**
-
-All rules are configured per lender; the values below are the ones wired up for Lykill, per [docs/rules/lykill.md](docs/rules/lykill.md).
-
-| Rule | Description |
+| Piece | State |
 |---|---|
-| `MinimumLoanAmountValidator` | Loan amount must be at least 750,000 |
-| `MaximumLoanAmountValidator` | Loan amount must not exceed 30,000,000 |
-| `MinimumDownPaymentValidator` | Down payment must be at least 150,000 |
-| `MinimumLoanPeriodValidator` | Loan period must be at least 1 month |
-| `MaximumLoanPeriodValidator` | Enforces maximum loan ratio (90%), maximum period (84 months), and stricter limits for used cars above 80% ratio (72 months) |
-| `CarAgeValidator` | Used cars only: car age plus loan term must not exceed 12 years above 80% ratio, 20 years at or below it |
+| Engine | Working end to end, validated against a published rule spec |
+| Lenders | **1 — Lykill.** More will be added; the engine fans out over however many are registered |
+| Comparison / ranking layer | Not written yet — results come back one per lender, unranked |
+| UI | Not built (Blazor planned) |
 
-**Pricing:**
+## How a request flows
 
-Interest rates are keyed on the financing ratio (LTV), with separate general and green (electric/hydrogen) rate tables. An origination fee is charged on the loan amount by contract length, with a discount for green vehicles (off the fee amount) and plug-in hybrids (off the fee rate), an 18,000 minimum, and the result financed on top of the loan.
+1. `LoanRequest` → `LoanRequestMapper` → a domain `Loan` (pre-fee amount, LTV, car).
+2. For each registered `LenderProfile`: look up the interest rate, compute the origination fee, 
+   then run that lender's rules against the priced loan.
+3. Return a `LenderLoanEvaluationResult` per lender: rate, fee, monthly payment, and every rule result.
 
-**Calculation:**
+Each `LoanRuleResult` carries the rule name, a human-readable message, and a parameter dictionary, 
+so a consumer can show why a lender said no rather than just that it did.
 
-`LoanCalculator` computes the monthly payment from a set of `LoanTerms` using the standard amortization formula.
+## Lenders
 
-## How It's Built
+Each lender's rules and pricing come from a spec in [`docs/rules/`](docs/rules/), and every rule in a spec has a an ID. 
+The spec is the source of truth.
 
-- **TDD** — built test-first using xUnit with Osherove naming conventions (`MethodName_ExpectedResult_StateUnderTest`), following red-green-refactor
-- **SOLID** — Is followed where applicable for example: Open/Closed Principle in practice - new rules are new classes, existing code stays untouched.
+| Lender | Spec |
+|---|---|
+| Lykill | [docs/rules/lykill.md](docs/rules/lykill.md) |
 
 ## Prerequisites
 
@@ -55,6 +54,6 @@ dotnet build
 dotnet test
 ```
 
-## Why This Architecture
+## Architecture
 
-So far the project demonstrates how to handle business logic that changes frequently. When a rule changes, you change one class. When a new rule is added, you add one class. Nothing else moves. The test suite verifies each rule in isolation, so you know exactly what broke and why.
+Design patterns, the per-lender registry, and testing practice: [docs/architecture.md](docs/architecture.md).

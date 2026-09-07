@@ -57,7 +57,13 @@ V2 and V3 each get their own fee discount (§6) — different discounts, not int
 T2 and T3 are two bands of the same rule: a used car at or below 80% LTV may run
 7 years; above 80% and up to 90% it is capped at 6 years.
 
-### 4.2 Car age
+### 4.2 Minimum term
+
+| ID | Rule |
+|---|---|
+| T4 | Term ≥ 6 months (0.5 years). Applies to every car, new or used. |
+
+### 4.3 Car age
 
 Applies to **used cars only**. New cars are exempt.
 
@@ -107,7 +113,7 @@ Charged on the loan amount, keyed on contract length in months.
 
 | ID | Contract length | Fee rate |
 |---|---|---|
-| FR1 | 1–23 months | 1.80% |
+| FR1 | 6–23 months | 1.80% |
 | FR2 | 24–35 months | 2.00% |
 | FR3 | 36–47 months | 2.25% |
 | FR4 | 48–59 months | 2.50% |
@@ -138,7 +144,7 @@ present it to the user as the amount saved.
 1. Loan amount = purchase price − down payment.
 2. Validate A1, A2, A3.
 3. LTV = loan amount ÷ purchase price.
-4. Validate T1/T2/T3 for the vehicle's new-or-used status.
+4. Validate T1/T2/T3 for the vehicle's new-or-used status, and T4 for the minimum term.
 5. If used, validate C1 or C2 for the applicable LTV band.
 6. Look up the interest rate: `R-GRN` for V3, `R-GEN` for V1 and V2.
 7. Look up the fee rate by term in months (FR1–FR6).
