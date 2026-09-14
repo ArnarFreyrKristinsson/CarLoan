@@ -19,7 +19,7 @@ public class LykillRuleSpecificationTests
     [Fact]
     public void EvaluateLoanRequest_PricesGreenLoanOnGreenSchedule_WhenUsedElectricCarWithinEveryRule()
     {
-        // 4,000,000 loan at 80% LTV over 84 months; a 5-year-old car ages to 12, within the 20-year cap.
+        // 4,000,000 loan at 80% LTV over 84 months, a 5-year-old car ages to 12, within the 20-year cap.
         var request = new LoanRequest(
             5_000_000m, 1_000_000m, 84, RequestedCarCondition.Used, RequestedVehicleCategory.ElectricOrHydrogen, 5);
 
@@ -85,6 +85,29 @@ public class LykillRuleSpecificationTests
 
         var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.RuleName);
         failedRules.Should().BeEquivalentTo(["MinimumLoanAmount", "MinimumDownPayment"]);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_FailsMinimumLoanPeriodRule_WhenTermIsShorterThanSixMonths()
+    {
+        var request = new LoanRequest(
+            1_000_000m, 250_000m, 5, RequestedCarCondition.New, RequestedVehicleCategory.PetrolOrDiesel, 0);
+
+        var result = Evaluate(request);
+
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.RuleName);
+        failedRules.Should().BeEquivalentTo(["MinimumLoanPeriod"]);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_PassesEveryRule_WhenTermIsExactlySixMonths()
+    {
+        var request = new LoanRequest(
+            1_000_000m, 250_000m, 6, RequestedCarCondition.New, RequestedVehicleCategory.PetrolOrDiesel, 0);
+
+        var result = Evaluate(request);
+
+        result.ValidationResults.Should().OnlyContain(rule => rule.IsValid);
     }
 
     [Fact]

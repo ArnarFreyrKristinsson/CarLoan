@@ -4,9 +4,8 @@ using CarLoan.Domain.Models;
 namespace CarLoan.Domain.Fees;
 
 /// <summary>
-/// Computes the origination fee on the pre-fee loan amount, using the discounted rate from the
-/// schedule, then raises it to the minimum fee. What the discounts are lives on
-/// <see cref="OriginationFeeSettings"/>; this type only does the arithmetic.
+/// Computes the origination fee on the pre-fee loan amount, using the discounted rate from the schedule, 
+/// then raises it to the minimum fee.
 /// </summary>
 public sealed class OriginationFeeCalculator(OriginationFeeSettings settings) : IOriginationFeeCalculator
 {

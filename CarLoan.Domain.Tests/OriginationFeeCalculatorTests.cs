@@ -22,7 +22,6 @@ public class OriginationFeeCalculatorTests
 
     private readonly OriginationFeeCalculator _calculator = new(_defaultSettings);
 
-    // A 2,000,000 car with a 1,000,000 down payment leaves a 1,000,000 loan amount.
     private static Loan CreateLoan(int loanPeriodInMonths, VehicleCategory category, decimal downPayment = 1_000_000m) =>
         new(new LoanTerms(2_000_000m, downPayment, loanPeriodInMonths, 10.35m),
             new Car(CarCondition.New, category, 0));
@@ -72,7 +71,6 @@ public class OriginationFeeCalculatorTests
     [Fact]
     public void Calculate_HalvesFeeAmount_WhenVehicleIsElectricOrHydrogen()
     {
-        // 3.20% halved is 1.60%; 1.60% of 1,000,000 is 16,000, which the minimum fee lifts to 18,000.
         var fee = _calculator.Calculate(CreateLoan(84, VehicleCategory.ElectricOrHydrogen));
 
         Assert.Equal(1.60m, fee.EffectiveRate);
@@ -92,7 +90,6 @@ public class OriginationFeeCalculatorTests
     [Fact]
     public void Calculate_RaisesFeeToMinimum_WhenDiscountedFeeIsBelowMinimum()
     {
-        // 2,000,000 less a 1,250,000 down payment leaves 750,000; 1.80% of that is 13,500.
         var fee = _calculator.Calculate(CreateLoan(12, VehicleCategory.PetrolOrDiesel, downPayment: 1_250_000m));
 
         Assert.Equal(18_000m, fee.Amount);
@@ -101,7 +98,6 @@ public class OriginationFeeCalculatorTests
     [Fact]
     public void Calculate_ReportsAmountSaved_WhenDiscountApplied()
     {
-        // Undiscounted 3.20% of 1,000,000 is 32,000; the plug-in hybrid pays 22,000.
         var fee = _calculator.Calculate(CreateLoan(84, VehicleCategory.PlugInHybrid));
 
         Assert.Equal(10_000m, fee.AmountSaved);
@@ -110,7 +106,6 @@ public class OriginationFeeCalculatorTests
     [Fact]
     public void Calculate_ReportsAmountSavedAfterMinimumApplied_WhenMinimumFeeLiftsDiscountedFee()
     {
-        // Undiscounted 3.20% of 1,000,000 is 32,000; green pays the 18,000 minimum, not 16,000.
         var fee = _calculator.Calculate(CreateLoan(84, VehicleCategory.ElectricOrHydrogen));
 
         Assert.Equal(14_000m, fee.AmountSaved);
@@ -127,7 +122,6 @@ public class OriginationFeeCalculatorTests
     [Fact]
     public void Calculate_ReportsNoAmountSaved_WhenMinimumFeeExceedsUndiscountedFee()
     {
-        // 1.80% of 750,000 is 13,500 undiscounted, below the 18,000 minimum both discounted and not.
         var fee = _calculator.Calculate(CreateLoan(12, VehicleCategory.ElectricOrHydrogen, downPayment: 1_250_000m));
 
         Assert.Equal(0m, fee.AmountSaved);

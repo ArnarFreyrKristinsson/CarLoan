@@ -4,8 +4,7 @@ using CarLoan.Domain.Models;
 namespace CarLoan.Domain.Providers;
 
 /// <summary>
-/// Picks the rate table by vehicle category — green (V3) or general (V1, V2) — and looks the
-/// rate up by financing ratio.
+/// Picks the rate table by vehicle category, green or general and looks the rate up by financing ratio.
 /// </summary>
 public sealed class LoanInterestRateProvider(RateTable general, RateTable green) : ILoanInterestRateProvider
 {

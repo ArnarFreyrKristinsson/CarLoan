@@ -2,20 +2,15 @@ using CarLoan.Domain.Guards;
 
 namespace CarLoan.Domain.Providers;
 
-/// <summary>
-/// A rate schedule keyed on the financing ratio (LTV). Nothing else — not the down payment,
-/// not the term — affects the rate.
-/// </summary>
+/// <summary>A rate schedule keyed on the financing ratio (LTV).</summary>
 public sealed class RateTable(IReadOnlyList<RateTier> tiers, decimal defaultInterestRate)
 {
     private readonly IReadOnlyList<RateTier> _tiers = ValidateAndSort(tiers);
     private readonly decimal _defaultInterestRate = Guard.Positive(defaultInterestRate, nameof(defaultInterestRate));
 
-    /// <summary>
-    /// Returns the rate for the given financing ratio, or the default rate when the ratio
-    /// sits above every band. Ratios above the top band belong to loans the rules reject,
-    /// so the default only ever prices a loan that has already failed validation.
-    /// </summary>
+    ///<summary>
+    ///Returns the rate for the given financing ratio, or the default rate when the ratio sits above every band. 
+    ///</summary>
     public decimal GetRate(decimal financingRatio)
     {
         foreach (var (maximumFinancingRatio, interestRate) in _tiers)

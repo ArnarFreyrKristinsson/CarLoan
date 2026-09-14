@@ -11,7 +11,7 @@ public static class LenderProfiles
             Name: "Lykill",
             MinAmount: 750_000m,
             MaxAmount: 30_000_000m,
-            MinPeriod: 1,
+            MinPeriod: 6,
             MinDownPayment: 150_000m,
             PeriodLimits: new LoanPeriodLimits(90m, 80m, 84, 72),
             CarAgeLimits: new CarAgeLimits(80m, 12, 20),

@@ -6,10 +6,6 @@ namespace CarLoan.Domain.Fees;
 /// <summary>
 /// A lender's origination fee schedule and its discounts.
 /// </summary>
-/// <param name="Tiers">The fee rate bands, keyed on contract length in months.</param>
-/// <param name="MinimumFee">Floor applied after the discounts.</param>
-/// <param name="GreenFeeDiscountPercentage">Percentage taken off the fee amount for green vehicles.</param>
-/// <param name="PlugInHybridRateDiscount">Percentage points taken off the fee rate for plug-in hybrids.</param>
 public sealed record OriginationFeeSettings(
     IReadOnlyList<FeeTier> Tiers,
     decimal MinimumFee,
