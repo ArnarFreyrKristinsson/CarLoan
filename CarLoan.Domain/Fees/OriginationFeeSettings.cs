@@ -1,0 +1,72 @@
+using CarLoan.Domain.Guards;
+using CarLoan.Domain.Models;
+
+namespace CarLoan.Domain.Fees;
+
+/// <summary>
+/// A lender's origination fee schedule and its discounts.
+/// </summary>
+public sealed record OriginationFeeSettings(
+    IReadOnlyList<FeeTier> Tiers,
+    decimal MinimumFee,
+    decimal GreenFeeDiscountPercentage,
+    decimal PlugInHybridRateDiscount)
+{
+    public IReadOnlyList<FeeTier> Tiers { get; } = ValidateAndSort(Tiers);
+    public decimal MinimumFee { get; } = Guard.NonNegative(MinimumFee, nameof(MinimumFee));
+    public decimal GreenFeeDiscountPercentage { get; } = Guard.InRange(GreenFeeDiscountPercentage, 0m, 100m, nameof(GreenFeeDiscountPercentage));
+    public decimal PlugInHybridRateDiscount { get; } = Guard.NonNegative(PlugInHybridRateDiscount, nameof(PlugInHybridRateDiscount));
+
+    /// <summary>
+    /// Returns the fee rate for the given contract length. Lengths above the top band clamp to
+    /// it — such a term has already failed the term rules, so the fee only ever prices a
+    /// loan that was rejected anyway.
+    /// </summary>
+    public decimal FeeRateFor(int contractMonths)
+    {
+        foreach (var tier in Tiers)
+        {
+            if (contractMonths <= tier.MaximumContractMonths)
+            {
+                return tier.FeeRate;
+            }
+        }
+
+        return Tiers[^1].FeeRate;
+    }
+
+    /// <summary>
+    /// Returns the fee rate for the given contract length with the vehicle's discount applied.
+    /// A plug-in hybrid has percentage points taken off the rate; a green vehicle has the fee
+    /// amount discounted, which is the same as scaling the rate by the same percentage. The two
+    /// discounts are never combined — a plug-in hybrid is not green.
+    /// </summary>
+    public decimal EffectiveRateFor(VehicleCategory category, int contractMonths)
+    {
+        decimal baseRate = FeeRateFor(contractMonths);
+
+        return category switch
+        {
+            VehicleCategory.PlugInHybrid => Math.Max(0m, baseRate - PlugInHybridRateDiscount),
+            VehicleCategory.ElectricOrHydrogen => baseRate * (100m - GreenFeeDiscountPercentage) / 100m,
+            _ => baseRate
+        };
+    }
+
+    private static IReadOnlyList<FeeTier> ValidateAndSort(IReadOnlyList<FeeTier> tiers)
+    {
+        Guard.NoNullElements(tiers, nameof(tiers));
+
+        if (tiers.Count == 0)
+        {
+            throw new ArgumentException("Fee tier list must not be empty.", nameof(tiers));
+        }
+
+        if (tiers.GroupBy(tier => tier.MaximumContractMonths).Any(group => group.Count() > 1))
+        {
+            throw new ArgumentException("Fee tier list must not contain duplicate contract lengths.", nameof(tiers));
+        }
+
+        return [.. tiers.OrderBy(tier => tier.MaximumContractMonths)];
+    }
+}

@@ -38,17 +38,29 @@ public class MultiLenderLoanApplicationService(
 
         [.. _lenderProfiles.Values.Select(profile => EvaluateForLender(profile, loan))];
 
+    /// <summary>
+    /// Prices the loan, then validates it. The rules run against the pre-fee loan amount, which
+    /// the fee never changes, so ordering the two this way does not affect the outcome.
+    /// </summary>
     private LenderLoanEvaluationResult EvaluateForLender(LenderProfile profile, Loan loan)
     {
-        var terms = loan.Terms with
+        var fee = profile.FeeCalculator.Calculate(loan);
+        decimal interestRate = profile.RateProvider.GetInterestRate(loan);
+
+        var pricedLoan = loan with
         {
-            InterestRate = profile.RateProvider
-            .GetInterestRate(loan.Terms.DownPayment)
+            Terms = loan.Terms with
+            {
+                InterestRate = interestRate,
+                OriginationFee = fee.Amount
+            }
         };
 
         return new LenderLoanEvaluationResult(
             profile.Name,
-            new LoanValidator(profile.Rules).Validate(loan with { Terms = terms }),
-            _loanCalculator.CalculateMonthlyPayment(terms));
+            new LoanValidator(profile.Rules).Validate(pricedLoan),
+            _loanCalculator.CalculateMonthlyPayment(pricedLoan.Terms),
+            interestRate,
+            fee);
     }
 }

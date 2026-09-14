@@ -17,6 +17,16 @@ internal static class Guard
             ? value
             : throw new ArgumentOutOfRangeException(parameterName, value, "Value must not be negative.");
 
+    public static int NonNegative(int value, string parameterName) =>
+        value >= 0
+            ? value
+            : throw new ArgumentOutOfRangeException(parameterName, value, "Value must not be negative.");
+
+    public static decimal InRange(decimal value, decimal minimum, decimal maximum, string parameterName) =>
+        value >= minimum && value <= maximum
+            ? value
+            : throw new ArgumentOutOfRangeException(parameterName, value, $"Value must be between {minimum} and {maximum}.");
+
     public static T NotNull<T>(T? value, string parameterName) where T : class =>
         value ?? throw new ArgumentNullException(parameterName);
 

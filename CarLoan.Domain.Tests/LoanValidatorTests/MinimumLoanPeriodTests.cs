@@ -1,4 +1,4 @@
-using CarLoan.Domain.Models;
+﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
 using Xunit;
 
@@ -7,7 +7,7 @@ namespace CarLoan.Domain.Tests.LoanValidatorTests;
 public class MinimumLoanPeriodTests
 {
     private readonly LoanTerms _defaultLoanTerms = new(2000000m, 1000000m, 84, 10.35m);
-    private readonly Car _defaultCar = new(CarCondition.New);
+    private readonly Car _defaultCar = new(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0);
     private readonly MinimumLoanPeriodValidator _validator = new(6);
 
     [Fact]
@@ -85,7 +85,7 @@ public class MinimumLoanPeriodTests
     }
 
     [Fact]
-    public void Evaluate_IsNotValid_WhenConfiguredPeriodMinimumIsHigherThanAllowedPeriodMinimum()
+    public void Evaluate_IsNotValid_WhenLoanPeriodBelowConfiguredMinimum()
     {
         var validator = new MinimumLoanPeriodValidator(12);
         var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 10 };

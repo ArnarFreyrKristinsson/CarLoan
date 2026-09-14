@@ -20,4 +20,28 @@ public class LoanTermsTests
 
         Assert.Equal(75m, loanTerms.LoanRatio);
     }
+
+    [Fact]
+    public void FinancedAmount_EqualsLoanAmount_WhenNoOriginationFeeApplied()
+    {
+        var loanTerms = new LoanTerms(20000m, 5000m, 7, 10.35m);
+
+        Assert.Equal(15000m, loanTerms.FinancedAmount);
+    }
+
+    [Fact]
+    public void FinancedAmount_AddsOriginationFeeOnTop_WhenOriginationFeeApplied()
+    {
+        var loanTerms = new LoanTerms(20000m, 5000m, 7, 10.35m, OriginationFee: 450m);
+
+        Assert.Equal(15450m, loanTerms.FinancedAmount);
+    }
+
+    [Fact]
+    public void LoanRatio_IgnoresOriginationFee_WhenOriginationFeeApplied()
+    {
+        var loanTerms = new LoanTerms(20000m, 5000m, 7, 10.35m, OriginationFee: 450m);
+
+        Assert.Equal(75m, loanTerms.LoanRatio);
+    }
 }
