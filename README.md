@@ -1,8 +1,8 @@
 # CarLoan
 
 [![CI](https://github.com/ArnarFreyrKristinsson/CarLoan/actions/workflows/ci.yml/badge.svg)](https://github.com/ArnarFreyrKristinsson/CarLoan/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/ArnarFreyrKristinsson/CarLoan/branch/master/graph/badge.svg)](https://codecov.io/gh/ArnarFreyrKristinsson/CarLoan)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![codecov](https://codecov.io/gh/ArnarFreyrKristinsson/CarLoan/branch/master/graph/badge.svg)](https://codecov.io/gh/ArnarFreyrKristinsson/CarLoan)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FArnarFreyrKristinsson%2FCarLoan%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/ArnarFreyrKristinsson/CarLoan/master)
 
 A .NET 8 loan comparison engine for car loans. Give it a loan request and it evaluates that request 
@@ -59,4 +59,4 @@ dotnet test
 
 ## Architecture
 
-Design patterns, the per-lender registry, and testing practice: [docs/architecture.md](docs/architecture.md).
+Design patterns and testing practice: [docs/architecture.md](docs/architecture.md).
