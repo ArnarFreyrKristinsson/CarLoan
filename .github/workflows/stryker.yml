@@ -1,18 +1,31 @@
+# Mutation testing with Stryker.NET.
+# Runs after every successful CI run, and can be started by hand. To turn it off:
+#   gh workflow disable "Stryker Mutation Testing"   (or Actions tab -> "Disable workflow")
 name: Stryker Mutation Testing
 
 on:
-  schedule:
-    # Every Monday at 06:00 UTC
-    - cron: '0 6 * * 1'
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
   workflow_dispatch:
 
 jobs:
   mutation-testing:
+    # Only after a green CI run, and never for fork PRs (this workflow has access to secrets).
+    if: >-
+      github.event_name == 'workflow_dispatch' || (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository
+      )
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
@@ -25,7 +38,9 @@ jobs:
       - name: Run Stryker
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-        run: dotnet stryker --output ./StrykerOutput --reporter dashboard --version master
+          # Dashboard reports are keyed by branch, so each branch gets its own report.
+          BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+        run: dotnet stryker --output ./StrykerOutput --reporter html --reporter progress --reporter dashboard --version "$BRANCH"
 
       - name: Upload mutation report
         uses: actions/upload-artifact@v7
