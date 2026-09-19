@@ -34,7 +34,7 @@ public class MaximumLoanAmountTests
 
         Assert.False(result.IsValid);
         Assert.Equal("MaximumLoanAmount", result.RuleName);
-        Assert.NotNull(result.ErrorMessage);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
     }
 
     [Fact]

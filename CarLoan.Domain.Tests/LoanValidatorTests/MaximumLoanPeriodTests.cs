@@ -97,6 +97,28 @@ public class MaximumLoanPeriodTests
     }
 
     [Fact]
+    public void Evaluate_ReturnsGeneralLimitMessage_WhenGeneralLimitsExceeded()
+    {
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 85, DownPayment = 200000m };
+        var loan = new Loan(loanTerms, new Car(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0));
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsUsedCarLimitMessage_WhenUsedCarLimitsExceeded()
+    {
+        var loanTerms = _defaultLoanTerms with { LoanPeriodInMonths = 73, DownPayment = 300000m };
+        var loan = new Loan(loanTerms, new Car(CarCondition.Used, VehicleCategory.PetrolOrDiesel, 0));
+
+        var result = _validator.Evaluate(loan);
+
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
+    }
+
+    [Fact]
     public void Evaluate_ReturnsNullParameters_WhenLoanPeriodIsValid()
     {
         var loan = new Loan(_defaultLoanTerms, new Car(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0));

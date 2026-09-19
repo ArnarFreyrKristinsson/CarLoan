@@ -34,7 +34,7 @@ public class MinimumDownPaymentTests
 
         Assert.False(result.IsValid);
         Assert.Equal("MinimumDownPayment", result.RuleName);
-        Assert.NotNull(result.ErrorMessage);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
     }
 
     [Fact]
