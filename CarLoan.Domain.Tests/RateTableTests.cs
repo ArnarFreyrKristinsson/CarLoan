@@ -62,6 +62,13 @@ public class RateTableTests
             new RateTable([new RateTier(80m, 11.45m), new RateTier(80m, 9.99m)], 12.20m));
     }
 
+    [Fact]
+    public void Constructor_ThrowsArgumentException_WhenOnlySomeTiersShareAMaximumFinancingRatio()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new RateTable([new RateTier(80m, 11.45m), new RateTier(80m, 9.99m), new RateTier(90m, 12.20m)], 12.20m));
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-12.20)]

@@ -106,6 +106,15 @@ public class CarAgeTests
         Assert.NotNull(result.Parameters);
         Assert.Equal(12, result.Parameters["maxCombinedYears"]);
         Assert.Equal(80m, result.Parameters["ratioThreshold"]);
+        Assert.Equal(13m, result.Parameters["combinedYears"]);
+    }
+
+    [Fact]
+    public void Evaluate_ReturnsLimitMessage_WhenHighRatioLimitExceeded()
+    {
+        var result = _validator.Evaluate(CreateLoan(85m, 84, 6));
+
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
     }
 
     [Fact]

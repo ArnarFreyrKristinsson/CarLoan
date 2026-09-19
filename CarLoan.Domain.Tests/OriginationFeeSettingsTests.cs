@@ -33,6 +33,21 @@ public class OriginationFeeSettingsTests
     }
 
     [Fact]
+    public void Constructor_ThrowsArgumentException_WhenOnlySomeTiersShareAContractLength()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new OriginationFeeSettings([new FeeTier(23, 1.80m), new FeeTier(23, 2.00m), new FeeTier(84, 3.20m)], 18_000m, 50m, 1.00m));
+    }
+
+    [Fact]
+    public void FeeRateFor_ReturnsMatchingTierRate_WhenTiersProvidedUnordered()
+    {
+        var settings = new OriginationFeeSettings([new FeeTier(84, 3.20m), new FeeTier(23, 1.80m), new FeeTier(47, 2.25m)], 18_000m, 50m, 1.00m);
+
+        Assert.Equal(2.25m, settings.FeeRateFor(30));
+    }
+
+    [Fact]
     public void Constructor_ThrowsArgumentOutOfRangeException_WhenMinimumFeeIsNegative()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new OriginationFeeSettings(_defaultTiers, -1m, 50m, 1.00m));
@@ -61,6 +76,25 @@ public class OriginationFeeSettingsTests
         Assert.Equal(18_000m, settings.MinimumFee);
         Assert.Equal(50m, settings.GreenFeeDiscountPercentage);
         Assert.Equal(1.00m, settings.PlugInHybridRateDiscount);
+    }
+
+    [Fact]
+    public void Constructor_AcceptsZero_ForMinimumFeeAndPlugInHybridRateDiscount()
+    {
+        var settings = new OriginationFeeSettings(_defaultTiers, 0m, 50m, 0m);
+
+        Assert.Equal(0m, settings.MinimumFee);
+        Assert.Equal(0m, settings.PlugInHybridRateDiscount);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    public void Constructor_AcceptsGreenFeeDiscountPercentage_AtZeroAndHundred(decimal greenFeeDiscountPercentage)
+    {
+        var settings = new OriginationFeeSettings(_defaultTiers, 18_000m, greenFeeDiscountPercentage, 1.00m);
+
+        Assert.Equal(greenFeeDiscountPercentage, settings.GreenFeeDiscountPercentage);
     }
 
     [Theory]
