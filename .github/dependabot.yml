@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      # dotnet-stryker 5.x ships only a net10.0 build; global.json pins the .NET 8 SDK.
+      - dependency-name: dotnet-stryker
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"
