@@ -57,6 +57,14 @@ public class MultiLenderLoanApplicationServiceTests
     }
 
     [Fact]
+    public void Constructor_ThrowsArgumentException_WhenOnlySomeLenderProfilesAreNull()
+    {
+        var profiles = new Dictionary<string, LenderProfile>(_profiles) { ["LenderC"] = null! };
+
+        Assert.Throws<ArgumentException>(() => new MultiLenderLoanApplicationService(new LoanCalculator(), profiles));
+    }
+
+    [Fact]
     public void EvaluateLoanRequest_UsesProfilesCapturedAtConstruction_WhenCallerMutatesProfilesAfterwards()
     {
         var mutableProfiles = new Dictionary<string, LenderProfile>(_profiles);
