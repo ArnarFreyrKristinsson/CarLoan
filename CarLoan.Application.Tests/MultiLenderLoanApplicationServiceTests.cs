@@ -36,6 +36,9 @@ public class MultiLenderLoanApplicationServiceTests
 
     private readonly MultiLenderLoanApplicationService _service = new(new LoanCalculator(), _profiles);
 
+    private static IReadOnlyList<LenderLoanEvaluationResult> Lenders(LoanEvaluationOutcome outcome) =>
+        outcome.Should().BeOfType<LoanEvaluationOutcome.Evaluated>().Subject.Lenders;
+
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenLoanCalculatorIsNull()
     {
@@ -72,7 +75,7 @@ public class MultiLenderLoanApplicationServiceTests
 
         mutableProfiles["LenderC"] = null!;
 
-        var results = service.EvaluateLoanRequest(_defaultRequest);
+        var results = Lenders(service.EvaluateLoanRequest(_defaultRequest));
 
         results.Select(result => result.LenderName).Should().BeEquivalentTo(_profiles.Keys);
     }
@@ -84,9 +87,33 @@ public class MultiLenderLoanApplicationServiceTests
     }
 
     [Fact]
+    public void EvaluateLoanRequest_ReturnsInvalidRequestWithInputErrors_WhenRequestIsMalformed()
+    {
+        var request = _defaultRequest with { PurchasePrice = 0m, CarAgeInYears = -1 };
+
+        var outcome = _service.EvaluateLoanRequest(request);
+
+        outcome.Should().BeEquivalentTo(new LoanEvaluationOutcome.InvalidRequest(
+        [
+            new InputError(nameof(LoanRequest.PurchasePrice), InputErrorKind.MustBePositive),
+            new InputError(nameof(LoanRequest.CarAgeInYears), InputErrorKind.MustNotBeNegative)
+        ]));
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_ReturnsEvaluated_WhenEveryLenderDeclinesWellFormedRequest()
+    {
+        var request = _defaultRequest with { DownPayment = 0m };
+
+        var lenders = Lenders(_service.EvaluateLoanRequest(request));
+
+        Assert.All(lenders, lender => Assert.Contains(lender.ValidationResults, ruleResult => !ruleResult.IsValid));
+    }
+
+    [Fact]
     public void EvaluateLoanRequest_LabelsEachResultWithLenderName_WhenMultipleLendersProvided()
     {
-        var results = _service.EvaluateLoanRequest(_defaultRequest);
+        var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
 
         results.Select(result => result.LenderName).Should().BeEquivalentTo(_profiles.Keys);
     }
@@ -94,7 +121,7 @@ public class MultiLenderLoanApplicationServiceTests
     [Fact]
     public void EvaluateLoanRequest_ValidatesAgainstEachLendersRules_WhenRulesDiffer()
     {
-        var results = _service.EvaluateLoanRequest(_defaultRequest);
+        var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
 
         var lenderA = results.Single(result => result.LenderName == "LenderA");
         var lenderB = results.Single(result => result.LenderName == "LenderB");
@@ -106,7 +133,7 @@ public class MultiLenderLoanApplicationServiceTests
     [Fact]
     public void EvaluateLoanRequest_AppliesEachLendersInterestRate_WhenLoanRequestProvided()
     {
-        var results = _service.EvaluateLoanRequest(_defaultRequest);
+        var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
 
         results.Select(result => result.MonthlyPayment).Should().OnlyHaveUniqueItems();
         results.Single(result => result.LenderName == "LenderA").InterestRate.Should().Be(10.00m);
@@ -118,7 +145,7 @@ public class MultiLenderLoanApplicationServiceTests
     {
         var request = _defaultRequest with { VehicleCategory = RequestedVehicleCategory.ElectricOrHydrogen };
 
-        var results = _service.EvaluateLoanRequest(request);
+        var results = Lenders(_service.EvaluateLoanRequest(request));
 
         results.Single(result => result.LenderName == "LenderA").InterestRate.Should().Be(9.30m);
     }
@@ -126,7 +153,7 @@ public class MultiLenderLoanApplicationServiceTests
     [Fact]
     public void EvaluateLoanRequest_ReportsEachLendersOriginationFee_WhenLoanRequestProvided()
     {
-        var results = _service.EvaluateLoanRequest(_defaultRequest);
+        var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
 
         results.Single(result => result.LenderName == "LenderA").OriginationFee.Amount.Should().Be(32_000m);
         results.Single(result => result.LenderName == "LenderB").OriginationFee.Amount.Should().Be(20_000m);
@@ -135,7 +162,7 @@ public class MultiLenderLoanApplicationServiceTests
     [Fact]
     public void EvaluateLoanRequest_AddsOriginationFeeOnTopOfLoan_WhenCalculatingMonthlyPayment()
     {
-        var withFee = _service.EvaluateLoanRequest(_defaultRequest)
+        var withFee = Lenders(_service.EvaluateLoanRequest(_defaultRequest))
             .Single(result => result.LenderName == "LenderA");
 
         // LenderA finances 1,000,000 plus a 32,000 fee at 10.00% over 84 months.

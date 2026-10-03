@@ -2,18 +2,18 @@ namespace CarLoan.Domain.Models;
 
 public sealed record LoanRuleResult(
     bool IsValid,
-    string RuleName,
+    LoanRuleCode Code,
     string? ErrorMessage = null,
-    IReadOnlyDictionary<string, object>? Parameters = null)
+    IReadOnlyDictionary<LoanRuleParameter, decimal>? Parameters = null)
 {
     public static LoanRuleResult Create(
-        string ruleName,
+        LoanRuleCode code,
         bool isValid,
         string? failureMessage = null,
-        IReadOnlyDictionary<string, object>? failureParams = null) =>
+        IReadOnlyDictionary<LoanRuleParameter, decimal>? failureParams = null) =>
         new(
             isValid,
-            ruleName,
+            code,
             isValid ? null : failureMessage,
             isValid ? null : failureParams);
 }

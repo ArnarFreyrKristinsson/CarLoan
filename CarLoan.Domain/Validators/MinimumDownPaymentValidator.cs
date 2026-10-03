@@ -1,6 +1,6 @@
 using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
-using Params = System.Collections.Generic.Dictionary<string, object>;
+using Params = System.Collections.Generic.Dictionary<CarLoan.Domain.Models.LoanRuleParameter, decimal>;
 
 namespace CarLoan.Domain.Validators;
 
@@ -14,9 +14,9 @@ public class MinimumDownPaymentValidator(decimal allowedMinimumDownPayment) : IL
 
         bool isValid = loan.Terms.DownPayment >= _minimumDownPayment;
         return LoanRuleResult.Create(
-            "MinimumDownPayment",
+            LoanRuleCode.MinimumDownPayment,
             isValid,
             $"Down payment must be at least {_minimumDownPayment:N0}.",
-            new Params { ["min"] = _minimumDownPayment });
+            new Params { [LoanRuleParameter.Minimum] = _minimumDownPayment });
     }
 }

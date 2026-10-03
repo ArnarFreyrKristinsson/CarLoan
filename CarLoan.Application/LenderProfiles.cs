@@ -13,7 +13,8 @@ public static class LenderProfiles
             MaxAmount: 30_000_000m,
             MinPeriod: 6,
             MinDownPayment: 150_000m,
-            PeriodLimits: new LoanPeriodLimits(90m, 80m, 84, 72),
+            MaxLoanRatio: 90m,
+            PeriodLimits: new LoanPeriodLimits(80m, 84, 72),
             CarAgeLimits: new CarAgeLimits(80m, 12, 20),
             GeneralRateTiers:
             [
@@ -61,6 +62,7 @@ public static class LenderProfiles
         decimal MaxAmount,
         int MinPeriod,
         decimal MinDownPayment,
+        decimal MaxLoanRatio,
         LoanPeriodLimits PeriodLimits,
         CarAgeLimits CarAgeLimits,
         IReadOnlyList<RateTier> GeneralRateTiers,
@@ -75,6 +77,7 @@ public static class LenderProfiles
         new MaximumLoanAmountValidator(lenderSettings.MaxAmount),
         new MinimumLoanPeriodValidator(lenderSettings.MinPeriod),
         new MinimumDownPaymentValidator(lenderSettings.MinDownPayment),
+        new MaximumLoanRatioValidator(lenderSettings.MaxLoanRatio),
         new MaximumLoanPeriodValidator(lenderSettings.PeriodLimits),
         new CarAgeValidator(lenderSettings.CarAgeLimits)
     ];

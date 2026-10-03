@@ -14,11 +14,14 @@ public class MultiLenderLoanApplicationService(
     private readonly ILoanCalculator _loanCalculator = loanCalculator ?? throw new ArgumentNullException(nameof(loanCalculator));
     private readonly IReadOnlyDictionary<string, LenderProfile> _lenderProfiles = SnapshotProfiles(lenderProfiles);
 
-    public IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request)
+    public LoanEvaluationOutcome EvaluateLoanRequest(LoanRequest request)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        var inputErrors = LoanRequestValidator.Validate(request);
 
-        return EvaluateLoan(LoanRequestMapper.ToLoan(request));
+        if (inputErrors.Count > 0)
+            return new LoanEvaluationOutcome.InvalidRequest(inputErrors);
+
+        return new LoanEvaluationOutcome.Evaluated(EvaluateLoan(LoanRequestMapper.ToLoan(request)));
     }
 
     private static IReadOnlyDictionary<string, LenderProfile> SnapshotProfiles(

@@ -1,6 +1,6 @@
 using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
-using Params = System.Collections.Generic.Dictionary<string, object>;
+using Params = System.Collections.Generic.Dictionary<CarLoan.Domain.Models.LoanRuleParameter, decimal>;
 
 namespace CarLoan.Domain.Validators;
 
@@ -14,9 +14,9 @@ public class MaximumLoanAmountValidator(decimal maximumLoanAmount) : ILoanRule
 
         bool isValid = loan.Terms.LoanAmount <= _maximumLoanAmount;
         return LoanRuleResult.Create(
-            "MaximumLoanAmount",
+            LoanRuleCode.MaximumLoanAmount,
             isValid,
             $"Loan amount must not exceed {_maximumLoanAmount:N0}.",
-            new Params { ["max"] = _maximumLoanAmount });
+            new Params { [LoanRuleParameter.Maximum] = _maximumLoanAmount });
     }
 }

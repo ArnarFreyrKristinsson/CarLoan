@@ -13,7 +13,8 @@ public class LoanValidatorIntegrationTests
         new MaximumLoanAmountValidator(30_000_000m),
         new MinimumLoanPeriodValidator(6),
         new MinimumDownPaymentValidator(150000m),
-        new MaximumLoanPeriodValidator(new LoanPeriodLimits(90m, 80m, 84, 72)),
+        new MaximumLoanRatioValidator(90m),
+        new MaximumLoanPeriodValidator(new LoanPeriodLimits(80m, 84, 72)),
         new CarAgeValidator(new CarAgeLimits(80m, 12, 20))
     ];
 
@@ -47,12 +48,13 @@ public class LoanValidatorIntegrationTests
         var loan = CreateLoan();
         var expectedResults = new[]
         {
-            LoanRuleResult.Create("MinimumLoanAmount", true),
-            LoanRuleResult.Create("MaximumLoanAmount", true),
-            LoanRuleResult.Create("MinimumLoanPeriod", true),
-            LoanRuleResult.Create("MinimumDownPayment", true),
-            LoanRuleResult.Create("MaximumLoanPeriod", true),
-            LoanRuleResult.Create("CarAge", true),
+            LoanRuleResult.Create(LoanRuleCode.MinimumLoanAmount, true),
+            LoanRuleResult.Create(LoanRuleCode.MaximumLoanAmount, true),
+            LoanRuleResult.Create(LoanRuleCode.MinimumLoanPeriod, true),
+            LoanRuleResult.Create(LoanRuleCode.MinimumDownPayment, true),
+            LoanRuleResult.Create(LoanRuleCode.MaximumLoanRatio, true),
+            LoanRuleResult.Create(LoanRuleCode.MaximumLoanPeriod, true),
+            LoanRuleResult.Create(LoanRuleCode.CarAge, true),
         };
 
         var results = _validator.Validate(loan);
@@ -68,7 +70,7 @@ public class LoanValidatorIntegrationTests
         var results = _validator.Validate(loan);
 
         var failure = Assert.Single(results, r => !r.IsValid);
-        Assert.Equal("MinimumLoanAmount", failure.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumLoanAmount, failure.Code);
     }
 
     [Fact]
@@ -79,7 +81,7 @@ public class LoanValidatorIntegrationTests
         var results = _validator.Validate(loan);
 
         var failure = Assert.Single(results, r => !r.IsValid);
-        Assert.Equal("MinimumDownPayment", failure.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumDownPayment, failure.Code);
     }
 
     [Fact]
@@ -90,7 +92,7 @@ public class LoanValidatorIntegrationTests
         var results = _validator.Validate(loan);
 
         var failure = Assert.Single(results, r => !r.IsValid);
-        Assert.Equal("MinimumLoanPeriod", failure.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumLoanPeriod, failure.Code);
     }
 
     [Fact]
@@ -101,7 +103,18 @@ public class LoanValidatorIntegrationTests
         var results = _validator.Validate(loan);
 
         var failure = Assert.Single(results, r => !r.IsValid);
-        Assert.Equal("MaximumLoanPeriod", failure.RuleName);
+        Assert.Equal(LoanRuleCode.MaximumLoanPeriod, failure.Code);
+    }
+
+    [Fact]
+    public void Validate_ContainsOnlyMaximumLoanRatioFailure_WhenNewCarLoanRatioTooHighWithinTerm()
+    {
+        var loan = CreateLoan(downPayment: 150_000m, loanPeriodInMonths: 60);
+
+        var results = _validator.Validate(loan);
+
+        var failure = Assert.Single(results, r => !r.IsValid);
+        Assert.Equal(LoanRuleCode.MaximumLoanRatio, failure.Code);
     }
 
     [Fact]
@@ -111,7 +124,7 @@ public class LoanValidatorIntegrationTests
 
         var results = _validator.Validate(loan);
 
-        var failedRules = results.Where(r => !r.IsValid).Select(r => r.RuleName);
-        failedRules.Should().BeEquivalentTo(["MinimumLoanAmount", "MinimumDownPayment", "MinimumLoanPeriod"]);
+        var failedRules = results.Where(r => !r.IsValid).Select(r => r.Code);
+        failedRules.Should().BeEquivalentTo([LoanRuleCode.MinimumLoanAmount, LoanRuleCode.MinimumDownPayment, LoanRuleCode.MinimumLoanPeriod]);
     }
 }
