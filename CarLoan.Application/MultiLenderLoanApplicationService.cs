@@ -24,7 +24,7 @@ public class MultiLenderLoanApplicationService(
         return new LoanEvaluationOutcome.Evaluated(EvaluateLoan(LoanRequestMapper.ToLoan(request)));
     }
 
-    private static IReadOnlyDictionary<string, LenderProfile> SnapshotProfiles(
+    private static Dictionary<string, LenderProfile> SnapshotProfiles(
         IReadOnlyDictionary<string, LenderProfile> lenderProfiles)
     {
         ArgumentNullException.ThrowIfNull(lenderProfiles);
