@@ -13,12 +13,54 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8A65E0F-6C13-4B62-8E4B-1F2A3C4D5E6F}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		CLAUDE.md = CLAUDE.md
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FACBC74C-8365-4CE3-80D9-DB7DBE2BEAB8}"
+	ProjectSection(SolutionItems) = preProject
+		docs\api-contract.md = docs\api-contract.md
+		docs\architecture.md = docs\architecture.md
+		docs\ux-findings.md = docs\ux-findings.md
+		docs\ux-rules.md = docs\ux-rules.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rules", "rules", "{4CB089C0-C42C-43DD-93D7-8A03E82D9FD9}"
 	ProjectSection(SolutionItems) = preProject
 		docs\rules\lykill.md = docs\rules\lykill.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spec", "spec", "{74F6367B-D0A5-4B54-B9BC-A7CF2DD2C069}"
+	ProjectSection(SolutionItems) = preProject
+		docs\spec\definition-of-done.md = docs\spec\definition-of-done.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ui-plans", "ui-plans", "{847A5556-EA4B-4E7C-86C0-8454CC83B34F}"
+	ProjectSection(SolutionItems) = preProject
+		docs\ui-plans\README.md = docs\ui-plans\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".claude", ".claude", "{07FC93F0-583F-43D3-9A6B-BCB2012762EB}"
+	ProjectSection(SolutionItems) = preProject
+		.claude\settings.local.json = .claude\settings.local.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "agents", "agents", "{D175F53E-84D2-4B0A-949B-B5E1F275810D}"
+	ProjectSection(SolutionItems) = preProject
+		.claude\agents\ux-reviewer.md = .claude\agents\ux-reviewer.md
+		.claude\agents\engine-reviewer.md = .claude\agents\engine-reviewer.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "skills", "skills", "{EC4D2F22-67A8-48BF-8F99-DC97621B86B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "engine-building", "engine-building", "{77A0D4F7-8AED-498A-89DE-9DB813F8AF0B}"
+	ProjectSection(SolutionItems) = preProject
+		.claude\skills\engine-building\SKILL.md = .claude\skills\engine-building\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ui-building", "ui-building", "{DEE85BA9-582B-4A63-8DE8-F3C201BFA391}"
+	ProjectSection(SolutionItems) = preProject
+		.claude\skills\ui-building\SKILL.md = .claude\skills\ui-building\SKILL.md
 	EndProjectSection
 EndProject
 Global
@@ -84,7 +126,15 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{4CB089C0-C42C-43DD-93D7-8A03E82D9FD9} = {D8A65E0F-6C13-4B62-8E4B-1F2A3C4D5E6F}
+		{FACBC74C-8365-4CE3-80D9-DB7DBE2BEAB8} = {D8A65E0F-6C13-4B62-8E4B-1F2A3C4D5E6F}
+		{4CB089C0-C42C-43DD-93D7-8A03E82D9FD9} = {FACBC74C-8365-4CE3-80D9-DB7DBE2BEAB8}
+		{74F6367B-D0A5-4B54-B9BC-A7CF2DD2C069} = {FACBC74C-8365-4CE3-80D9-DB7DBE2BEAB8}
+		{847A5556-EA4B-4E7C-86C0-8454CC83B34F} = {FACBC74C-8365-4CE3-80D9-DB7DBE2BEAB8}
+		{07FC93F0-583F-43D3-9A6B-BCB2012762EB} = {D8A65E0F-6C13-4B62-8E4B-1F2A3C4D5E6F}
+		{D175F53E-84D2-4B0A-949B-B5E1F275810D} = {07FC93F0-583F-43D3-9A6B-BCB2012762EB}
+		{EC4D2F22-67A8-48BF-8F99-DC97621B86B0} = {07FC93F0-583F-43D3-9A6B-BCB2012762EB}
+		{77A0D4F7-8AED-498A-89DE-9DB813F8AF0B} = {EC4D2F22-67A8-48BF-8F99-DC97621B86B0}
+		{DEE85BA9-582B-4A63-8DE8-F3C201BFA391} = {EC4D2F22-67A8-48BF-8F99-DC97621B86B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3674951B-053A-4CD4-8165-3DCEC6303E5C}
