@@ -1,6 +1,6 @@
 using CarLoan.Domain.Guards;
 using CarLoan.Domain.Models;
-using Params = System.Collections.Generic.Dictionary<string, object>;
+using Params = System.Collections.Generic.Dictionary<CarLoan.Domain.Models.LoanRuleParameter, decimal>;
 
 namespace CarLoan.Domain.Validators;
 
@@ -14,9 +14,9 @@ public class MinimumLoanPeriodValidator(int minimumLoanPeriodMonths) : ILoanRule
 
         bool isValid = loan.Terms.LoanPeriodInMonths >= _minimumLoanPeriodMonths;
         return LoanRuleResult.Create(
-            "MinimumLoanPeriod",
+            LoanRuleCode.MinimumLoanPeriod,
             isValid,
             $"Loan period must be at least {_minimumLoanPeriodMonths} months.",
-            new Params { ["min"] = _minimumLoanPeriodMonths });
+            new Params { [LoanRuleParameter.Minimum] = _minimumLoanPeriodMonths });
     }
 }

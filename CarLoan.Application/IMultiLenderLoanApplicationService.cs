@@ -4,5 +4,5 @@ namespace CarLoan.Application;
 
 public interface IMultiLenderLoanApplicationService
 {
-    IReadOnlyList<LenderLoanEvaluationResult> EvaluateLoanRequest(LoanRequest request);
+    LoanEvaluationOutcome EvaluateLoanRequest(LoanRequest request);
 }

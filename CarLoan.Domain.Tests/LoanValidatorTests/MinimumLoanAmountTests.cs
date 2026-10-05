@@ -1,5 +1,6 @@
 ﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
+using FluentAssertions;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -33,7 +34,7 @@ public class MinimumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.False(result.IsValid);
-        Assert.Equal("MinimumLoanAmount", result.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumLoanAmount, result.Code);
         Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
     }
 
@@ -45,7 +46,7 @@ public class MinimumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.True(result.IsValid);
-        Assert.Equal("MinimumLoanAmount", result.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumLoanAmount, result.Code);
         Assert.Null(result.ErrorMessage);
     }
 
@@ -58,7 +59,7 @@ public class MinimumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.True(result.IsValid);
-        Assert.Equal("MinimumLoanAmount", result.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumLoanAmount, result.Code);
         Assert.Null(result.ErrorMessage);
     }
 
@@ -71,7 +72,10 @@ public class MinimumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.NotNull(result.Parameters);
-        Assert.Equal(750000m, result.Parameters["min"]);
+        result.Parameters.Should().BeEquivalentTo(new Dictionary<LoanRuleParameter, decimal>
+        {
+            [LoanRuleParameter.Minimum] = 750000m
+        });
     }
 
     [Fact]
@@ -94,6 +98,9 @@ public class MinimumLoanAmountTests
 
         Assert.False(result.IsValid);
         Assert.NotNull(result.Parameters);
-        Assert.Equal(1500000m, result.Parameters["min"]);
+        result.Parameters.Should().BeEquivalentTo(new Dictionary<LoanRuleParameter, decimal>
+        {
+            [LoanRuleParameter.Minimum] = 1500000m
+        });
     }
 }
