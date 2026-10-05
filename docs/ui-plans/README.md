@@ -26,6 +26,15 @@ apply. Every ID N1–N10 and S1–S8 appears exactly once. Overlapping pairs may
 | N1 | |
 | … | |
 
+## Acceptance criteria
+
+One line per Given/When/Then in the story: how the built screen satisfies it. Filled in at
+the self-check, against the screen as built.
+
+| Criterion | How the built screen satisfies it |
+|---|---|
+| | |
+
 ## Findings applied
 
 Which entries from docs/ux-findings.md shaped this screen, and how. "None yet" is a valid

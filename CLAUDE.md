@@ -37,16 +37,15 @@ part and the UI part as separate passes with the matching skill loaded.
 - **Engine code is tested, strictly TDD**, Red → Green → Refactor, one test per path, no
   production code without a failing test first. Details and test-style rules:
   `.claude/skills/engine-building/SKILL.md`.
-- **The UI is not tested automatically.** Deliberate decision — the reasoning and what
-  replaces it are in `docs/spec/definition-of-done.md`. Do not add UI test projects,
+- **The UI is not tested automatically.** Deliberate decision. Do not add UI test projects,
   snapshot tests or browser automation.
 - The consequence: **no logic in the UI.** Anything worth a test lives behind the contract
   in a tested layer. Wanting a test for UI code means that code is in the wrong layer.
 
 ## Done means
 
-`docs/spec/definition-of-done.md`. In short: acceptance criteria met, CI green, and the
-matching reviewer reporting no severity 3–4 findings after at most 3 review rounds.
+`docs/spec/definition-of-done.md`. In short: acceptance criteria met, the CI checks
+passing locally, and the matching reviewer reporting no findings within 3 review rounds.
 
 ## Where things live
 

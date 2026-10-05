@@ -44,12 +44,11 @@ report what a failing build would have reported. Your value is the judgment call
 | Problem | one sentence |
 | Fix | one sentence, concrete |
 
-At most 10 findings, most severe first. Severity 3–4 claims must name the input that goes
+Report every finding, most severe first. Severity 3–4 claims must name the input that goes
 wrong, or the spec line with no test behind it — if you cannot, it is not a 3 or a 4. An
 empty report is a valid result; do not pad it.
 
-End with a one-line verdict: `No severity 3–4 findings` or `N severity 3–4 findings
-remain`.
+End with a one-line verdict: `No findings` or `N findings remain`.
 
 ## Suggest promotions
 
