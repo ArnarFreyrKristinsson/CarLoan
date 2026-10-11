@@ -7,7 +7,7 @@ namespace CarLoan.Application.Requests;
 public static class LoanRequestValidator
 {
     /// <summary>Far above any car loan, so lender rules still decide every real case.</summary>
-    public const decimal MaximumPurchasePrice = 1_000_000_000_000m;
+    public const long MaximumPurchasePrice = 1_000_000_000_000;
 
     /// <summary>Far above any car loan, so lender rules still decide every real case.</summary>
     public const int MaximumLoanPeriodInMonths = 1_200;
