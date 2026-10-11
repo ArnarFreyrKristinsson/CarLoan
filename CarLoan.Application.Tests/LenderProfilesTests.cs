@@ -22,6 +22,7 @@ public class LenderProfilesTests
             typeof(MaximumLoanAmountValidator),
             typeof(MinimumLoanPeriodValidator),
             typeof(MinimumDownPaymentValidator),
+            typeof(MaximumLoanRatioValidator),
             typeof(MaximumLoanPeriodValidator),
             typeof(CarAgeValidator));
     }

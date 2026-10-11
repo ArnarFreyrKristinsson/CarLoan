@@ -1,5 +1,6 @@
 ﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
+using FluentAssertions;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -33,7 +34,7 @@ public class MaximumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.False(result.IsValid);
-        Assert.Equal("MaximumLoanAmount", result.RuleName);
+        Assert.Equal(LoanRuleCode.MaximumLoanAmount, result.Code);
         Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
     }
 
@@ -46,7 +47,7 @@ public class MaximumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.True(result.IsValid);
-        Assert.Equal("MaximumLoanAmount", result.RuleName);
+        Assert.Equal(LoanRuleCode.MaximumLoanAmount, result.Code);
         Assert.Null(result.ErrorMessage);
     }
 
@@ -70,7 +71,10 @@ public class MaximumLoanAmountTests
         var result = _validator.Evaluate(loan);
 
         Assert.NotNull(result.Parameters);
-        Assert.Equal(30_000_000m, result.Parameters["max"]);
+        result.Parameters.Should().BeEquivalentTo(new Dictionary<LoanRuleParameter, decimal>
+        {
+            [LoanRuleParameter.Maximum] = 30_000_000m
+        });
     }
 
     [Fact]
@@ -82,6 +86,9 @@ public class MaximumLoanAmountTests
         var result = validator.Evaluate(loan);
 
         Assert.False(result.IsValid);
-        Assert.Equal(500_000m, result.Parameters!["max"]);
+        result.Parameters.Should().BeEquivalentTo(new Dictionary<LoanRuleParameter, decimal>
+        {
+            [LoanRuleParameter.Maximum] = 500_000m
+        });
     }
 }

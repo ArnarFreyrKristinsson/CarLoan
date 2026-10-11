@@ -1,5 +1,6 @@
 using CarLoan.Application.Requests;
 using CarLoan.Domain.Calculators;
+using CarLoan.Domain.Models;
 using FluentAssertions;
 
 namespace CarLoan.Application.Tests;
@@ -14,7 +15,9 @@ public class LykillRuleSpecificationTests
         new(new LoanCalculator(), LenderProfiles.Build());
 
     private LenderLoanEvaluationResult Evaluate(LoanRequest request) =>
-        _service.EvaluateLoanRequest(request).Single(result => result.LenderName == "Lykill");
+        _service.EvaluateLoanRequest(request)
+            .Should().BeOfType<LoanEvaluationOutcome.Evaluated>().Subject
+            .Lenders.Single(result => result.LenderName == "Lykill");
 
     [Fact]
     public void EvaluateLoanRequest_PricesGreenLoanOnGreenSchedule_WhenUsedElectricCarWithinEveryRule()
@@ -59,8 +62,34 @@ public class LykillRuleSpecificationTests
 
         var result = Evaluate(request);
 
-        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.RuleName);
-        failedRules.Should().BeEquivalentTo(["MaximumLoanPeriod", "CarAge"]);
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.Code);
+        failedRules.Should().BeEquivalentTo([LoanRuleCode.MaximumLoanPeriod, LoanRuleCode.CarAge]);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_FailsOnlyLoanRatioRule_WhenNewCarAboveNinetyPercentWithinTerm()
+    {
+        // 95% LTV breaks T1's 90% cap; 60 months is within T1's 84.
+        var request = new LoanRequest(
+            4_000_000m, 200_000m, 60, RequestedCarCondition.New, RequestedVehicleCategory.PetrolOrDiesel, 0);
+
+        var result = Evaluate(request);
+
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.Code);
+        failedRules.Should().BeEquivalentTo([LoanRuleCode.MaximumLoanRatio]);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_FailsLoanRatioAndTermRules_WhenUsedCarAboveNinetyPercentRunsFullTerm()
+    {
+        // 95% LTV breaks T3's 90% cap, and 84 months breaks T3's 72-month term.
+        var request = new LoanRequest(
+            4_000_000m, 200_000m, 84, RequestedCarCondition.Used, RequestedVehicleCategory.PetrolOrDiesel, 0);
+
+        var result = Evaluate(request);
+
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.Code);
+        failedRules.Should().BeEquivalentTo([LoanRuleCode.MaximumLoanRatio, LoanRuleCode.MaximumLoanPeriod]);
     }
 
     [Fact]
@@ -71,8 +100,8 @@ public class LykillRuleSpecificationTests
 
         var result = Evaluate(request);
 
-        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.RuleName);
-        failedRules.Should().Contain("MaximumLoanAmount");
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.Code);
+        failedRules.Should().Contain(LoanRuleCode.MaximumLoanAmount);
     }
 
     [Fact]
@@ -83,8 +112,8 @@ public class LykillRuleSpecificationTests
 
         var result = Evaluate(request);
 
-        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.RuleName);
-        failedRules.Should().BeEquivalentTo(["MinimumLoanAmount", "MinimumDownPayment"]);
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.Code);
+        failedRules.Should().BeEquivalentTo([LoanRuleCode.MinimumLoanAmount, LoanRuleCode.MinimumDownPayment]);
     }
 
     [Fact]
@@ -95,8 +124,8 @@ public class LykillRuleSpecificationTests
 
         var result = Evaluate(request);
 
-        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.RuleName);
-        failedRules.Should().BeEquivalentTo(["MinimumLoanPeriod"]);
+        var failedRules = result.ValidationResults.Where(rule => !rule.IsValid).Select(rule => rule.Code);
+        failedRules.Should().BeEquivalentTo([LoanRuleCode.MinimumLoanPeriod]);
     }
 
     [Fact]

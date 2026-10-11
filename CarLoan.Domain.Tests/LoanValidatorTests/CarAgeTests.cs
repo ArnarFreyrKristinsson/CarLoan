@@ -1,5 +1,6 @@
 ﻿using CarLoan.Domain.Models;
 using CarLoan.Domain.Validators;
+using FluentAssertions;
 using Xunit;
 
 namespace CarLoan.Domain.Tests.LoanValidatorTests;
@@ -40,7 +41,7 @@ public class CarAgeTests
         var result = _validator.Evaluate(CreateLoan(loanRatio, loanPeriodInMonths, carAgeInYears, CarCondition.New));
 
         Assert.True(result.IsValid);
-        Assert.Equal("CarAge", result.RuleName);
+        Assert.Equal(LoanRuleCode.CarAge, result.Code);
         Assert.Null(result.ErrorMessage);
     }
 
@@ -64,7 +65,7 @@ public class CarAgeTests
         var result = _validator.Evaluate(CreateLoan(loanRatio, loanPeriodInMonths, carAgeInYears));
 
         Assert.False(result.IsValid);
-        Assert.Equal("CarAge", result.RuleName);
+        Assert.Equal(LoanRuleCode.CarAge, result.Code);
         Assert.NotNull(result.ErrorMessage);
     }
 
@@ -104,9 +105,12 @@ public class CarAgeTests
         var result = _validator.Evaluate(CreateLoan(85m, 84, 6));
 
         Assert.NotNull(result.Parameters);
-        Assert.Equal(12, result.Parameters["maxCombinedYears"]);
-        Assert.Equal(80m, result.Parameters["ratioThreshold"]);
-        Assert.Equal(13m, result.Parameters["combinedYears"]);
+        result.Parameters.Should().BeEquivalentTo(new Dictionary<LoanRuleParameter, decimal>
+        {
+            [LoanRuleParameter.MaximumCombinedYears] = 12m,
+            [LoanRuleParameter.LoanRatioThreshold] = 80m,
+            [LoanRuleParameter.CombinedYears] = 13m
+        });
     }
 
     [Fact]
@@ -123,7 +127,12 @@ public class CarAgeTests
         var result = _validator.Evaluate(CreateLoan(50m, 84, 20));
 
         Assert.NotNull(result.Parameters);
-        Assert.Equal(20, result.Parameters["maxCombinedYears"]);
+        result.Parameters.Should().BeEquivalentTo(new Dictionary<LoanRuleParameter, decimal>
+        {
+            [LoanRuleParameter.MaximumCombinedYears] = 20m,
+            [LoanRuleParameter.LoanRatioThreshold] = 80m,
+            [LoanRuleParameter.CombinedYears] = 27m
+        });
     }
 
     [Fact]

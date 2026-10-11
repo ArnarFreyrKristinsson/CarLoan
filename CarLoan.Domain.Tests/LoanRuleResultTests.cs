@@ -8,12 +8,12 @@ public class LoanRuleResultTests
     [Fact]
     public void Create_SetsErrorMessageAndParamsToNull_WhenIsValidIsTrue()
     {
-        var failureParams = new Dictionary<string, object> { ["min"] = 150000m };
+        var failureParams = new Dictionary<LoanRuleParameter, decimal> { [LoanRuleParameter.Minimum] = 150000m };
 
-        var result = LoanRuleResult.Create("TestRule", true, "failure message", failureParams);
+        var result = LoanRuleResult.Create(LoanRuleCode.MinimumDownPayment, true, "failure message", failureParams);
 
         Assert.True(result.IsValid);
-        Assert.Equal("TestRule", result.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumDownPayment, result.Code);
         Assert.Null(result.ErrorMessage);
         Assert.Null(result.Parameters);
     }
@@ -21,12 +21,12 @@ public class LoanRuleResultTests
     [Fact]
     public void Create_SetsErrorMessageAndParams_WhenIsValidIsFalse()
     {
-        var failureParams = new Dictionary<string, object> { ["min"] = 150000m };
+        var failureParams = new Dictionary<LoanRuleParameter, decimal> { [LoanRuleParameter.Minimum] = 150000m };
 
-        var result = LoanRuleResult.Create("TestRule", false, "failure message", failureParams);
+        var result = LoanRuleResult.Create(LoanRuleCode.MinimumDownPayment, false, "failure message", failureParams);
 
         Assert.False(result.IsValid);
-        Assert.Equal("TestRule", result.RuleName);
+        Assert.Equal(LoanRuleCode.MinimumDownPayment, result.Code);
         Assert.Equal("failure message", result.ErrorMessage);
         Assert.Equal(failureParams, result.Parameters);
     }
