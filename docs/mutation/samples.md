@@ -25,3 +25,16 @@ An item fails when:
 
 A sample this small will not catch the judge's ordinary few-percent error rate, and is not
 meant to. It catches the judge or the test writer drifting.
+
+## Sample 2026-10-11
+
+Result: _not checked yet_
+
+Excused mutants. Is the argument right, that no valid input can tell the two versions apart?
+
+- [ ] CarLoan.Application/Mapping/LoanRequestMapper.cs:14 Statement mutation: ArgumentOutOfRangeException.ThrowIfNegative(request.CarAgeInYears); -> ;
+      Excuse: the guard is a no-op for any CarAgeInYears >= 0, and a negative age still throws ArgumentOutOfRangeException from Car's constructor (Guard.NonNegative), so only the exception's ParamName and message wording differ.
+
+Agent-written tests. Does each expected value trace back to the lender's terms in docs/rules/?
+
+- none yet

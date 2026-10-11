@@ -1,0 +1,14 @@
+{
+    "items":  [
+                  {
+                      "key":  "8b158470b6",
+                      "date":  "2026-10-11",
+                      "project":  "CarLoan.Application",
+                      "file":  "CarLoan.Application/Mapping/LoanRequestMapper.cs",
+                      "comment":  "// Stryker disable once Statement: equivalent, because the guard is a no-op for any CarAgeInYears \u003e= 0, and a negative age still throws ArgumentOutOfRangeException from Car\u0027s constructor (Guard.NonNegative), so only the exception\u0027s ParamName and message wording differ.",
+                      "lineHash":  "0a322140ffebd2b7b7894cb7f3ed70e5d19cc2b1",
+                      "mutant":  "CarLoan.Application/Mapping/LoanRequestMapper.cs:14  Statement mutation:  ArgumentOutOfRangeException.ThrowIfNegative(request.CarAgeInYears);  -\u003e  ;",
+                      "reason":  "the guard is a no-op for any CarAgeInYears \u003e= 0, and a negative age still throws ArgumentOutOfRangeException from Car\u0027s constructor (Guard.NonNegative), so only the exception\u0027s ParamName and message wording differ."
+                  }
+              ]
+}

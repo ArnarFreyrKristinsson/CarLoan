@@ -11,6 +11,7 @@ public static class LoanRequestMapper
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(request.PurchasePrice);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(request.LoanPeriodInMonths);
         ArgumentOutOfRangeException.ThrowIfNegative(request.DownPayment);
+        // Stryker disable once Statement: equivalent, because the guard is a no-op for any CarAgeInYears >= 0, and a negative age still throws ArgumentOutOfRangeException from Car's constructor (Guard.NonNegative), so only the exception's ParamName and message wording differ.
         ArgumentOutOfRangeException.ThrowIfNegative(request.CarAgeInYears);
 
         return new(
