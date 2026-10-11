@@ -1,0 +1,16 @@
+{
+    "items":  [
+                  {
+                      "key":  "f4ffd89094",
+                      "date":  "2026-10-11",
+                      "project":  "CarLoan.Domain",
+                      "mutant":  "CarLoan.Domain/Guards/Guard.cs:35  Statement mutation:  ArgumentNullException.ThrowIfNull(values, parameterName);  -\u003e  ;",
+                      "files":  [
+                                    "CarLoan.Domain.Tests/LenderProfileTests.cs"
+                                ],
+                      "tests":  [
+                                    "Constructor_ThrowsArgumentNullExceptionNamingRules_WhenRulesIsNull"
+                                ]
+                  }
+              ]
+}
