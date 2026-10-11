@@ -8,27 +8,27 @@ public class OriginationFeeSettingsTests
     private static readonly IReadOnlyList<FeeTier> _defaultTiers = [new(23, 1.80m), new(84, 3.20m)];
 
     [Fact]
-    public void Constructor_ThrowsArgumentNullException_WhenTiersIsNull()
+    public void Constructor_ThrowsArgumentNullExceptionNamingTiers_WhenTiersIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => new OriginationFeeSettings(null!, 18_000m, 50m, 1.00m));
+        Assert.Throws<ArgumentNullException>(nameof(OriginationFeeSettings.Tiers), () => new OriginationFeeSettings(null!, 18_000m, 50m, 1.00m));
     }
 
     [Fact]
-    public void Constructor_ThrowsArgumentException_WhenTiersIsEmpty()
+    public void Constructor_ThrowsArgumentExceptionNamingTiers_WhenTiersIsEmpty()
     {
-        Assert.Throws<ArgumentException>(() => new OriginationFeeSettings([], 18_000m, 50m, 1.00m));
+        Assert.Throws<ArgumentException>(nameof(OriginationFeeSettings.Tiers), () => new OriginationFeeSettings([], 18_000m, 50m, 1.00m));
     }
 
     [Fact]
-    public void Constructor_ThrowsArgumentException_WhenTiersContainsNullEntry()
+    public void Constructor_ThrowsArgumentExceptionNamingTiers_WhenTiersContainsNullEntry()
     {
-        Assert.Throws<ArgumentException>(() => new OriginationFeeSettings([new FeeTier(23, 1.80m), null!], 18_000m, 50m, 1.00m));
+        Assert.Throws<ArgumentException>(nameof(OriginationFeeSettings.Tiers), () => new OriginationFeeSettings([new FeeTier(23, 1.80m), null!], 18_000m, 50m, 1.00m));
     }
 
     [Fact]
-    public void Constructor_ThrowsArgumentException_WhenTiersContainsDuplicateContractLengths()
+    public void Constructor_ThrowsArgumentExceptionNamingTiers_WhenTiersContainsDuplicateContractLengths()
     {
-        Assert.Throws<ArgumentException>(() =>
+        Assert.Throws<ArgumentException>(nameof(OriginationFeeSettings.Tiers), () =>
             new OriginationFeeSettings([new FeeTier(23, 1.80m), new FeeTier(23, 2.00m)], 18_000m, 50m, 1.00m));
     }
 
