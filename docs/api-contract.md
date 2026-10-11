@@ -32,6 +32,11 @@ LoanEvaluationOutcome EvaluateLoanRequest(LoanRequest request);
 These are different things and the UI tells them apart by type, never by catching an
 exception (N9). A `null` request is a programming error and still throws.
 
+Engine configuration built with an invalid value (a lender profile, a rate table, a fee
+schedule) is a programming error too, and the guards in `CarLoan.Domain/Guards` throw for
+it. The exception a guard throws names the parameter the guard was given: its `ParamName`
+is part of the behaviour, its message wording is not.
+
 ### Request — `LoanRequest`
 
 | Field | Type | Notes |

@@ -1,0 +1,10 @@
+{
+  "sinceTarget": "master",
+  "fullRunMaxAgeDays": 7,
+  "attemptsPerMutant": 2,
+  "hintedAttempts": 1,
+  "testRepeats": 3,
+  "autoExcuseEquivalent": true,
+  "sampleSize": 3,
+  "sampleIntervalDays": 30
+}

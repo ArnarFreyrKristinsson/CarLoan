@@ -2,6 +2,7 @@ using CarLoan.Domain.Fees;
 using CarLoan.Domain.Lenders;
 using CarLoan.Domain.Providers;
 using CarLoan.Domain.Validators;
+using FluentAssertions;
 using Xunit;
 
 namespace CarLoan.Domain.Tests;
@@ -48,6 +49,18 @@ public class LenderProfileTests
     {
         Assert.Throws<ArgumentException>(() =>
             new LenderProfile("Lender", [new MinimumLoanPeriodValidator(6), null!], _defaultRateProvider, _defaultFeeCalculator));
+    }
+
+    // docs/api-contract.md, "Engine entry point": a lender profile built with an invalid value is
+    // a programming error, and "the exception a guard throws names the parameter the guard was
+    // given: its ParamName is part of the behaviour". The invalid value here is the Rules
+    // argument, so the exception must name Rules, not a parameter of whatever the guard calls.
+    [Fact]
+    public void Constructor_ThrowsArgumentNullExceptionNamingRules_WhenRulesIsNull()
+    {
+        var act = () => new LenderProfile("Lender", null!, _defaultRateProvider, _defaultFeeCalculator);
+
+        act.Should().ThrowExactly<ArgumentNullException>().WithParameterName(nameof(LenderProfile.Rules));
     }
 
     [Fact]

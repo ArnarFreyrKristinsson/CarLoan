@@ -6,8 +6,12 @@ namespace CarLoan.Application.Requests;
 /// </summary>
 public static class LoanRequestValidator
 {
-    /// <summary>Far above any car loan, so lender rules still decide every real case.</summary>
-    public const decimal MaximumPurchasePrice = 1_000_000_000_000m;
+    /// <summary>
+    /// Far above any car loan, so lender rules still decide every real case. Whole kr as a
+    /// <see langword="long"/>, which converts implicitly to <see langword="decimal"/>: a C#
+    /// <see langword="decimal"/> const is not a true constant, it compiles to a static readonly field.
+    /// </summary>
+    public const long MaximumPurchasePrice = 1_000_000_000_000;
 
     /// <summary>Far above any car loan, so lender rules still decide every real case.</summary>
     public const int MaximumLoanPeriodInMonths = 1_200;
