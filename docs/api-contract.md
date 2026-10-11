@@ -48,9 +48,10 @@ is part of the behaviour, its message wording is not.
 | `VehicleCategory` | `RequestedVehicleCategory` | enum, V1–V3 in the spec |
 | `CarAgeInYears` | int | |
 
-All amounts are `decimal` kr. Loan amount is `PurchasePrice - DownPayment` and excludes
-fees. The UI does not compute it for display purposes beyond echoing the user's inputs —
-see **Division of responsibility**.
+All amounts are `decimal` kr, with one exception: the limit
+`LoanRequestValidator.MaximumPurchasePrice` is a `long` in whole kr (see **Input errors**).
+Loan amount is `PurchasePrice - DownPayment` and excludes fees. The UI does not compute it
+for display purposes beyond echoing the user's inputs — see **Division of responsibility**.
 
 ### Response — one `LenderLoanEvaluationResult` per lender
 
@@ -80,8 +81,10 @@ see **Division of responsibility**.
 Every malformed field is reported at once, so the UI can mark them all next to their
 inputs. The UI's own form checks stop at "filled in" and "is a number"; ranges are the
 engine's. The UI may read the two `Maximum…` constants for its input limits (N5) rather
-than repeating the numbers. The bounds sit far above any car loan, so lender rules still
-decide every real case.
+than repeating the numbers. Both are compile-time constants: `MaximumPurchasePrice` is a
+`long` in whole kr, which converts implicitly to the `decimal` it is compared with, and
+`MaximumLoanPeriodInMonths` is an `int`. The bounds sit far above any car loan, so lender
+rules still decide every real case.
 
 **Guarantee:** a request with no input errors is always `Evaluated` — no exception, no
 negative amounts. `WellFormedRequestGuaranteeTests` enforces it.
