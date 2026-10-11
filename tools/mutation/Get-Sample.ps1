@@ -21,7 +21,8 @@ if ($OnlyIfDue) {
 }
 
 function Get-RandomItems($items) {
-    $items = @($items)
+    # An empty ledger arrives here as $null, and @($null) would be a list of one.
+    $items = @($items | Where-Object { $null -ne $_ })
     if ($items.Count -eq 0) { return @() }
     return @($items | Get-Random -Count ([Math]::Min($Settings.sampleSize, $items.Count)))
 }
