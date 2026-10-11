@@ -12,7 +12,7 @@ public sealed record OriginationFeeSettings(
     decimal GreenFeeDiscountPercentage,
     decimal PlugInHybridRateDiscount)
 {
-    public IReadOnlyList<FeeTier> Tiers { get; } = ValidateAndSort(Tiers);
+    public IReadOnlyList<FeeTier> Tiers { get; } = ValidateAndSort(Tiers, nameof(Tiers));
     public decimal MinimumFee { get; } = Guard.NonNegative(MinimumFee, nameof(MinimumFee));
     public decimal GreenFeeDiscountPercentage { get; } = Guard.InRange(GreenFeeDiscountPercentage, 0m, 100m, nameof(GreenFeeDiscountPercentage));
     public decimal PlugInHybridRateDiscount { get; } = Guard.NonNegative(PlugInHybridRateDiscount, nameof(PlugInHybridRateDiscount));
@@ -53,18 +53,18 @@ public sealed record OriginationFeeSettings(
         };
     }
 
-    private static IReadOnlyList<FeeTier> ValidateAndSort(IReadOnlyList<FeeTier> tiers)
+    private static IReadOnlyList<FeeTier> ValidateAndSort(IReadOnlyList<FeeTier> tiers, string parameterName)
     {
-        Guard.NoNullElements(tiers, nameof(tiers));
+        Guard.NoNullElements(tiers, parameterName);
 
         if (tiers.Count == 0)
         {
-            throw new ArgumentException("Fee tier list must not be empty.", nameof(tiers));
+            throw new ArgumentException("Fee tier list must not be empty.", parameterName);
         }
 
         if (tiers.GroupBy(tier => tier.MaximumContractMonths).Any(group => group.Count() > 1))
         {
-            throw new ArgumentException("Fee tier list must not contain duplicate contract lengths.", nameof(tiers));
+            throw new ArgumentException("Fee tier list must not contain duplicate contract lengths.", parameterName);
         }
 
         return [.. tiers.OrderBy(tier => tier.MaximumContractMonths)];
