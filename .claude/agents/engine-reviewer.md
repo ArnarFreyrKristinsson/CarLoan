@@ -53,5 +53,6 @@ End with a one-line verdict: `No findings` or `N findings remain`.
 ## Suggest promotions
 
 When a finding is one you would have to make again on the next change, say which guardrail
-would catch it instead — a NetArchTest rule, a test, a Stryker threshold. The reviewer
-should be shrinking over time.
+would catch it instead — a NetArchTest rule, a test, a check in the mutation pass
+(`docs/mutation/README.md`). Never a mutation-score threshold: the score is read, not
+targeted. The reviewer should be shrinking over time.

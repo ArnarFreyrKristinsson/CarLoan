@@ -29,4 +29,5 @@ differs from the standard one, wiring that up in `Build()`.
 ## Testing
 
 Built with the TDD method, using Osherove naming. Mutation-tested regularly with Stryker to catch
-assertions that pass without actually exercising the behavior they claim to check.
+assertions that pass without actually exercising the behavior they claim to check. The mutation
+score is read, never targeted; how a pass runs and why is in `docs/mutation/README.md`.

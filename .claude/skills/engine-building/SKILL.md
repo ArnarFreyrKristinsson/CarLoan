@@ -107,12 +107,16 @@ expressed as a NetArchTest test, prefer that over trusting the convention.
 4. Call the `engine-reviewer` subagent. Fix each finding, citing its reference.
 5. Repeat until the reviewer reports no findings, at most 3 rounds. End with the result:
    `No findings`, or every finding that remains, most severe first.
+6. Commit, then run a mutation pass on the change with the `mutation-pass` skill. Do not
+   write tests to kill mutants yourself, here or during TDD: there is no mutation score to
+   reach, and the pass has its own test writer and its own checks.
 
 ## Hard rules
 
-- **Do not edit the spec, the API contract or the thresholds** (`stryker-config.json`, CI
-  config) to make your work pass. Those define correct. If the spec is actually wrong, say
-  so in your report and leave it unchanged.
+- **Do not edit the spec, the API contract or the thresholds** (`stryker-config.json`,
+  `tools/mutation/`, CI config) to make your work pass, and do not write a `// Stryker`
+  comment. Those define correct. If the spec is actually wrong, say so in your report and
+  leave it unchanged.
 - **Do not loosen or delete a test** to get to green. Tests change in the test-writing step
   of the cycle, driven by the spec — never during a fix round to accommodate the code.
 - If you are asked to make the UI call something it should not, the contract is wrong. Fix

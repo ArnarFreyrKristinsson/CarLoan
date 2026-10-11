@@ -3,6 +3,14 @@
     "project-info": {
       "name": "github.com/ArnarFreyrKristinsson/CarLoan",
       "version": "master"
+    },
+    "ignore-methods": [
+      "*Exception.ctor"
+    ],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
     }
   }
 }

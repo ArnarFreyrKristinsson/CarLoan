@@ -22,6 +22,9 @@ Done when:
    `lykill.md`), including the edge cases each spec states. Where code and spec disagree,
    the spec wins.
 4. `engine-reviewer` reports no findings (see **Stop rule for review loops**).
+5. A mutation pass has run on the change (`mutation-pass` skill) and its last script
+   finished without `STOP` or `CHECKS FAILED`. The pass has no mutation score to reach:
+   surviving mutants that ended up parked do not keep a story from being done.
 
 ## UI story
 
