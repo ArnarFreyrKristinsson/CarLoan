@@ -59,6 +59,18 @@ public class LenderProfilesTests
     {
         var lykill = LenderProfiles.Build()["Lykill"];
 
-        Assert.Equal(expectedRate, lykill.FeeCalculator.Calculate(CreateLoan(1_000_000m, category)).EffectiveRate);
+        Assert.Equal(expectedRate, lykill.FeeCalculator.Calculate(CreateLoan(1_000_000m, category))!.EffectiveRate);
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(85)]
+    public void Build_ConfiguresFeeScheduleFromSixToEightyFourMonths_WhenTermOutsideIt(int months)
+    {
+        // lykill.md §6: FR1 starts at 6 months, FR6 ends at 84.
+        var lykill = LenderProfiles.Build()["Lykill"];
+        var loan = new Loan(new LoanTerms(2_000_000m, 1_000_000m, months, 0m), new Car(CarCondition.New, VehicleCategory.PetrolOrDiesel, 0));
+
+        lykill.FeeCalculator.FindPricingGap(loan).Should().Be(new PricingGap(PricingGapCode.OriginationFee, 6m, 84m));
     }
 }

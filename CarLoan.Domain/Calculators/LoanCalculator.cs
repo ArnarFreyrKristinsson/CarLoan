@@ -20,6 +20,12 @@ public class LoanCalculator() : ILoanCalculator
         return Math.Round(loanTerms.FinancedAmount * monthlyRate * compoundFactor / (compoundFactor - 1), 2);
     }
 
+    /// <summary>
+    /// Every monthly payment, rounded as charged, less the financed amount they repay.
+    /// </summary>
+    public decimal CalculateTotalInterest(LoanTerms loanTerms) =>
+        CalculateMonthlyPayment(loanTerms) * loanTerms.LoanPeriodInMonths - loanTerms.FinancedAmount;
+
     internal static decimal DecimalPow(decimal baseValue, int exponent) =>
         Enumerable.Repeat(baseValue, exponent).Aggregate(1m, (acc, x) => acc * x);
 }

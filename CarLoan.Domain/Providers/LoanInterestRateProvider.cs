@@ -11,10 +11,19 @@ public sealed class LoanInterestRateProvider(RateTable general, RateTable green)
     private readonly RateTable _general = Guard.NotNull(general, nameof(general));
     private readonly RateTable _green = Guard.NotNull(green, nameof(green));
 
-    public decimal GetInterestRate(Loan loan)
+    public decimal? GetInterestRate(Loan loan)
     {
         ArgumentNullException.ThrowIfNull(loan);
 
-        return (loan.Car.IsGreen ? _green : _general).GetRate(loan.Terms.LoanRatio);
+        return TableFor(loan).GetRate(loan.Terms.LoanRatio);
     }
+
+    public PricingGap? FindPricingGap(Loan loan)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+
+        return TableFor(loan).FindGap(loan.Terms.LoanRatio);
+    }
+
+    private RateTable TableFor(Loan loan) => loan.Car.IsGreen ? _green : _general;
 }

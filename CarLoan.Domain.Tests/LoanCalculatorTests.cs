@@ -73,4 +73,19 @@ public class LoanCalculatorTests
 
         Assert.Equal(266684.31m, _loanCalculator.CalculateMonthlyPayment(withFee));
     }
+
+    [Fact]
+    public void CalculateTotalInterest_ReturnsPaymentsLessFinancedAmount_WhenLoanTermsProvided()
+    {
+        // lykill.md §7 example and P5: 69,052.53 × 84 − 4,064,000 = 1,736,412.52.
+        var loanTerms = new LoanTerms(5_000_000m, 1_000_000m, 84, 10.75m, OriginationFee: 64_000m);
+
+        Assert.Equal(1_736_412.52m, _loanCalculator.CalculateTotalInterest(loanTerms));
+    }
+
+    [Fact]
+    public void CalculateTotalInterest_ThrowsArgumentNullException_WhenLoanTermsIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _loanCalculator.CalculateTotalInterest(null!));
+    }
 }

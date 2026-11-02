@@ -7,10 +7,10 @@ namespace CarLoan.Domain.Tests;
 public class LoanInterestRateProviderTests
 {
     private static readonly RateTable _general = new(
-        [new(50m, 10.35m), new(70m, 11.20m), new(80m, 11.45m), new(90m, 12.20m)], 12.20m);
+        [new(50m, 10.35m), new(70m, 11.20m), new(80m, 11.45m), new(90m, 12.20m)]);
 
     private static readonly RateTable _green = new(
-        [new(50m, 9.65m), new(70m, 10.50m), new(80m, 10.75m), new(90m, 11.50m)], 11.50m);
+        [new(50m, 9.65m), new(70m, 10.50m), new(80m, 10.75m), new(90m, 11.50m)]);
 
     private readonly LoanInterestRateProvider _provider = new(_general, _green);
 
@@ -56,5 +56,50 @@ public class LoanInterestRateProviderTests
     public void Constructor_ThrowsArgumentNullException_WhenGreenTableIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => new LoanInterestRateProvider(_general, null!));
+    }
+
+    [Theory]
+    [InlineData(VehicleCategory.PetrolOrDiesel)]
+    [InlineData(VehicleCategory.PlugInHybrid)]
+    public void FindPricingGap_ReportsGeneralTableRange_WhenNonGreenVehicleAboveGeneralTable(VehicleCategory category)
+    {
+        // 1,900,000 of 2,000,000 is 95%, above the general table's 90% top band.
+        var gap = _provider.FindPricingGap(CreateLoan(category, 100_000m));
+
+        Assert.Equal(new PricingGap(PricingGapCode.InterestRate, 0m, 90m), gap);
+    }
+
+    [Fact]
+    public void FindPricingGap_ReportsGreenTableRange_WhenGreenVehicleAboveGreenTable()
+    {
+        // A green table that stops at 80% tells the two tables apart: 85% is inside the general one.
+        var provider = new LoanInterestRateProvider(_general, new RateTable([new(80m, 10.75m)]));
+
+        var gap = provider.FindPricingGap(CreateLoan(VehicleCategory.ElectricOrHydrogen, 300_000m));
+
+        Assert.Equal(new PricingGap(PricingGapCode.InterestRate, 0m, 80m), gap);
+    }
+
+    [Fact]
+    public void FindPricingGap_ReturnsNull_WhenNonGreenVehicleWithinGeneralTable()
+    {
+        var provider = new LoanInterestRateProvider(_general, new RateTable([new(80m, 10.75m)]));
+
+        Assert.Null(provider.FindPricingGap(CreateLoan(VehicleCategory.PetrolOrDiesel, 300_000m)));
+    }
+
+    [Fact]
+    public void FindPricingGap_ThrowsArgumentNullException_WhenLoanIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _provider.FindPricingGap(null!));
+    }
+
+    [Theory]
+    [InlineData(VehicleCategory.PetrolOrDiesel, 100_000)]
+    [InlineData(VehicleCategory.ElectricOrHydrogen, 100_000)]
+    public void GetInterestRate_ReturnsNoRate_WhenFinancingRatioAboveVehiclesTable(VehicleCategory category, decimal downPayment)
+    {
+        // 1,900,000 of 2,000,000 is 95%, above both tables' 90% top band (lykill.md §5).
+        Assert.Null(_provider.GetInterestRate(CreateLoan(category, downPayment)));
     }
 }

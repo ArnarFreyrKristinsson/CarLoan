@@ -10,11 +10,11 @@ namespace CarLoan.Domain.Tests;
 public class LenderProfileTests
 {
     private static readonly LoanInterestRateProvider _defaultRateProvider =
-        new(new RateTable([new RateTier(90m, 12.20m)], 12.20m),
-            new RateTable([new RateTier(90m, 11.50m)], 11.50m));
+        new(new RateTable([new RateTier(90m, 12.20m)]),
+            new RateTable([new RateTier(90m, 11.50m)]));
 
     private static readonly OriginationFeeCalculator _defaultFeeCalculator =
-        new(new OriginationFeeSettings([new FeeTier(84, 3.20m)], 18_000m, 50m, 1.00m));
+        new(new OriginationFeeSettings([new FeeTier(84, 3.20m)], 18_000m, 50m, 1.00m, 6));
 
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenNameIsNull()

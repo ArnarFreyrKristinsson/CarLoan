@@ -30,8 +30,6 @@ public static class LenderProfiles
                 new RateTier(80m, 10.75m),
                 new RateTier(90m, 11.50m)
             ],
-            DefaultGeneralInterestRate: 12.20m,
-            DefaultGreenInterestRate: 11.50m,
             FeeSettings: new OriginationFeeSettings(
                 Tiers:
                 [
@@ -44,7 +42,8 @@ public static class LenderProfiles
                 ],
                 MinimumFee: 18_000m,
                 GreenFeeDiscountPercentage: 50m,
-                PlugInHybridRateDiscount: 1.00m));
+                PlugInHybridRateDiscount: 1.00m,
+                MinimumContractMonths: 6));
 
     public static IReadOnlyDictionary<string, LenderProfile> Build()
     {
@@ -67,8 +66,6 @@ public static class LenderProfiles
         CarAgeLimits CarAgeLimits,
         IReadOnlyList<RateTier> GeneralRateTiers,
         IReadOnlyList<RateTier> GreenRateTiers,
-        decimal DefaultGeneralInterestRate,
-        decimal DefaultGreenInterestRate,
         OriginationFeeSettings FeeSettings);
 
     private static IEnumerable<ILoanRule> StandardRules(LenderSettings lenderSettings) =>
@@ -83,8 +80,8 @@ public static class LenderProfiles
     ];
 
     private static LoanInterestRateProvider BuildRateProvider(LenderSettings lenderSettings) =>
-        new(new RateTable(lenderSettings.GeneralRateTiers, lenderSettings.DefaultGeneralInterestRate),
-            new RateTable(lenderSettings.GreenRateTiers, lenderSettings.DefaultGreenInterestRate));
+        new(new RateTable(lenderSettings.GeneralRateTiers),
+            new RateTable(lenderSettings.GreenRateTiers));
 
     private static LenderProfile CreateStandardProfile(LenderSettings lenderSettings) =>
         new(lenderSettings.Name,

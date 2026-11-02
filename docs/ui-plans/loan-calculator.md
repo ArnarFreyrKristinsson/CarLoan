@@ -54,7 +54,26 @@ Not run yet.
 
 None yet.
 
+## Engine review
+
+The engine stage's `engine-reviewer` loop.
+
+| Round | Finding | Sev | Action |
+|---|---|---|---|
+| 1 | Lykill's general rate table untested at its 90% edge | 3 | Fixed: `LykillPricingBoundaryTests`, every §5 and §6 band edge through the service |
+| 1 | Each price and its gap come from two calls; the default rates and the fee band fallback still exist in the Domain | 2 | Declined at first: the fix rewrites existing Domain tests, beyond the agreed scope. Fixed after a human decision: each lookup returns its price or null, the gap is derived from the same lookup, and the default rates are gone |
+| 1 | The guarantee test's priced extremes were never checked as priced | 2 | Fixed |
+| 1 | The term limit is stated in `Evaluate` and in `MaximumLoanPeriodInMonths` with no test holding them together | 2 | Fixed: `LykillLongestTermTests`, plus Domain agreement theories in round 2 |
+| 1 | `OriginationFeeSettings.MinimumContractMonths` defaults to 1, so a lender set up without it prices terms its schedule lacks | 2 | Declined at first for the same reason; fixed after the same human decision: the setting is required |
+| 2 | A used-car limit longer than the general one was reported as the longest term | 2 | Fixed |
+| 3 | An empty rate tier list was accepted and reported a 0–0% gap | 2 | Fixed after the last round: the constructor rejects it. Not re-reviewed |
+| 3 | `MinimumContractMonths` was checked against the longest fee tier, so it could make the lower bands unreachable | 2 | Fixed after the last round: it must fall inside the shortest tier. Not re-reviewed |
+
+Result after three rounds: 2 findings remained (both severity 2), and both were fixed after
+the last round without another review.
+
 ## For human decision
+
 
 - **Story 12, car age counting.** `lykill.md` §4.3 does not say what the car's age is counted
   from (first registration or model year) or how part years round. That decides C1/C2 near a

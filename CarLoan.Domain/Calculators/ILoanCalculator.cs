@@ -5,4 +5,6 @@ namespace CarLoan.Domain.Calculators;
 public interface ILoanCalculator
 {
     decimal CalculateMonthlyPayment(LoanTerms loanTerms);
+
+    decimal CalculateTotalInterest(LoanTerms loanTerms);
 }

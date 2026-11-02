@@ -142,4 +142,52 @@ public class CarAgeTests
 
         Assert.Null(result.Parameters);
     }
+
+    [Fact]
+    public void MaximumLoanPeriodInMonths_ReturnsNull_WhenCarIsNew()
+    {
+        Assert.Null(_validator.MaximumLoanPeriodInMonths(CreateLoan(85m, 84, 30, CarCondition.New)));
+    }
+
+    [Theory]
+    [InlineData(85, 8, 48)]
+    [InlineData(80, 8, 144)]
+    [InlineData(85, 11, 12)]
+    public void MaximumLoanPeriodInMonths_ReturnsYearsLeftUnderCapInMonths_WhenUsedCarYoungerThanCap(
+        decimal loanRatio, int carAgeInYears, int expectedMonths)
+    {
+        // C1 above 80%: (12 − 8) × 12 = 48 and (12 − 11) × 12 = 12. C2 at 80%: (20 − 8) × 12 = 144.
+        Assert.Equal(expectedMonths, _validator.MaximumLoanPeriodInMonths(CreateLoan(loanRatio, 60, carAgeInYears)));
+    }
+
+    [Theory]
+    [InlineData(85, 12)]
+    [InlineData(85, 13)]
+    [InlineData(80, 20)]
+    public void MaximumLoanPeriodInMonths_ReturnsZero_WhenUsedCarAtOrPastCap(decimal loanRatio, int carAgeInYears)
+    {
+        // C1: a 12-year-old car leaves no term under the 12-year cap; C2 the same at 20.
+        Assert.Equal(0, _validator.MaximumLoanPeriodInMonths(CreateLoan(loanRatio, 60, carAgeInYears)));
+    }
+
+    [Fact]
+    public void MaximumLoanPeriodInMonths_ThrowsArgumentNullException_WhenLoanIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _validator.MaximumLoanPeriodInMonths(null!));
+    }
+
+    [Theory]
+    [InlineData(85, 0)]
+    [InlineData(85, 7)]
+    [InlineData(85, 11)]
+    [InlineData(80, 0)]
+    [InlineData(80, 13)]
+    [InlineData(80, 19)]
+    public void MaximumLoanPeriodInMonths_ReturnsTermWhereEvaluateStartsFailing_WhenUsedCarYoungerThanCap(decimal loanRatio, int carAgeInYears)
+    {
+        int longest = _validator.MaximumLoanPeriodInMonths(CreateLoan(loanRatio, 12, carAgeInYears))!.Value;
+
+        _validator.Evaluate(CreateLoan(loanRatio, longest, carAgeInYears)).IsValid.Should().BeTrue();
+        _validator.Evaluate(CreateLoan(loanRatio, longest + 1, carAgeInYears)).IsValid.Should().BeFalse();
+    }
 }
