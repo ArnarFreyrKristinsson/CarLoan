@@ -33,11 +33,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spec", "spec", "{74F6367B-D0A5-4B54-B9BC-A7CF2DD2C069}"
 	ProjectSection(SolutionItems) = preProject
 		docs\spec\definition-of-done.md = docs\spec\definition-of-done.md
+		docs\spec\user-stories.md = docs\spec\user-stories.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ui-plans", "ui-plans", "{847A5556-EA4B-4E7C-86C0-8454CC83B34F}"
 	ProjectSection(SolutionItems) = preProject
 		docs\ui-plans\README.md = docs\ui-plans\README.md
+		docs\ui-plans\loan-calculator.md = docs\ui-plans\loan-calculator.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".claude", ".claude", "{07FC93F0-583F-43D3-9A6B-BCB2012762EB}"
