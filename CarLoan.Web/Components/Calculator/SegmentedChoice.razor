@@ -1,0 +1,40 @@
+@typeparam TValue
+
+<fieldset class="choice">
+    <legend class="field-label">@Legend</legend>
+    <div class="choice-options @(Options.Count > 2 ? "choice-options--many" : null)" style="--options: @Options.Count">
+        @for (int index = 0; index < Options.Count; index++)
+        {
+            var option = Options[index];
+            var id = $"{Name}-{index}";
+            <input type="radio" class="choice-input" id="@id" name="@Name" disabled="@(!_isLive)"
+                   checked="@IsSelected(option.Value)"
+                   @onchange="() => SelectAsync(option.Value)" />
+            <label class="choice-option" for="@id">@option.Label</label>
+        }
+    </div>
+</fieldset>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Legend { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<ChoiceOption<TValue>> Options { get; set; } = [];
+    [Parameter] public TValue? Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+
+    // Refuses a choice until the page is live, as SliderField does with typing.
+    private bool _isLive;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _isLive = true;
+        StateHasChanged();
+    }
+
+    private bool IsSelected(TValue option) => EqualityComparer<TValue>.Default.Equals(option, Value);
+
+    private Task SelectAsync(TValue value) => ValueChanged.InvokeAsync(value);
+}

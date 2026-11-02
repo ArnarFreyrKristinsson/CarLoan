@@ -1,0 +1,51 @@
+<section class="results" aria-labelledby="results-title">
+    <h2 id="results-title" class="visually-hidden">Niðurstaða</h2>
+
+    <div aria-live="polite" aria-atomic="true">
+        <PaymentSummary View="View" />
+    </div>
+
+    @if (View.RuleMessages.Count > 0)
+    {
+        <div class="messages" role="region" aria-labelledby="messages-title">
+            <h3 id="messages-title" class="messages-title">Það sem þarf að breytast</h3>
+            <ul class="messages-list">
+                @foreach (var message in View.RuleMessages)
+                {
+                    <li @key="message.Text">@message.Text</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @* Announces each message as it appears, and only then, so moving a slider stays quiet (S3). *@
+    <div class="visually-hidden" aria-live="polite" aria-relevant="additions">
+        @foreach (var message in View.RuleMessages)
+        {
+            <p @key="message.Text">@message.Text</p>
+        }
+    </div>
+
+    <div class="figures @(View.State == PaymentState.Available ? null : "figures--muted")">
+        <h3 class="figures-title">Það sem greiðslan byggir á</h3>
+        <dl class="figures-list">
+            @foreach (var row in View.Figures)
+            {
+                <div class="figure">
+                    <dt>@row.Label</dt>
+                    <dd>
+                        @if (row.Note is not null)
+                        {
+                            <span class="figure-note">@row.Note</span>
+                        }
+                        <span class="figure-value">@row.Value</span>
+                    </dd>
+                </div>
+            }
+        </dl>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public ResultView View { get; set; } = default!;
+}

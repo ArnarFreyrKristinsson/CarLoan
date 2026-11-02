@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="is">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <base href="/" />
+    <link rel="stylesheet" href="app.css" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <Routes />
+
+    @* Shown by Blazor while the connection to the server is lost, in place of its English default. *@
+    <div id="components-reconnect-modal" class="reconnect" role="status" aria-live="polite">
+        <div class="reconnect-card">
+            <p class="reconnect-show">Tengingin rofnaði. Reyni að tengjast aftur…</p>
+            <p class="reconnect-failed">Ekki tókst að tengjast aftur. <a href="">Hlaða síðunni aftur</a></p>
+            <p class="reconnect-rejected">Síðan þarf að hlaðast aftur. <a href="">Hlaða síðunni aftur</a></p>
+        </div>
+    </div>
+
+    <script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>
