@@ -1,5 +1,11 @@
 {
     "items":  [
-
+                  {
+                      "key":  "a8e516b947",
+                      "date":  "2026-11-02",
+                      "project":  "CarLoan.Domain",
+                      "mutant":  "CarLoan.Domain/Validators/CarAgeValidator.cs:29  Equality mutation:  loan.Car.AgeInYears \u003e= maximumCombinedYears  -\u003e  loan.Car.AgeInYears \u003e maximumCombinedYears",
+                      "reason":  "judged equivalent, but the comment covered 2 mutant(s) instead of this one alone, so it was removed: the two versions differ only when AgeInYears equals maximumCombinedYears, and there the other branch, (maximumCombinedYears - AgeInYears) * 12, is also 0, so both return 0."
+                  }
               ]
 }
