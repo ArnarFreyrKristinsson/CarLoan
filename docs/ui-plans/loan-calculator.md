@@ -62,7 +62,9 @@ monthly payment is the one large number, with total interest beneath it and a pl
 line. Below that come the messages, only when a rule fails, and then the figures as a quiet
 list.
 
-The palette is cool neutrals with one deep teal accent for controls and the selected state.
+The palette follows the colour brief (below): off-white surfaces and slate text, one deep blue
+for every control, the selected state and focus, and warm teal only on the available monthly
+payment.
 A loan that is not on these terms gets amber, not red: the screen informs rather than scolds.
 Red is kept for a value the engine cannot evaluate at all. The type is the system font with
 tabular figures, so numbers do not jitter as they change. There is no imagery, no marketing
@@ -82,10 +84,27 @@ dark mode. Rules this change touches:
 |---|---|
 | N1 / S3 | The theme switches at once when chosen, and the toggle shows its state (`aria-pressed`, filled when dark is on). |
 | N3 / S6 / S7 | The visitor decides. The page follows the system setting until they choose; the choice is remembered in their browser, and choosing the theme the system gives forgets it, so the same toggle is the way back to following the system. A theme that differs from the system stays until the visitor changes it; once they are back on the system's theme, the page follows the system again. |
-| N4 / S1 | One set of colour tokens with the same meaning in both themes: teal for controls and focus, green for "stenst", amber for "not on these terms" and limits, red only for a value the engine cannot evaluate. |
+| N4 / S1 | One set of colour tokens with the same meaning in both themes: teal for controls and focus (since the colour brief, deep blue; teal now marks only the payment), green for "stenst", amber for "not on these terms" and limits, red only for a value the engine cannot evaluate. |
 | N8 | Dark is deep slate, not black, and the accent is lifted only enough to keep its contrast. Nothing new competes with the payment. |
 | S2 / N7 | Every text colour is WCAG AA (4.5:1) on every background it sits on, and control edges and focus are 3:1 or more, in both themes; computed, not eyeballed. The light theme's text-field border was about 1.6:1 and is now 3:1. Native controls follow the theme (`color-scheme`). |
 | N2, N5, N6, N9, N10, S4, S5, S8 | Not changed by colour alone. |
+
+### Change: the colour brief (2026-11-02)
+
+The requester set the palette: a deep blue main colour (#1E4D8C) for trust; off-white
+backgrounds (#F7F9FB) and slate text (#1F2933) for calm; one warm teal accent (#0F8B8D) used
+only for what to look at, the monthly payment; sliders and inputs in the main colour with
+clear focus and hover states for control; no gradients, neon or playful colours, with status
+colours only for meaning; and a dark mode on slate (#121820) with lighter versions of the same
+blue and teal.
+
+| ID | How the change satisfies it |
+|---|---|
+| N8 | One accent with one job: teal marks the monthly payment when the loan is available, nothing else. Every other element is neutral or the main blue. |
+| N4 / S1 | Main blue means "a control you work" in both themes; green, amber and red keep the meanings set above. |
+| N1 / S3 | Every control answers the pointer: text fields take a blue border on hover, slider thumbs a soft blue halo on hover and fill while dragged, choices a blue tint, the toggle a blue border. Focus stays the solid outline. |
+| S2 / N7 | All text pairs are AA and control edges 3:1 in both themes, computed. The teal payment in light is 4.04:1, which meets AA for large text only, so teal is used on the payment's large bold figure and nowhere smaller. |
+| N2, N3, N5, N6, N9, N10, S4–S8 | Not changed by colour. |
 
 ## Acceptance criteria
 
@@ -164,6 +183,14 @@ edges and focus are 3:1 or more.
 | S2 / N7 | In the light theme, a text field's border was about 1.6:1 against white, below the 3:1 a control edge needs. | Border darkened to 3.14:1. |
 | S1 / N4 | Shadows and the reconnect overlay used fixed colours that would not follow a theme. | They use theme tokens. |
 
+### Self-check: the colour brief (2026-11-02)
+
+Both themes checked on the running screen (start, declined, no payment; 1280 and 375 px), and
+every colour pair computed. The lowest text pair is quiet text on the page, 5.40 light and 6.69
+dark. The teal payment is 4.04 light (large bold figure only) and 7.14 dark. Control edges are
+3.08 light and 3.06 dark. Teal appears only on the available payment; muted, it turns grey.
+Nothing needed fixing.
+
 ## Review rounds
 
 ### Round 1 — 2026-11-02
@@ -214,6 +241,27 @@ after the last round without another review. Two contract gaps stay open for hum
 
 ### Colours and dark mode, round 3 — 2026-11-02
 No findings.
+
+### Colour brief, round 1 — 2026-11-02
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| A text replace damaged the forced-colours focus rule: focused choices and sliders lost their CanvasText outline | S2/N7 | 2 | Fixed: the selector list is restored and the stray hover rule removed |
+| The slider-thumb hover halo was about 1.16:1; a pressed toggle showed no hover | N1/S3 | 1 | Fixed: the halo uses the translucent blue focus colour; a pressed toggle's border thickens on hover |
+| "Layout and tone" still described a teal control colour | plan vs screen | 1 | Fixed |
+
+The reviewer noted, without severity, that the brief's "sliders and inputs in the main colour"
+could also mean blue edges at rest. That would make rest, hover and focus look nearly the same,
+against the brief's own "clear focus and hover states". So fields rest neutral and turn blue when
+the user points at or enters them. Left to the requester.
+
+### Colour brief, round 2 — 2026-11-02
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| The dark-mode change's N4/S1 row still said teal for controls and focus | plan vs screen | 1 | Fixed: the row notes the brief moved controls and focus to deep blue |
+
+### Colour brief, round 3 — 2026-11-02
+No findings. Needs user test: whether the faint hover tint on an unselected choice in the light
+theme is noticed (the text also darkens).
 
 ## Engine review
 
