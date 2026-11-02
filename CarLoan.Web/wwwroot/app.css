@@ -2,16 +2,21 @@
    One calm accent, quiet neutrals, and amber rather than alarm red for "not on these terms":
    the screen informs, it does not scold. Every text colour meets WCAG AA on its background. */
 
+/* Light is the default. Dark follows the system unless the visitor chooses in the header;
+   js/theme.js sets data-theme on <html> before the first paint, so there is no flash. Both
+   palettes keep every text colour at WCAG AA on its background, and control edges at 3:1. */
 :root {
+    color-scheme: light;
+
     --bg: #f3f5f7;
     --surface: #ffffff;
     --surface-subtle: #f7f9fa;
     --border: #dfe4e9;
-    --border-strong: #c3ccd5;
+    --border-strong: #86939f;
 
     --text: #16222e;
     --text-muted: #4f5d6b;
-    --text-quiet: #63707d;
+    --text-quiet: #5d6a77;
 
     --accent: #1d5d78;
     --accent-strong: #154960;
@@ -20,21 +25,60 @@
 
     --ok: #2b6a4c;
     --ok-soft: #e7f2ec;
-    --attention: #835000;
+    --attention: #7a4a00;
     --attention-soft: #fcf5e7;
     --attention-line: #e9cf9f;
     --error: #9e3220;
     --error-soft: #fbede9;
 
-    --track: #d3dae1;
+    --track: #c9d2da;
     --limit-tint: #ecd3a3;
-    --over-limit: #c27c12;
+    --over-limit: #b06c00;
+
+    --shade: 22, 34, 46;
+    --shadow: 0 1px 2px rgba(var(--shade), 0.05), 0 4px 16px rgba(var(--shade), 0.05);
+    --overlay: rgba(var(--shade), 0.35);
 
     --radius: 12px;
     --radius-small: 8px;
-    --shadow: 0 1px 2px rgba(22, 34, 46, 0.05), 0 4px 16px rgba(22, 34, 46, 0.05);
-
     --thumb: 24px;
+}
+
+/* Dark: deep slate, not black, so the screen stays calm; the accent and the status colours are
+   lifted just enough to keep the same meaning at the same contrast. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg: #0f151b;
+    --surface: #161f27;
+    --surface-subtle: #1b2630;
+    --border: #26323d;
+    --border-strong: #5b6b79;
+
+    --text: #e7edf2;
+    --text-muted: #aab6c1;
+    --text-quiet: #95a2ae;
+
+    --accent: #6db6d3;
+    --accent-strong: #a3d3e6;
+    --accent-soft: #15303b;
+    --focus-ring: rgba(109, 182, 211, 0.4);
+
+    --ok: #86d1a8;
+    --ok-soft: #14291f;
+    --attention: #ebbb6a;
+    --attention-soft: #2a2114;
+    --attention-line: #5c4620;
+    --error: #f2a08f;
+    --error-soft: #341c17;
+
+    --track: #34434f;
+    --limit-tint: #5c4620;
+    --over-limit: #d9962a;
+
+    --shade: 0, 0, 0;
+    --shadow: 0 1px 2px rgba(var(--shade), 0.4), 0 4px 16px rgba(var(--shade), 0.25);
+    --overlay: rgba(var(--shade), 0.6);
 }
 
 *,
@@ -120,8 +164,8 @@ button:focus-visible {
     margin: 0 auto;
     padding: 0.9rem 1.25rem;
     display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
     flex-wrap: wrap;
 }
 
@@ -134,6 +178,38 @@ button:focus-visible {
 .brand-note {
     color: var(--text-muted);
     font-size: 0.925rem;
+}
+
+/* The theme choice: a quiet toggle at the end of the header (N3/S7: the visitor decides). */
+.theme-toggle {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding: 0 0.85rem;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.theme-toggle:hover {
+    color: var(--text);
+}
+
+.theme-toggle[aria-pressed="true"] {
+    color: var(--accent-strong);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.theme-toggle .icon {
+    width: 1.1rem;
+    height: 1.1rem;
 }
 
 .site-main {
@@ -390,7 +466,7 @@ button:focus-visible {
     border-radius: 50%;
     background: var(--surface);
     border: 2px solid var(--accent);
-    box-shadow: 0 1px 3px rgba(22, 34, 46, 0.25);
+    box-shadow: 0 1px 3px rgba(var(--shade), 0.25);
     transition: box-shadow 0.15s ease;
 }
 
@@ -400,7 +476,7 @@ button:focus-visible {
     border-radius: 50%;
     background: var(--surface);
     border: 2px solid var(--accent);
-    box-shadow: 0 1px 3px rgba(22, 34, 46, 0.25);
+    box-shadow: 0 1px 3px rgba(var(--shade), 0.25);
 }
 
 .slider-input:focus-visible::-webkit-slider-thumb {
@@ -505,7 +581,7 @@ button:focus-visible {
     background: var(--surface);
     color: var(--accent-strong);
     font-weight: 600;
-    box-shadow: inset 0 0 0 1.5px var(--accent), 0 1px 2px rgba(22, 34, 46, 0.08);
+    box-shadow: inset 0 0 0 1.5px var(--accent), 0 1px 2px rgba(var(--shade), 0.08);
 }
 
 .choice-input:focus-visible + .choice-option {
@@ -736,7 +812,7 @@ button:focus-visible {
         padding: 0.7rem 1.25rem calc(0.7rem + env(safe-area-inset-bottom));
         background: var(--surface);
         border-top: 1px solid var(--border);
-        box-shadow: 0 -4px 16px rgba(22, 34, 46, 0.08);
+        box-shadow: 0 -4px 16px rgba(var(--shade), 0.12);
     }
 
     .payment--compact {
@@ -816,7 +892,7 @@ button:focus-visible {
     align-items: center;
     justify-content: center;
     padding: 1.25rem;
-    background: rgba(22, 34, 46, 0.35);
+    background: var(--overlay);
 }
 
 .reconnect-card {
@@ -880,6 +956,11 @@ button:focus-visible {
 /* Windows high contrast: shadows and gradients are dropped, so the selected option, the sliders
    and the marker are drawn with system colours instead (S2). */
 @media (forced-colors: active) {
+    /* High contrast replaces both palettes, so the theme toggle would do nothing. */
+    .theme-toggle {
+        display: none;
+    }
+
     /* Selection is a border and focus an outline, so a focused choice shows both. */
     .choice-input:checked + .choice-option {
         border: 3px solid Highlight;

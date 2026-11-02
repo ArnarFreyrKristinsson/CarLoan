@@ -73,6 +73,20 @@ The only decisions the UI makes are which engine fact to show and how to word it
 or "—", one of three payment states from the result's nulls and `IsAccepted`, one message per
 failed rule code. It computes no figure.
 
+### Change: colours and a dark mode (2026-11-02)
+
+Requested: colours that carry trust, clarity, calm, control and being taken seriously, and a
+dark mode. Rules this change touches:
+
+| ID | How the change satisfies it |
+|---|---|
+| N1 / S3 | The theme switches at once when chosen, and the toggle shows its state (`aria-pressed`, filled when dark is on). |
+| N3 / S6 / S7 | The visitor decides. The page follows the system setting until they choose; the choice is remembered in their browser, and choosing the theme the system gives forgets it, so the same toggle is the way back to following the system. A theme that differs from the system stays until the visitor changes it; once they are back on the system's theme, the page follows the system again. |
+| N4 / S1 | One set of colour tokens with the same meaning in both themes: teal for controls and focus, green for "stenst", amber for "not on these terms" and limits, red only for a value the engine cannot evaluate. |
+| N8 | Dark is deep slate, not black, and the accent is lifted only enough to keep its contrast. Nothing new competes with the payment. |
+| S2 / N7 | Every text colour is WCAG AA (4.5:1) on every background it sits on, and control edges and focus are 3:1 or more, in both themes; computed, not eyeballed. The light theme's text-field border was about 1.6:1 and is now 3:1. Native controls follow the theme (`color-scheme`). |
+| N2, N5, N6, N9, N10, S4, S5, S8 | Not changed by colour alone. |
+
 ## Acceptance criteria
 
 Checked against the running screen (2026-11-02) by driving it through each state and reading
@@ -137,6 +151,19 @@ None yet: `docs/ux-findings.md` has no entries.
 | N5 / S7 | Typing before the page went live was overwritten when it did, which once turned a typed 100.000 into 100. | Fields, sliders and choices take no input until the page is live, a fraction of a second after it appears. A value can no longer change silently. |
 | — | An Icelandic singular month rule was logic in the UI with no test. | Removed: every term Lykill's rules name takes the plural. |
 
+### Self-check: colours and dark mode (2026-11-02)
+
+Checked both themes on the running screen at 1280 and 375 px (start, declined, no payment), and
+computed every colour pair. The theme follows the system setting with no saved choice, the
+toggle overrides it, and the choice survives a reload. Every text pair is 4.5:1 or more in both
+themes: the lowest is quiet text on the page background, 5.07 light and 7.05 dark. Control
+edges and focus are 3:1 or more.
+
+| Rule | What was wrong | What changed |
+|---|---|---|
+| S2 / N7 | In the light theme, a text field's border was about 1.6:1 against white, below the 3:1 a control edge needs. | Border darkened to 3.14:1. |
+| S1 / N4 | Shadows and the reconnect overlay used fixed colours that would not follow a theme. | They use theme tokens. |
+
 ## Review rounds
 
 ### Round 1 — 2026-11-02
@@ -172,6 +199,21 @@ None yet: `docs/ux-findings.md` has no entries.
 **Result after three rounds:** 3 findings remained, the most severe a 3. All three were fixed
 after the last round without another review. Two contract gaps stay open for human decision
 (below).
+
+### Colours and dark mode, round 1 — 2026-11-02
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| After Blazor's enhanced navigation the server HTML could put back an unpressed toggle and no theme | N1/S3, S7/N3 | 2 | Fixed: the theme is applied again after `enhancedload`. Checked: dark survives the error page and its link back |
+| Every click saved a choice, so there was no way back to following the system | N3/S7 | 2 | Fixed: choosing the theme the system gives forgets the choice. Checked: after clicking back to light, the page follows the system to dark |
+| In Windows high contrast the toggle did nothing and looked broken | S2/N7, N1/S3 | 2 | Fixed: hidden in forced colours |
+
+### Colours and dark mode, round 2 — 2026-11-02
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| The plan said nothing switches on its own once chosen, but choosing the system's theme means following the system again | S7/N3 (plan vs screen) | 1 | Fixed: the plan now describes what the screen does. The behaviour is the round-1 fix and stays |
+
+### Colours and dark mode, round 3 — 2026-11-02
+No findings.
 
 ## Engine review
 
