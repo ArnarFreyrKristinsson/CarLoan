@@ -18,5 +18,7 @@ internal static class Labels
     public const string DigitsOnly = "Aðeins tölustafir.";
     public const string NoDecimals = "Aðeins heilar tölur, án kommu.";
     public const string DotsAreAdded = "Punktarnir bætast við sjálfkrafa.";
-    public const string PasteRefused = "Þetta var ekki hægt að lesa sem tölu. Sláðu hana inn, til dæmis 4.500.000.";
+    public const string PasteRefused = "Þetta er ekki tala. Dæmi: 4.500.000";
+    public const string PasteRefusedWholeNumber = "Þetta er ekki tala. Sláðu inn heila tölu.";
+    public const string TooManyDigits = "Of margir tölustafir fyrir þennan reit.";
 }

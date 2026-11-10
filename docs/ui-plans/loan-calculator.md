@@ -106,6 +106,38 @@ blue and teal.
 | S2 / N7 | All text pairs are AA and control edges 3:1 in both themes, computed. The teal payment in light is 4.04:1, which meets AA for large text only, so teal is used on the payment's large bold figure and nowhere smaller. |
 | N2, N3, N5, N6, N9, N10, S4–S8 | Not changed by colour. |
 
+### Change: less scrolling, and a softer, warmer light theme (2026-11-10)
+
+Requested: the screen should be seen with as little scrolling as possible, using a screenshot of
+Lykill's own calculator as support (fields with the slider on their lower edge, the choice in one
+compact row, everything in one view), while following these rules. The results panel on the right
+stays as it is, by the requester's choice; it changes only where a rule needs it. The light theme
+becomes softer and warmer without losing trust, clarity, calm, control and being taken seriously.
+
+The screenshot is support for density only. Its "see more" fold is not used, because US-2 AC1 has
+every figure always on screen, and its apply button is out of scope.
+
+Measured before the change, with the starting values: on a 1366 × 657 viewport (a 1366 × 768
+laptop) the page is 1.275 px tall and the inputs end at 1.166 px, so the last slider is 500 px
+below the fold. On a 390 px phone the page is 2.246 px.
+
+| ID | How the change satisfies it |
+|---|---|
+| N1 / S3 | On a laptop the inputs and the payment are in view together, so the effect of every change is seen without scrolling. Feedback itself is unchanged. |
+| N2 | Same words, same order: the car, then the financing. |
+| N3 / S6 / S7 | Nothing in a field changes height while its slider is dragged, and a notice coming or going moves nothing below it: the hint sits under the label in the row's own height, its line kept while empty; the refusal or notice has one fixed-height line below the slider, beside the end labels (its own fixed line on narrow cards). The term slider still reserves its marker space. |
+| N4 / S1 | The two choices take the same shape as the fields: the label on the left, the options on the right. All slider fields share the new arrangement through the one component. |
+| N5 / S5 | Not changed. |
+| N6 / S8 | Inputs and results are visible together on a laptop. Slider ends, the down payment's share and the marker stay visible. No figure is folded away. |
+| N7 / S2 | Touch targets stay 44 px; no text is smaller than before. On narrow screens the page reserves room under the footer for the payment bar, and scrolling keeps a focused control clear of it, so neither the footnote nor a focused control hides under the bar (the review of 2026-11-10 found both). Every light-theme pair recomputed: text 4.5:1 or more, control edges 3:1 or more. |
+| N8 | One card for the inputs instead of two, less empty space, nothing added. Warmer neutrals, the same single teal accent on the payment, the same deep blue for controls. |
+| N9, N10, S4 | Not changed. |
+
+Light palette (the colour brief's off-white #F7F9FB and slate #1F2933 become warm equivalents;
+the deep blue #1E4D8C and the teal #0F8B8D stay): page #F6F3EE, surface #FDFBF8, subtle surface
+#F1ECE5, borders #E6E0D7 and #8B8275, text #272623, muted #545049, quiet #635E56, softer warm
+shadows. Dark mode is not changed.
+
 ## Acceptance criteria
 
 Checked against the running screen (2026-11-02) by driving it through each state and reading
@@ -191,7 +223,62 @@ dark. The teal payment is 4.04 light (large bold figure only) and 7.14 dark. Con
 3.08 light and 3.06 dark. Teal appears only on the available payment; muted, it turns grey.
 Nothing needed fixing.
 
+### Self-check: less scrolling, warmer light theme (2026-11-10)
+
+Driven on the running screen (start, used car declined with both messages and the marker, a
+price at the slider's end, a term of 3 with no payment; light and dark; 1366 and 390 px) and
+measured at six viewports. Inputs and results now end at about 730 px on a desktop, from 1.166
+and 798 px. Scrolling with the starting values: 1366 × 657 from 618 to 166 px (the footnote is
+most of it), 1440 × 789 from 486 to 34 px, 1920 × 945 none. A used car adds the car-age row, so
+its state scrolls a little more; the results stay in view while it does. The phone page is
+about 300 px shorter.
+
+Every light pair computed: lowest text pair is quiet text on the subtle surface, 5.47:1; control
+edges 3.22:1 or more; the teal payment 3.99:1, large bold figure only, as before.
+
+| Rule | What was checked | Result |
+|---|---|---|
+| S7 / N3 | Content above each slider while dragging | Within a field nothing changes height: the hint's line is kept while empty, the line below the slider has a fixed height. The term slider keeps its marker space. (On narrow screens a rule message repeated after the down payment slider still moves the term slider below it, as accepted in round 2 of 2026-11-02.) |
+| S2 / N7 | The payment bar on narrow screens | Scrolled to the bottom at 390 px, the footnote ends 63 px above the bar. Tabbing through every control at 360, 375, 390, 414 and 768 px, none ends under the bar. Both were found in the review of 2026-11-10 and are fixed by room under the page and scroll padding. |
+| S2 / N7 | Targets and text | Fields, choice options and slider bands stay 44 px; no text got smaller. |
+| N6 / S8, US-2 AC1 | Figures and hints | Every figure still listed; slider ends, the down payment's share and the marker still shown. |
+| S1 / N4 | Choices beside fields | Label left of the options where the card is wide enough (from 31rem), above them where it is not, as the field rows wrap. |
+
+After round 1 the line under each slider was checked on the running screen at 1366, 390 and 320 px:
+a down payment cut, its notice expiring after 5 s, and the down payment coming back. No slider
+moved for a notice, the share stayed beside it, and the refusal's live region stays rendered.
+
+The type options wrap to two lines on a laptop ("Bensín eða dísil", "Rafmagn eða vetni"); they
+stay 44 px or more and readable, so this was left.
+
 ## Review rounds
+
+### Less scrolling, round 3 — 2026-11-10
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| Typing past a field's digit limit was silent, though a too-long paste now had a note ("2015" typed into the car age left "20" with no word why) | N1/S3, N4/S1 | 2 | Fixed after the last round: a refused extra digit shows the same note as a too-long paste, "Of margir tölustafir fyrir þennan reit." Checked on the running screen. Not re-reviewed |
+
+**Result after three rounds:** 1 finding remained (severity 2), fixed after the last round
+without another review. Needs user test, from the rounds: whether "x% af kaupverði" is found
+under the label; whether the reserved empty line under each slider on a phone reads as uneven
+spacing; whether the share centred between the slider ends on a wide card could read as a scale
+mark (it moved under the label in round 1); whether the denser card still feels calm and the
+warmer palette keeps the sense of trust; whether "Of margir tölustafir" leads someone who
+entered a model year to enter an age.
+
+### Less scrolling, round 2 — 2026-11-10
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| One paste refusal for every field and cause: a year pasted into the car age was called "not a number", and the amount example could not be entered in the months or years fields | N9 / S5 | 2 | Fixed: a readable paste with too many digits (and, after round 3, a typed extra digit) says "Of margir tölustafir fyrir þennan reit."; an unreadable one gets the amount example only in the krónur fields (an explicit `IsAmount` on them) and "Sláðu inn heila tölu." in the months and years fields. Checked on the running screen |
+| The down payment slider never announced "x% af kaupverði"; only the text field was described by it | S2 / N7, AC US-6 AC4 | 2 | Fixed: the slider is described by the same hint (with the marker, where there is one). Checked on the running screen |
+
+### Less scrolling, round 1 — 2026-11-10
+| Finding | Rule | Severity | Action |
+|---|---|---|---|
+| A focused slider's outline crossed the end labels and the status in the line below | S2/N7 | 2 | Fixed: focus is a solid ring round the thumb (blue with a surface gap, 3:1 or better), placed after the hover rules so it stays under the pointer; the line below starts under the ring. In forced colours the native slider keeps its outline and the line steps down clear of it |
+| "x% af kaupverði" was hidden while a notice or a refusal showed | AC US-6 AC4 | 2 | Fixed: the hint moved under the label, in the row's own height, so a notice never takes its place. The car-age hint moved the same way |
+| On narrow cards the status line collapsed when a notice expired, moving the sliders below; a wrapping notice did the same on wide cards; the plan claimed nothing above a slider was conditional | S7/N3 | 2 | Fixed: the line under each slider keeps one line's height on every width (two on the narrowest cards), notices and refusals were shortened to one line ("Útborgunin er aftur sú sem þú valdir.", "Þetta er ekki tala. Dæmi: 4.500.000"), and the plan's claim corrected |
+| The refusal's live region was `display: none` until filled, so a screen reader might not announce it | S2/N7, N1/S3 | 2 | Fixed: the refusal span is always rendered; only the notice is hidden while empty or while a refusal shows |
 
 ### Round 1 — 2026-11-02
 | Finding | Rule | Severity | Action |

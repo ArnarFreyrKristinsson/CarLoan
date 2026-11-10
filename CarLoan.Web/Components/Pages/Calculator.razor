@@ -27,10 +27,10 @@
             {
                 <SliderField Id="car-age" Label="@Labels.CarAge" Unit="ár" FormatValue="Years" MaxDigits="CarAgeDigits"
                              ShowSlider="false" Value="_carAge" OnCommit="OnCarAgeCommitted"
-                             Hint="Í heilum árum." />
+                             Hint="Í heilum árum." ReservesHintSpace="true" />
             }
 
-            <SliderField Id="purchase-price" Label="@Labels.PurchasePrice" Unit="kr." FormatValue="IcelandicFormat.Krona"
+            <SliderField Id="purchase-price" Label="@Labels.PurchasePrice" Unit="kr." FormatValue="IcelandicFormat.Krona" IsAmount="true"
                          MaxDigits="AmountDigits" Min="PriceSliderMin" Max="PriceSliderMax" Step="PriceSliderStep"
                          Value="_price" OnCommit="OnPriceCommitted" Message="@FieldMessage(nameof(LoanRequest.PurchasePrice))" />
         </div>
@@ -38,11 +38,11 @@
         <div class="group">
             <h3 class="group-title">Fjármögnun</h3>
 
-            <SliderField Id="down-payment" Label="@Labels.DownPayment" Unit="kr." FormatValue="IcelandicFormat.Krona"
+            <SliderField Id="down-payment" Label="@Labels.DownPayment" Unit="kr." FormatValue="IcelandicFormat.Krona" IsAmount="true"
                          MaxDigits="AmountDigits" Min="DownPaymentSliderMin" Max="@(_price ?? DownPaymentSliderMin)"
                          Step="DownPaymentSliderStep" SliderDisabled="@(_price is null or < DownPaymentSliderMin)"
                          Value="_downPayment" OnCommit="OnDownPaymentCommitted"
-                         Hint="@DownPaymentShare" Notice="@_downPaymentNotice" Highlighted="_downPaymentHighlighted"
+                         Hint="@DownPaymentShare" ReservesHintSpace="true" Notice="@_downPaymentNotice" Highlighted="_downPaymentHighlighted"
                          RuleNotes="@_view.MessagesFor(InputField.DownPayment)" />
 
             <SliderField Id="term" Label="@Labels.Term" Unit="mán." FormatValue="MonthsShort" MaxDigits="TermDigits"
@@ -182,7 +182,7 @@
         _downPayment = fitted;
         ShowDownPaymentChange(
             lowered ? "Útborgunin var lækkuð niður í kaupverðið."
-            : fitted == chosen ? "Útborgunin var færð aftur í það sem þú valdir."
+            : fitted == chosen ? "Útborgunin er aftur sú sem þú valdir."
             : "Útborgunin var hækkuð með kaupverðinu.");
     }
 

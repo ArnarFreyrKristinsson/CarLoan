@@ -63,6 +63,7 @@ export function attach(input, maxDigits, notices) {
                 : notices.digitsOnly);
         } else if (digitsAfterReplacing(input, start, end, event.data.length) > maxDigits) {
             event.preventDefault();
+            refuse(notices.tooManyDigits);
         }
         // An accepted digit leaves a refusal note up for its full time: typing "7.5" must still
         // say why the dot went, now that the field reads 75.
@@ -79,8 +80,14 @@ export function attach(input, maxDigits, notices) {
         const start = input.selectionStart ?? input.value.length;
         const end = input.selectionEnd ?? start;
 
-        if (digits === null || digits.length === 0 || digitsAfterReplacing(input, start, end, digits.length) > maxDigits) {
+        if (digits === null || digits.length === 0) {
             refuse(notices.pasteRefused);
+            return;
+        }
+
+        // A readable number that is too long for the field is told as that, not as "not a number".
+        if (digitsAfterReplacing(input, start, end, digits.length) > maxDigits) {
+            refuse(notices.tooManyDigits);
             return;
         }
 

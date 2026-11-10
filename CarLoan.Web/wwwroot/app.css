@@ -7,44 +7,45 @@
    - emphasis (warm teal): the one thing to look at, the monthly payment. Nothing else uses it.
    - ok / attention / error: meaning only. Muted green "stenst", amber for "not on these terms"
      and limits, red only for a value that cannot be evaluated.
-   - everything else is neutral: off-white surfaces and slate text, never pure white or black.
+   - everything else is neutral: in light, warm paper surfaces and warm charcoal text, soft
+     borders and shadows; never pure white or black.
    Light is the default. Dark follows the system unless the visitor chooses in the header;
    js/theme.js sets data-theme on <html> before the first paint. Every text colour is WCAG AA on
    its background and control edges 3:1, in both themes (the teal payment is large text, 3:1+). */
 :root {
     color-scheme: light;
 
-    --bg: #f7f9fb;
-    --surface: #fcfdfe;
-    --surface-subtle: #f1f4f8;
-    --border: #dde3ea;
-    --border-strong: #8593a1;
+    --bg: #f6f3ee;
+    --surface: #fdfbf8;
+    --surface-subtle: #f1ece5;
+    --border: #e6e0d7;
+    --border-strong: #8b8275;
 
-    --text: #1f2933;
-    --text-muted: #4b5866;
-    --text-quiet: #5b6875;
+    --text: #272623;
+    --text-muted: #545049;
+    --text-quiet: #635e56;
 
     --primary: #1e4d8c;
     --primary-strong: #173c6e;
-    --primary-soft: #e6edf7;
+    --primary-soft: #e7ecf4;
     --focus-ring: rgba(30, 77, 140, 0.3);
 
     --emphasis: #0f8b8d;
 
     --ok: #2f6b4f;
-    --ok-soft: #e8f2ec;
+    --ok-soft: #e7f0e7;
     --attention: #7a4a00;
-    --attention-soft: #fbf4e6;
+    --attention-soft: #f9f0e0;
     --attention-line: #e8cf9e;
     --error: #a33a2a;
-    --error-soft: #faece9;
+    --error-soft: #f8e9e4;
 
-    --track: #cbd3dc;
+    --track: #d3cbbf;
     --limit-tint: #ebd3a6;
     --over-limit: #b06c00;
 
-    --shade: 31, 41, 51;
-    --shadow: 0 1px 2px rgba(var(--shade), 0.05), 0 4px 16px rgba(var(--shade), 0.05);
+    --shade: 74, 58, 40;
+    --shadow: 0 1px 2px rgba(var(--shade), 0.04), 0 6px 20px rgba(var(--shade), 0.05);
     --overlay: rgba(var(--shade), 0.35);
 
     --radius: 12px;
@@ -171,7 +172,7 @@ button:focus-visible {
 .site-header-inner {
     max-width: 72rem;
     margin: 0 auto;
-    padding: 0.9rem 1.25rem;
+    padding: 0.5rem 1.25rem;
     display: flex;
     align-items: center;
     gap: 0.25rem 0.75rem;
@@ -230,7 +231,7 @@ button:focus-visible {
 .site-main {
     max-width: 72rem;
     margin: 0 auto;
-    padding: 2rem 1.25rem 3rem;
+    padding: 1.25rem 1.25rem 2rem;
 }
 
 .site-footer {
@@ -241,19 +242,23 @@ button:focus-visible {
     font-size: 0.875rem;
 }
 
+/* The question and the one-line instruction share a line where there is room. */
 .page-intro {
-    margin-bottom: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 1rem;
+    margin-bottom: 1rem;
 }
 
 .page-intro h1 {
-    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+    font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.65rem);
     line-height: 1.25;
     font-weight: 650;
     letter-spacing: -0.01em;
 }
 
 .page-intro p {
-    margin-top: 0.4rem;
     color: var(--text-muted);
 }
 
@@ -266,12 +271,7 @@ button:focus-visible {
     align-items: start;
 }
 
-.inputs {
-    display: grid;
-    gap: 1.25rem;
-}
-
-.group,
+.inputs,
 .results {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -280,10 +280,23 @@ button:focus-visible {
     padding: 1.5rem;
 }
 
+/* One card for every input; the two groups inside it are split by a quiet line. Its width, not
+   the window's, decides whether a choice's label fits beside its options. */
+.inputs {
+    padding: 1rem 1.5rem 0.75rem;
+    container-type: inline-size;
+}
+
+.group + .group {
+    margin-top: 0.5rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+}
+
 .group-title {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 650;
-    margin-bottom: 1.1rem;
+    margin-bottom: 0.25rem;
 }
 
 .results {
@@ -295,14 +308,14 @@ button:focus-visible {
 
 .field {
     margin: 0 -0.75rem;
-    padding: 0.75rem;
+    padding: 0.4rem 0.75rem;
     border-radius: var(--radius-small);
     transition: background-color 0.4s ease;
 }
 
 .field + .field,
 .choice + .field {
-    margin-top: 0.5rem;
+    margin-top: 0.15rem;
 }
 
 .field.is-highlighted {
@@ -321,6 +334,19 @@ button:focus-visible {
     font-weight: 600;
     font-size: 0.975rem;
     color: var(--text);
+}
+
+.field-heading {
+    display: flex;
+    flex-direction: column;
+}
+
+.field-hint {
+    min-height: 1.2rem;
+    font-size: 0.8125rem;
+    line-height: 1.2rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
 }
 
 .field-box {
@@ -369,14 +395,72 @@ button:focus-visible {
     color: var(--text-muted);
 }
 
-.field-status {
+/* The line under a field: the status, and on a slider its end labels either side. It sits below
+   the slider, so nothing here can move a slider while it is dragged (S7). */
+.field-meta {
     min-height: 1.35rem;
-    margin-top: 0.35rem;
-    font-size: 0.875rem;
+    margin-top: 0.2rem;
+    font-size: 0.8125rem;
     line-height: 1.35rem;
-    text-align: right;
-    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
+}
+
+.field-meta--slider {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "min status max";
+    align-items: baseline;
+    gap: 0 0.75rem;
+    /* Up into the lower part of the slider's 44 px touch band, below the thumb and its focus ring. */
+    margin-top: -0.55rem;
+}
+
+.slider-end {
+    font-size: 0.8rem;
+    color: var(--text-quiet);
+}
+
+.slider-end--min {
+    grid-area: min;
+}
+
+.slider-end--max {
+    grid-area: max;
+}
+
+.field-status {
+    color: var(--text-muted);
+    text-align: right;
+}
+
+.field-meta--slider .field-status {
+    grid-area: status;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Where the middle is too narrow for a notice, the status has its own line under the ends,
+   kept at one line's height while empty so nothing below moves when a notice comes and goes. */
+@container (max-width: 30rem) {
+    .field-meta--slider {
+        grid-template-columns: auto auto;
+        grid-template-areas: "min max" "status status";
+        justify-content: space-between;
+    }
+
+    .field-meta--slider .field-status {
+        min-height: 1.35rem;
+        text-align: left;
+        white-space: normal;
+    }
+}
+
+/* On the narrowest cards a notice can need two lines; both are kept. */
+@container (max-width: 17.5rem) {
+    .field-meta--slider .field-status,
+    .field-meta:not(.field-meta--slider) {
+        min-height: 2.7rem;
+    }
 }
 
 .field-notice,
@@ -384,11 +468,10 @@ button:focus-visible {
     color: var(--attention);
 }
 
-/* One message at a time: a refusal, else a notice, else the hint. */
-.field-refusal:empty,
+/* One message at a time: a refusal, else a notice. The refusal's live region is never hidden,
+   so a screen reader is listening when digits-only.js fills it. */
 .field-notice:empty,
-.field-refusal:not(:empty) ~ *,
-.field-notice:not(:empty) ~ .field-hint {
+.field-refusal:not(:empty) ~ .field-notice {
     display: none;
 }
 
@@ -410,7 +493,7 @@ button:focus-visible {
 
 .slider {
     position: relative;
-    margin-top: 0.6rem;
+    margin-top: 0.15rem;
     --fill-at: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--fill));
     --limit-at: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--limit));
 }
@@ -420,7 +503,7 @@ button:focus-visible {
 }
 
 .slider--marker-space {
-    padding-top: 1.5rem;
+    padding-top: 1.2rem;
 }
 
 /* The input is 44 px tall so the whole band is the touch target (S2), whatever the thumb's size. */
@@ -439,10 +522,9 @@ button:focus-visible {
     outline: none;
 }
 
+/* Focus is a solid ring round the thumb, 3:1 or better, so it never crosses the line below. */
 .slider-input:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-    border-radius: var(--radius-small);
+    outline: none;
 }
 
 /* With a marker, the track past the longest allowed term is shaded, and a term set past it
@@ -500,14 +582,6 @@ button:focus-visible {
     box-shadow: 0 1px 3px rgba(var(--shade), 0.25);
 }
 
-.slider-input:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 5px var(--focus-ring);
-}
-
-.slider-input:focus-visible::-moz-range-thumb {
-    box-shadow: 0 0 0 5px var(--focus-ring);
-}
-
 .slider-input:not(:disabled):hover::-webkit-slider-thumb {
     box-shadow: 0 0 0 6px var(--focus-ring), 0 1px 3px rgba(var(--shade), 0.25);
 }
@@ -522,6 +596,15 @@ button:focus-visible {
 
 .slider-input:not(:disabled):active::-moz-range-thumb {
     background: var(--primary-soft);
+}
+
+/* After the hover rules, so the focus ring stays while the pointer is over a focused slider. */
+.slider-input:focus-visible:not(:disabled)::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
+}
+
+.slider-input:focus-visible:not(:disabled)::-moz-range-thumb {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
 }
 
 .slider-input:disabled {
@@ -553,19 +636,10 @@ button:focus-visible {
     pointer-events: none;
 }
 
-.slider-ends {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.15rem;
-    font-size: 0.8rem;
-    color: var(--text-quiet);
-    font-variant-numeric: tabular-nums;
-}
-
 /* ---------- Segmented choices ---------- */
 
 .choice {
-    margin: 0 0 1.25rem;
+    margin: 0 0 0.6rem;
     padding: 0;
     border: 0;
     min-width: 0;
@@ -573,8 +647,19 @@ button:focus-visible {
 
 .choice .field-label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
     padding: 0;
+}
+
+/* Where the card is wide enough, the label sits left of the options, as a field's label does
+   (S1). A floated legend is laid out as ordinary content, and the options grid keeps clear of it. */
+@container (min-width: 31rem) {
+    .choice .field-label {
+        float: left;
+        width: 8.5rem;
+        margin: 0;
+        line-height: 3.25rem;
+    }
 }
 
 .choice-options {
@@ -825,8 +910,14 @@ button:focus-visible {
         position: static;
     }
 
-    .site-main {
-        padding-bottom: 7rem;
+    /* Room for the payment bar under everything, the footnote included, and scrolling keeps a
+       focused control clear of it (S2). */
+    html {
+        scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+
+    body {
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
     }
 
     .field-rules {
@@ -899,9 +990,9 @@ button:focus-visible {
 }
 
 @media (max-width: 480px) {
-    .group,
+    .inputs,
     .results {
-        padding: 1.25rem 1rem;
+        padding: 1.1rem 1rem;
     }
 
     .field {
@@ -1018,6 +1109,10 @@ button:focus-visible {
     .slider-input {
         appearance: auto;
         -webkit-appearance: auto;
+    }
+
+    .field-meta--slider {
+        margin-top: 0.35rem;
     }
 
     .slider-marker {

@@ -4,7 +4,16 @@
 
 <div class="field @(Highlighted ? "is-highlighted" : null)">
     <div class="field-row">
-        <label class="field-label" for="@Id">@Label</label>
+        @* The hint sits under the label, in the height the row already has beside the input box, so
+           it never shares a line with a notice (US-6 AC4). A field that can have a hint keeps its
+           line even while the hint is empty, so nothing below moves when it comes and goes (S7). *@
+        <div class="field-heading">
+            <label class="field-label" for="@Id">@Label</label>
+            @if (ReservesHintSpace)
+            {
+                <span class="field-hint" id="@($"{Id}-hint")">@Hint</span>
+            }
+        </div>
         <div class="field-box @(Message is null ? null : "has-message")">
             <input @ref="_input" id="@Id" class="field-input" type="text" inputmode="numeric"
                    autocomplete="off" spellcheck="false" value="@_text" readonly="@(!_isLive)"
@@ -14,24 +23,13 @@
         </div>
     </div>
 
-    @* One line of fixed height above the slider, so nothing above it changes size during a drag
-       (S7). It shows a refused keystroke if there is one, else the screen's own change notice,
-       else the hint. *@
-    <p class="field-status">
-        @* Filled by digits-only.js when a keystroke or paste is refused, so the refusal is never silent. *@
-        <span class="field-refusal" role="status"></span>
-        <span class="field-notice" aria-hidden="true">@Notice</span>
-        <span class="field-hint" id="@($"{Id}-hint")">@Hint</span>
-    </p>
-    <span class="visually-hidden" role="status">@Notice</span>
-
     @if (ShowSlider)
     {
         <div class="@SliderClass" style="@SliderStyle">
             <input type="range" class="slider-input" tabindex="@(_isLive ? null : "-1")"
                    min="@Css(Min)" max="@Css(SliderMax)" step="@Css(Step)" value="@Css(SliderValue)"
                    disabled="@SliderDisabled" aria-label="@Label" aria-valuetext="@ValueText"
-                   aria-describedby="@(MarkerValue is null ? null : $"{Id}-marker")"
+                   aria-describedby="@SliderDescribedBy"
                    @oninput="OnSliderInputAsync" />
             @if (MarkerValue is not null)
             {
@@ -39,11 +37,28 @@
                 <span class="slider-marker-label" id="@($"{Id}-marker")">@MarkerLabel</span>
             }
         </div>
-        <div class="slider-ends" aria-hidden="true">
-            <span>@FormatValue(Min)</span>
-            <span>@FormatValue(SliderMax)</span>
-        </div>
     }
+
+    @* Below the slider, one line of fixed height on every width, so nothing here can move a slider
+       (S7). It shows a refused keystroke if there is one, else the screen's own change notice; on
+       a slider the end labels sit either side of it. *@
+    <div class="field-meta @(ShowSlider ? "field-meta--slider" : null)">
+        @if (ShowSlider)
+        {
+            <span class="slider-end slider-end--min" aria-hidden="true">@FormatValue(Min)</span>
+        }
+        <p class="field-status">
+            @* Filled by digits-only.js when a keystroke or paste is refused, so the refusal is never
+               silent. Always rendered, so screen readers are listening when the text arrives. *@
+            <span class="field-refusal" role="status"></span>
+            <span class="field-notice" aria-hidden="true">@Notice</span>
+        </p>
+        @if (ShowSlider)
+        {
+            <span class="slider-end slider-end--max" aria-hidden="true">@FormatValue(SliderMax)</span>
+        }
+    </div>
+    <span class="visually-hidden" role="status">@Notice</span>
 
     @if (Message is not null)
     {
@@ -83,6 +98,9 @@
     [Parameter, EditorRequired] public string Unit { get; set; } = string.Empty;
     [Parameter, EditorRequired] public Func<decimal, string> FormatValue { get; set; } = IcelandicFormat.Number;
     [Parameter, EditorRequired] public int MaxDigits { get; set; }
+
+    /// <summary>An amount in krónur, so a refused paste can show an amount as its example.</summary>
+    [Parameter] public bool IsAmount { get; set; }
     [Parameter] public decimal? Value { get; set; }
     [Parameter] public EventCallback<FieldCommit> OnCommit { get; set; }
 
@@ -99,6 +117,9 @@
     [Parameter] public string? MarkerLabel { get; set; }
 
     [Parameter] public string? Hint { get; set; }
+
+    /// <summary>Keeps the hint's line under the label even while the hint is empty.</summary>
+    [Parameter] public bool ReservesHintSpace { get; set; }
     [Parameter] public string? Notice { get; set; }
     [Parameter] public string? Message { get; set; }
     [Parameter] public bool Highlighted { get; set; }
@@ -115,8 +136,20 @@
         get
         {
             var ids = new List<string>();
-            if (Hint is not null) ids.Add($"{Id}-hint");
+            if (ReservesHintSpace && Hint is not null) ids.Add($"{Id}-hint");
             if (Message is not null) ids.Add($"{Id}-message");
+            return ids.Count == 0 ? null : string.Join(' ', ids);
+        }
+    }
+
+    // The slider is described by the same hint as the field (the down payment's share), and by the marker.
+    private string? SliderDescribedBy
+    {
+        get
+        {
+            var ids = new List<string>();
+            if (ReservesHintSpace && Hint is not null) ids.Add($"{Id}-hint");
+            if (MarkerValue is not null) ids.Add($"{Id}-marker");
             return ids.Count == 0 ? null : string.Join(' ', ids);
         }
     }
@@ -153,7 +186,9 @@
             noDecimals = Labels.NoDecimals,
             // Only a field long enough for thousands shows dots; elsewhere a dot is a decimal point.
             dotsAreAdded = MaxDigits > 3 ? Labels.DotsAreAdded : Labels.NoDecimals,
-            pasteRefused = Labels.PasteRefused
+            // An example that fits the field: an amount only where amounts go.
+            pasteRefused = IsAmount ? Labels.PasteRefused : Labels.PasteRefusedWholeNumber,
+            tooManyDigits = Labels.TooManyDigits
         });
 
         _isLive = true;
