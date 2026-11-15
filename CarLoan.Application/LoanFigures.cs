@@ -13,7 +13,9 @@ namespace CarLoan.Application;
 /// <param name="DownPaymentPercentage">100 minus <paramref name="FinancingRatioRoundedUp"/>.</param>
 public sealed record LoanFigures(decimal LoanAmount, decimal FinancingRatioRoundedUp, decimal DownPaymentPercentage)
 {
-    private const decimal TenthsPerPercent = 10m;
+    // An int, not a decimal: a C# decimal const compiles to a static readonly field whose
+    // initializer never runs, which coverage reports as an unexecuted line.
+    private const int TenthsPerPercent = 10;
 
     internal static LoanFigures From(LoanTerms terms)
     {
