@@ -164,11 +164,7 @@ button:focus-visible {
 
 /* ---------- Page frame ---------- */
 
-.site-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-}
-
+/* No banner: the header only holds the theme toggle, on the page's own background. */
 .site-header-inner {
     max-width: 72rem;
     margin: 0 auto;
@@ -177,17 +173,6 @@ button:focus-visible {
     align-items: center;
     gap: 0.25rem 0.75rem;
     flex-wrap: wrap;
-}
-
-.brand {
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--primary-strong);
-}
-
-.brand-note {
-    color: var(--text-muted);
-    font-size: 0.925rem;
 }
 
 /* The theme choice: a quiet toggle at the end of the header (N3/S7: the visitor decides). */
@@ -242,12 +227,11 @@ button:focus-visible {
     font-size: 0.875rem;
 }
 
-/* The question and the one-line instruction share a line where there is room. */
+/* The instruction always sits under the question. */
 .page-intro {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.2rem 1rem;
+    flex-direction: column;
+    gap: 0.2rem;
     margin-bottom: 1rem;
 }
 
@@ -260,6 +244,37 @@ button:focus-visible {
 
 .page-intro p {
     color: var(--text-muted);
+}
+
+/* The two vehicle choices sit above the cards, side by side where there is room. */
+.vehicle-choices {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 0.75rem 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.vehicle-choices .choice {
+    margin: 0;
+}
+
+/* Nýr / Notaður ends flush with the right edge of the results card below. */
+.vehicle-choices .choice:last-child .choice-options {
+    justify-content: flex-end;
+}
+
+@media (max-width: 860px) {
+    /* Nýr / Notaður follows the category pills on the same line, wrapping only when it must. */
+    .vehicle-choices {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    /* Nýr / Notaður ends flush with the right edge of the full-width card below. */
+    .vehicle-choices .choice:last-child {
+        margin-left: auto;
+    }
 }
 
 /* ---------- Layout: inputs on one side, results on the other ---------- */
@@ -662,14 +677,11 @@ button:focus-visible {
     }
 }
 
+/* Each option is its own rounded button; there is no box around the set. */
 .choice-options {
-    display: grid;
-    grid-template-columns: repeat(var(--options), minmax(0, 1fr));
-    gap: 4px;
-    padding: 4px;
-    background: var(--surface-subtle);
-    border: 1px solid var(--border-strong);
-    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .choice-input {
@@ -685,26 +697,28 @@ button:focus-visible {
     align-items: center;
     justify-content: center;
     min-height: 2.75rem;
-    padding: 0.4rem 0.6rem;
-    border-radius: 7px;
+    padding: 0.4rem 1.1rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 999px;
     text-align: center;
     line-height: 1.25;
     color: var(--text-muted);
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .choice-option:hover {
     color: var(--text);
-    background: var(--primary-soft);
+    border-color: var(--primary);
 }
 
 .choice-input:checked + .choice-option {
-    background: var(--surface);
+    background: var(--primary-soft);
+    border-color: var(--primary);
     color: var(--primary-strong);
     font-weight: 600;
-    box-shadow: inset 0 0 0 1.5px var(--primary), 0 1px 2px rgba(var(--shade), 0.08);
 }
 
 .choice-input:focus-visible + .choice-option {
@@ -824,14 +838,7 @@ button:focus-visible {
     border-radius: var(--radius-small);
 }
 
-.messages-title {
-    font-size: 0.95rem;
-    font-weight: 650;
-    color: var(--attention);
-}
-
 .messages-list {
-    margin-top: 0.5rem;
     padding-left: 1.1rem;
 }
 

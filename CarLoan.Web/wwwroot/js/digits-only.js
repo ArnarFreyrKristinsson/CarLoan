@@ -1,5 +1,5 @@
-// Keeps a text field to digits (US-6 AC11). The thousands dots the field shows stay where they
-// are while the user edits and are ignored when the value is read. A refused keystroke or paste
+// Keeps a text field to digits (US-6 AC11). The thousands dots are added as the user types and
+// are ignored when the value is read. A refused keystroke or paste
 // is never silent: a short note beside the field says why (N1, N9).
 //
 // A paste is taken only when it reads as a whole Icelandic amount: digits, optionally grouped by
@@ -68,6 +68,32 @@ export function attach(input, maxDigits, notices) {
         // An accepted digit leaves a refusal note up for its full time: typing "7.5" must still
         // say why the dot went, now that the field reads 75.
     });
+
+    // Where a field is long enough for thousands, the dots are put in as the user types. The
+    // caret stays after the same digit, and the server reads the text with the dots ignored.
+    if (notices.groupThousands) {
+        input.addEventListener('input', () => {
+            if (input.readOnly) {
+                return;
+            }
+
+            const caret = input.selectionStart ?? input.value.length;
+            const digitsBeforeCaret = digitCount(input.value.slice(0, caret));
+            const grouped = input.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+            if (grouped === input.value) {
+                return;
+            }
+
+            input.value = grouped;
+
+            let position = 0;
+            for (let seen = 0; position < grouped.length && seen < digitsBeforeCaret; position++) {
+                if (/[0-9]/.test(grouped[position])) seen++;
+            }
+            input.setSelectionRange(position, position);
+        });
+    }
 
     input.addEventListener('paste', event => {
         event.preventDefault();

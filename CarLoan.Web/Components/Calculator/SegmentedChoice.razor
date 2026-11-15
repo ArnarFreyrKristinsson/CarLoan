@@ -1,7 +1,7 @@
 @typeparam TValue
 
 <fieldset class="choice">
-    <legend class="field-label">@Legend</legend>
+    <legend class="visually-hidden">@Legend</legend>
     <div class="choice-options @(Options.Count > 2 ? "choice-options--many" : null)" style="--options: @Options.Count">
         @for (int index = 0; index < Options.Count; index++)
         {

@@ -10,19 +10,19 @@
     <p>Breyttu forsendunum og niðurstaðan uppfærist strax.</p>
 </div>
 
+<div class="vehicle-choices">
+    <SegmentedChoice TValue="RequestedVehicleCategory" Name="vehicle-category" Legend="Tegund bíls"
+                     Options="_vehicleCategories" Value="_category" ValueChanged="OnCategoryChanged" />
+
+    <SegmentedChoice TValue="RequestedCarCondition" Name="car-condition" Legend="Nýr eða notaður"
+                     Options="_conditions" Value="_condition" ValueChanged="OnConditionChanged" />
+</div>
+
 <div class="calculator">
     <section class="inputs" aria-labelledby="inputs-title">
         <h2 id="inputs-title" class="visually-hidden">Forsendur</h2>
 
         <div class="group">
-            <h3 class="group-title">Bíllinn</h3>
-
-            <SegmentedChoice TValue="RequestedVehicleCategory" Name="vehicle-category" Legend="Tegund bíls"
-                             Options="_vehicleCategories" Value="_category" ValueChanged="OnCategoryChanged" />
-
-            <SegmentedChoice TValue="RequestedCarCondition" Name="car-condition" Legend="Nýr eða notaður"
-                             Options="_conditions" Value="_condition" ValueChanged="OnConditionChanged" />
-
             @if (_condition == RequestedCarCondition.Used)
             {
                 <SliderField Id="car-age" Label="@Labels.CarAge" Unit="ár" FormatValue="Years" MaxDigits="CarAgeDigits"

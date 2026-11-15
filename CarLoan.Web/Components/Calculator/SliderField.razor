@@ -188,7 +188,8 @@
             dotsAreAdded = MaxDigits > 3 ? Labels.DotsAreAdded : Labels.NoDecimals,
             // An example that fits the field: an amount only where amounts go.
             pasteRefused = IsAmount ? Labels.PasteRefused : Labels.PasteRefusedWholeNumber,
-            tooManyDigits = Labels.TooManyDigits
+            tooManyDigits = Labels.TooManyDigits,
+            groupThousands = MaxDigits > 3
         });
 
         _isLive = true;

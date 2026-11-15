@@ -8,7 +8,7 @@
     @if (View.RuleMessages.Count > 0)
     {
         <div class="messages" role="region" aria-labelledby="messages-title">
-            <h3 id="messages-title" class="messages-title">Það sem þarf að breytast</h3>
+            <h3 id="messages-title" class="visually-hidden">Það sem þarf að breytast</h3>
             <ul class="messages-list">
                 @foreach (var message in View.RuleMessages)
                 {
