@@ -1,7 +1,8 @@
 # Loan calculator
 
 **Story:** US-1 to US-6 in `docs/spec/user-stories.md`
-**Status:** built; two contract gaps open for human decision
+**Status:** built; two contract gaps open for human decision; the 2026-11-15 change has not been
+through `ux-reviewer`
 
 ## Story review settlement
 
@@ -17,9 +18,9 @@ first car age (8).
 | 2 | The term marker needs eligibility logic, edge cases undefined | 4 | The engine reports the longest term the term and car-age rules allow. The marker shows when that is from 6 up to 83 months. At 84 it is not shown (AC10's "moves to 84" means the marker leaves the slider). Below 6, or when there is none, there is no marker; the rule message says what to change. |
 | 3 | "Always show" against "can't be calculated" | 4 | Every US-2 row is always on screen. A figure the lender has no price for shows "—", never a number: above 90% financing the interest rate. Outside 6–84 months: the fee rate, fee, amount saved and financed amount. With no loan (down payment covers the price): every loan figure. Whenever a rule fails, all figures are muted with the payment, not only the payment. |
 | 4 | No story covers `InvalidRequest` | 3 | An empty field: the results ask for that field and show no rule message. A price or term of 0, or a value above the contract's `Maximum…` constants: a plain message beside that field, and the payment area says why it can't be calculated. The fields take no more digits than those constants need. A down payment above the price while the user is still in the field: the "no loan" statement, until the user leaves the field (AC15). |
-| 5 | "Digits only" against the Icelandic format and pasting | 3 | Typing inserts digits only. The dots already shown stay as separators while editing and are ignored when the value is read. The field is reformatted when the user leaves it. A paste keeps the digits before a decimal comma and drops "kr.", spaces and dots: "5.000.000 kr." gives 5.000.000, and "4.500.000,50" gives 4.500.000, never 450.000.050. |
+| 5 | "Digits only" against the Icelandic format and pasting | 3 | Typing inserts digits only. The dots already shown stay as separators while editing and are ignored when the value is read. The field is reformatted when the user leaves it. A paste keeps the digits before a decimal comma and drops "kr.", spaces and dots: "5.000.000 kr." gives 5.000.000, and "4.500.000,50" gives 4.500.000, never 450.000.050. Since 2026-11-15, by request: in the krónur fields the dots are added as the user types. |
 | 6 | AC14 overwrites the down payment and never restores it | 3 | Human decision: the down payment the user set comes back when the price rises again (S6). A typed price cuts the down payment only when the user leaves the price field, never during a typing pause. |
-| 7 | Which fee rate is shown | 3 | The rate as it applies, as in the reference table and Language 6: 1,60% for V3, 2,20% for V2 on 72–84 months. When F4 raised the fee to the minimum, the fee shows a "minimum fee" note, from an engine flag. |
+| 7 | Which fee rate is shown | 3 | The rate as it applies, as in the reference table and Language 6: 1,60% for V3, 2,20% for V2 on 72–84 months. When F4 raised the fee to the minimum, the fee shows a "minimum fee" note, from an engine flag. A rate with more decimals shows them all: 1,125% for V3 on 36–47 months, which showed as 1,13% until fixed on 2026-11-15. |
 | 8 | No car age on the first switch to used | 3 | Human decision: empty, and the results ask for the car's age until it is entered. |
 | 9 | No boundary scenarios | 2 | The engine tests cover every limit in `lykill.md` (`LykillBoundaryTests` plus the new pricing tests). The self-check walks a sample of them on the screen. |
 | 10 | Rule message and "can't be calculated" can repeat | 2 | Both show: the rule message says what to change, and the one-line statement says why there is no number. Two reasons at once are both named in the statement. One message per failing rule code. |
@@ -56,8 +57,10 @@ through that aim.
 
 ### Layout and tone
 
-Inputs on the left in two groups: the car (type, new or used, age, price), then the
-financing (down payment, term). Results on the right, sticky while the inputs scroll. The
+The vehicle type and new-or-used choices sit above the cards as two sets of pill buttons
+(since 2026-11-15). Below them, the inputs on the left in one card: car age (used cars only)
+and price, then the financing (down payment, term). Results on the right, sticky while the
+inputs scroll. The
 monthly payment is the one large number, with total interest beneath it and a plain status
 line. Below that come the messages, only when a rule fails, and then the figures as a quiet
 list.
@@ -138,11 +141,67 @@ the deep blue #1E4D8C and the teal #0F8B8D stay): page #F6F3EE, surface #FDFBF8,
 #F1ECE5, borders #E6E0D7 and #8B8275, text #272623, muted #545049, quiet #635E56, softer warm
 shadows. Dark mode is not changed.
 
+### Change: vehicle choices above the cards, and a lighter page (2026-11-14–15)
+
+Requested one step at a time, and each step was the requester's decision:
+- move the vehicle type and new-or-used choices above the cards, and drop their labels ("Tegund
+  bíls", "Nýr eða notaður") and the "Bíllinn" heading;
+- make the options rounded buttons, with no box around each set;
+- on wide screens, line the new-or-used set up with the right edge of the results card; on
+  narrow screens, put it on the type row, also flush right;
+- put the instruction under the question at every width;
+- remove the header's brand text, then its banner, keeping the theme toggle;
+- add the thousands dots while the user types;
+- hide the "Það sem þarf að breytast" heading above the rule messages.
+
+What the screen does now:
+- **Choices.** Above the cards are the three vehicle types, then Nýr / Notaður. Each option is a
+  pill: 44 px tall, fully rounded, with a thin border. The selected pill has a blue border, a
+  light blue fill and bold blue text. Hovering an unselected pill turns its border blue (until
+  now it was a blue tint, colour brief N1/S3).
+- **Choice layout.** Above 860 px the two sets follow the cards' columns, and Nýr / Notaður ends
+  flush with the results card's right edge. At 860 px and below they share one line, Nýr /
+  Notaður flush right, and the pair wraps together when the line is too short.
+- **Choice names.** Each set is still a native radio group. Its name stays as a visually hidden
+  legend.
+- **Input card.** Car age (used cars only) and purchase price come first, with no heading, then
+  "Fjármögnun" with the down payment and the term.
+- **Top of the page.** The question, with the instruction on its own line under it. There is no
+  header banner and no brand text; the theme toggle sits top right on the page background.
+- **Typing.** Price and down payment get their thousands dots as the user types, and the caret
+  stays after the same digit. Term and car age never reach four digits, so they show none.
+- **Rule messages.** They sit in their box with no visible heading. The heading stays as
+  visually hidden text that names the region.
+- **Fee rate.** It shows every decimal it has: 1,125% for an electric car on 36–47 months, where
+  it showed 1,13% (Language 6, US-2 AC1; found in code review on 2026-11-15).
+
+| ID | How the change satisfies it |
+|---|---|
+| N1 / S3 | The selected type and condition read at a glance: filled, blue-edged and bold. A typed amount shows its grouping as it is typed, so 5.000.000 and 500.000 can be told apart before the field is left. |
+| N2 | The reading order is unchanged: the car (type, new or used, age, price), then the financing. The options name the choice in the user's own words ("Bensín eða dísil", "Notaður"), which is why the labels could go. Whether that holds for real people is for user test (below). |
+| N3 / S6 / S7 | The dots are the only text the screen changes while a field has focus. The digits, and so the value, are only ever the user's (US-6 AC13), and the caret stays after the digit just typed. |
+| N4 / S1 | The two choices are still one component, and the pills share the theme toggle's shape and hover. Two places no longer match: the choices no longer share the fields' label-left shape (the 2026-11-10 N4/S1 row no longer holds), and the card's first group has no heading while the second keeps "Fjármögnun" (for human decision, below). |
+| N5 / S5 | Not changed. A typed dot still gets "Punktarnir bætast við sjálfkrafa.", which is now literally what happens. |
+| N6 / S8 | Every input and figure is still on one screen. The choices' names are no longer visible, but their options are (for user test). |
+| N7 / S2 | Pills are 44 px tall. Below 420 px the type options no longer stack (the 2026-11-02 fix); they wrap as pills instead. The hidden legends keep each group named for assistive technology. |
+| N8 | Less chrome: no banner, no brand line, no labels on the choices and no heading over the messages. Nothing was added. |
+| N9 | Each message still says what is wrong, the limit and what to change; only the heading above them is hidden. |
+| N10, S4 | Not changed. The footnote still says what the numbers rest on. |
+
+Needs user test, from this change:
+- whether people read the unlabelled first row as the car's fuel type, and the second as new or
+  used;
+- whether, with no header, people know the figures are Lykill's before they reach the status
+  line or the footnote;
+- whether Nýr / Notaður, flush right and apart from the types, is seen as part of the same set of
+  questions.
+
 ## Acceptance criteria
 
 Checked against the running screen (2026-11-02) by driving it through each state and reading
 what it showed. "Engine" means the behaviour is proven by the engine tests, and the screen only
-shows the result.
+shows the result. Rows marked 2026-11-15 were updated from the code for the later change, not
+re-driven on the screen.
 
 | Criterion | How the built screen satisfies it |
 |---|---|
@@ -155,10 +214,10 @@ shows the result.
 | US-2 AC2 | "Sparnaður á lántökugjaldi" is shown for plug-in hybrid and electric/hydrogen. |
 | US-2 AC3 | Not shown for petrol/diesel. |
 | US-2 AC4 | Reference example shows 4.000.000 kr., 80,0%, 20,0% (beside the down payment), 10,75%, 1,60%, 64.000 kr., 64.000 kr., 4.064.000 kr., 69.053 kr. and 1.736.413 kr. |
-| US-3 AC1–2 | One radio group with exactly the three types, and one always selected. |
+| US-3 AC1–2 | One radio group with exactly the three types, and one always selected, shown as pill buttons above the cards (2026-11-15). |
 | US-3 AC3–5 | Engine: the rate table and fee discount per type (`LykillPricingTests`, `LykillPricingBoundaryTests`). The screen shows 10,75% / 1,60% for V3 and 11,45% / 2,20% for V2 on the reference loan. |
 | US-3 AC6 | Changing the type re-evaluates at once. |
-| US-4 AC1–2 | New/used choice. Used shows "Aldur bílsins" in whole years. |
+| US-4 AC1–2 | New/used choice, as pill buttons above the cards. Used shows "Aldur bílsins" in whole years, first in the input card (2026-11-15). |
 | US-4 AC3 | New hides the field and sends age 0, which C1/C2 ignore for a new car (engine). |
 | US-4 AC4 | Used → new → used restores the age entered (checked with 7). |
 | US-4 AC5 | Engine: T1–T3, C1–C2 (`LykillBoundaryTests`, `LykillLongestTermTests`). |
@@ -176,9 +235,9 @@ shows the result.
 | US-6 AC5–7 | Price 900.000–20.000.000 in 50.000 steps. Down payment 150.000 up to the price. Term 6–84. |
 | US-6 AC8–9 | Marker "Hámark 48 mán." at the longest allowed term when it is below 84. The slider moves past it freely; the fill turns amber past the marker and the rule message appears. |
 | US-6 AC10 | Nothing but the user changes the term. |
-| US-6 AC11 | Only digits can be typed. A paste keeps the digits before a decimal comma, and the fields take no more digits than the engine's bounds need. |
+| US-6 AC11 | Only digits can be typed; in the krónur fields the thousands dots are added as the user types (2026-11-15). A paste keeps the digits before a decimal comma, and the fields take no more digits than the engine's bounds need. |
 | US-6 AC12 | Typed 3 months: kept, slider at 6, T4 message. Typed 100.000 kr. down: kept, A2 message. Typed 35.000.000 kr.: kept, slider at its 20.000.000 end. |
-| US-6 AC13 | A field is never rewritten while it has focus. A typed price of "4" left the down payment at 1.000.000 during the pause. |
+| US-6 AC13 | The number in a field is never changed while it has focus. Only the thousands dots are added as the user types, with the caret kept after the same digit (2026-11-15). A typed price of "4" left the down payment at 1.000.000 during the pause. |
 | US-6 AC14 | Price slider to 900.000: the down payment drops to 900.000 and is highlighted, with a note. Price back to 5.000.000: it returns to 1.000.000, also with a note (human decision). |
 | US-6 AC15 | A typed 6.000.000 kr. down payment on 5.000.000 shows "no loan" while in the field, and comes down to 5.000.000, highlighted, on leaving it. |
 
@@ -250,6 +309,22 @@ moved for a notice, the share stayed beside it, and the refusal's live region st
 
 The type options wrap to two lines on a laptop ("Bensín eða dísil", "Rafmagn eða vetni"); they
 stay 44 px or more and readable, so this was left.
+
+### Self-check: vehicle choices above the cards (2026-11-15)
+
+Checked against the code, not on the running screen. The app was not driven through its states
+for this change, and no colour pair was recomputed: the pills reuse the existing tokens (the
+strong border at rest, the main blue when selected or hovered, the soft blue fill when
+selected).
+
+| Rule | What was checked | Result |
+|---|---|---|
+| S2 / N7 | Pill height and wrapping | 2.75rem (44 px) minimum. The options wrap, and at 860 px and below the condition pair wraps as one, flush right. |
+| N4 / S1 | Older claims in this plan against the screen | Two no longer describe it: the 2026-11-10 row saying the choices share the fields' label-left shape, and the 2026-11-02 fix that stacks the types below 420 px. They are recorded here, not rewritten. |
+| US-2 AC1, Language 6 | Fee rate format | Fixed: the rate shows all its decimals (1,125%, not 1,13%). |
+| — | CSS left without effect | `.choice .field-label` and its `@container (min-width: 31rem)` float, `.choice + .field`, the 420 px `.choice-options--many` stacking rule and the `--options` property no longer match anything or do anything. Harmless; left for a cleanup pass. |
+
+Not reviewed: no `ux-reviewer` round has run on this change.
 
 ## Review rounds
 
@@ -383,6 +458,9 @@ the last round without another review.
      either a separate figures call on the contract or a request that allows a missing value.
 
 
+- **The input card's headings (2026-11-15).** With "Bíllinn" removed by request, the card's
+  first group (car age, price) has no heading, while the second keeps "Fjármögnun" (S1/N4).
+  Either both groups go without a heading, or the first gets one back. Left as requested.
 - **Story 12, car age counting.** `lykill.md` §4.3 does not say what the car's age is counted
   from (first registration or model year) or how part years round. That decides C1/C2 near a
   limit. It belongs in `lykill.md`, then in the field's help text.
