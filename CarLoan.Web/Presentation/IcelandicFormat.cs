@@ -18,8 +18,11 @@ internal static class IcelandicFormat
     /// <summary>An amount in whole krónur: 4.064.000 kr.</summary>
     public static string Krona(decimal value) => $"{Number(value)} kr.";
 
-    /// <summary>A rate as it applies, two decimals: 10,75%.</summary>
-    public static string Rate(decimal percent) => $"{percent.ToString("N2", _icelandic)}%";
+    /// <summary>
+    /// A rate exactly as it applies: at least two decimals, more only when the rate has them,
+    /// so a halved 2,25% fee rate reads 1,125%, not 1,13%. Examples: 10,75%, 1,60%, 1,125%.
+    /// </summary>
+    public static string Rate(decimal percent) => $"{percent.ToString("#,##0.00##", _icelandic)}%";
 
     /// <summary>A ratio with one decimal, as the engine rounded it: 80,0%.</summary>
     public static string Ratio(decimal percent) => $"{percent.ToString("N1", _icelandic)}%";
