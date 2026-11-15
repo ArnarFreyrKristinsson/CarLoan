@@ -10,3 +10,4 @@ climbing means the judge is excusing more than this kind of code should produce.
 |---|---|---|---|---|---|---|---|
 | 2026-10-11 | full | 2 | 0 | 1 | 1 | 0 | CarLoan.Application: 1 excused, 0 parked; CarLoan.Domain: 0 excused, 1 parked |
 | 2026-10-11 | full | 1 | 1 | 0 | 0 | 0 | CarLoan.Application: 1 excused, 0 parked |
+| 2026-11-02 | full | 1 | 0 | 0 | 1 | 0 | CarLoan.Application: 1 excused, 0 parked; CarLoan.Domain: 0 excused, 1 parked |

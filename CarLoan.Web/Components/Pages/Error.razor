@@ -1,0 +1,26 @@
+﻿@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Villa · Bílalán</PageTitle>
+
+<div class="error-page">
+    <h1>Eitthvað fór úrskeiðis</h1>
+    <p>Ekki tókst að ljúka beiðninni. Reyndu aftur eftir smástund.</p>
+    <p><a href="">Fara aftur í reiknivélina</a></p>
+
+    @if (ShowRequestId)
+    {
+        <p class="error-reference">Tilvísun: <code>@RequestId</code></p>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

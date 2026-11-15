@@ -14,11 +14,11 @@ public class MultiLenderLoanApplicationServiceTests
         new(2_000_000m, 1_000_000m, 84, RequestedCarCondition.New, RequestedVehicleCategory.PetrolOrDiesel, 0);
 
     private static LoanInterestRateProvider RateProvider(decimal generalRate) =>
-        new(new RateTable([new RateTier(90m, generalRate)], generalRate),
-            new RateTable([new RateTier(90m, generalRate - 0.70m)], generalRate - 0.70m));
+        new(new RateTable([new RateTier(90m, generalRate)]),
+            new RateTable([new RateTier(90m, generalRate - 0.70m)]));
 
     private static OriginationFeeCalculator FeeCalculator(decimal feeRate) =>
-        new(new OriginationFeeSettings([new FeeTier(84, feeRate)], 18_000m, 50m, 1.00m));
+        new(new OriginationFeeSettings([new FeeTier(84, feeRate)], 18_000m, 50m, 1.00m, 6));
 
     private static readonly IReadOnlyDictionary<string, LenderProfile> _profiles = new Dictionary<string, LenderProfile>
     {
@@ -155,8 +155,8 @@ public class MultiLenderLoanApplicationServiceTests
     {
         var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
 
-        results.Single(result => result.LenderName == "LenderA").OriginationFee.Amount.Should().Be(32_000m);
-        results.Single(result => result.LenderName == "LenderB").OriginationFee.Amount.Should().Be(20_000m);
+        results.Single(result => result.LenderName == "LenderA").OriginationFee!.Amount.Should().Be(32_000m);
+        results.Single(result => result.LenderName == "LenderB").OriginationFee!.Amount.Should().Be(20_000m);
     }
 
     [Fact]
@@ -170,5 +170,22 @@ public class MultiLenderLoanApplicationServiceTests
             new Domain.Models.LoanTerms(2_000_000m, 1_000_000m, 84, 10.00m, OriginationFee: 32_000m));
 
         withFee.MonthlyPayment.Should().Be(expected);
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_ReportsWhetherEachLenderAccepts_WhenRulesDiffer()
+    {
+        var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
+
+        results.Single(result => result.LenderName == "LenderA").IsAccepted.Should().BeTrue();
+        results.Single(result => result.LenderName == "LenderB").IsAccepted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EvaluateLoanRequest_ReportsNoLongestTerm_WhenNoLenderRuleLimitsTheTerm()
+    {
+        var results = Lenders(_service.EvaluateLoanRequest(_defaultRequest));
+
+        results.Should().AllSatisfy(result => result.MaximumLoanPeriodInMonths.Should().BeNull());
     }
 }

@@ -4,9 +4,16 @@ using Params = System.Collections.Generic.Dictionary<CarLoan.Domain.Models.LoanR
 
 namespace CarLoan.Domain.Validators;
 
-public class MaximumLoanPeriodValidator(LoanPeriodLimits limits) : ILoanRule
+public class MaximumLoanPeriodValidator(LoanPeriodLimits limits) : ILoanRule, ILoanPeriodCap
 {
     private readonly LoanPeriodLimits _limits = Guard.NotNull(limits, nameof(limits));
+
+    public int? MaximumLoanPeriodInMonths(Loan loan)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+
+        return _limits.MaximumLoanPeriodFor(loan.Terms.LoanRatio, loan.Car.Condition);
+    }
 
     public LoanRuleResult Evaluate(Loan loan)
     {

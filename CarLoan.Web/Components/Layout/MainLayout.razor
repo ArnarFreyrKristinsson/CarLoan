@@ -1,0 +1,32 @@
+﻿@inherits LayoutComponentBase
+
+<a class="skip-link" href="#main">Fara beint í reiknivélina</a>
+
+<header class="site-header">
+    <div class="site-header-inner">
+        @* Handled by js/theme.js, which also sets aria-pressed to the theme in use. *@
+        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+            <svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <path d="M6.2 1.6a6.5 6.5 0 1 0 8.2 8.2A5.5 5.5 0 0 1 6.2 1.6z" />
+            </svg>
+            Dökkt útlit
+        </button>
+    </div>
+</header>
+
+<main id="main" class="site-main">
+    @Body
+</main>
+
+<footer class="site-footer">
+    <p>
+        Útreikningurinn byggir á birtum lánareglum og verðskrá Lykils. Hann er til viðmiðunar og er
+        ekki lánsloforð.
+    </p>
+</footer>
+
+<div id="blazor-error-ui" role="alert">
+    Óvænt villa kom upp.
+    <a href="" class="reload">Hlaða síðunni aftur</a>
+    <button type="button" class="dismiss" aria-label="Loka">×</button>
+</div>

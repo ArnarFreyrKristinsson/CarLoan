@@ -9,7 +9,7 @@ A .NET 8 loan comparison engine for car loans. Give it a loan request and it eva
 against every lender it knows about, returning each lender's answer: the interest rate, the origination fee, 
 the monthly payment, and when a lender would decline, exactly which rules failed and why.
 
-A front end is planned but today the engine's only consumer is its test suite.
+A Blazor Server calculator for one lender, Lykill, sits on top of it (`CarLoan.Web`).
 
 ## Status
 
@@ -18,7 +18,7 @@ A front end is planned but today the engine's only consumer is its test suite.
 | Engine | Working end to end, validated against a published rule spec |
 | Lenders | **1 — Lykill.** More will be added; the engine fans out over however many are registered |
 | Comparison / ranking layer | Not written yet — results come back one per lender, unranked |
-| UI | Not built (Blazor planned) |
+| UI | Single-lender calculator for Lykill, Blazor Server, in Icelandic (`CarLoan.Web`) |
 
 ## How a request flows
 
@@ -55,6 +55,9 @@ dotnet build
 
 # Run tests
 dotnet test
+
+# Run the calculator, then open http://localhost:5135
+dotnet run --project CarLoan.Web --launch-profile http
 ```
 
 ## Architecture

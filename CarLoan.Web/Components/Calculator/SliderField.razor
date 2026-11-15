@@ -1,0 +1,275 @@
+@using System.Globalization
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div class="field @(Highlighted ? "is-highlighted" : null)">
+    <div class="field-row">
+        @* The hint sits under the label, in the height the row already has beside the input box, so
+           it never shares a line with a notice (US-6 AC4). A field that can have a hint keeps its
+           line even while the hint is empty, so nothing below moves when it comes and goes (S7). *@
+        <div class="field-heading">
+            <label class="field-label" for="@Id">@Label</label>
+            @if (ReservesHintSpace)
+            {
+                <span class="field-hint" id="@($"{Id}-hint")">@Hint</span>
+            }
+        </div>
+        <div class="field-box @(Message is null ? null : "has-message")">
+            <input @ref="_input" id="@Id" class="field-input" type="text" inputmode="numeric"
+                   autocomplete="off" spellcheck="false" value="@_text" readonly="@(!_isLive)"
+                   @oninput="OnTextInputAsync" @onfocus="OnFocus" @onblur="OnBlurAsync"
+                   aria-describedby="@DescribedBy" aria-invalid="@(Message is null ? null : "true")" />
+            <span class="field-unit" aria-hidden="true">@Unit</span>
+        </div>
+    </div>
+
+    @if (ShowSlider)
+    {
+        <div class="@SliderClass" style="@SliderStyle">
+            <input type="range" class="slider-input" tabindex="@(_isLive ? null : "-1")"
+                   min="@Css(Min)" max="@Css(SliderMax)" step="@Css(Step)" value="@Css(SliderValue)"
+                   disabled="@SliderDisabled" aria-label="@Label" aria-valuetext="@ValueText"
+                   aria-describedby="@SliderDescribedBy"
+                   @oninput="OnSliderInputAsync" />
+            @if (MarkerValue is not null)
+            {
+                <span class="slider-marker" aria-hidden="true"></span>
+                <span class="slider-marker-label" id="@($"{Id}-marker")">@MarkerLabel</span>
+            }
+        </div>
+    }
+
+    @* Below the slider, one line of fixed height on every width, so nothing here can move a slider
+       (S7). It shows a refused keystroke if there is one, else the screen's own change notice; on
+       a slider the end labels sit either side of it. *@
+    <div class="field-meta @(ShowSlider ? "field-meta--slider" : null)">
+        @if (ShowSlider)
+        {
+            <span class="slider-end slider-end--min" aria-hidden="true">@FormatValue(Min)</span>
+        }
+        <p class="field-status">
+            @* Filled by digits-only.js when a keystroke or paste is refused, so the refusal is never
+               silent. Always rendered, so screen readers are listening when the text arrives. *@
+            <span class="field-refusal" role="status"></span>
+            <span class="field-notice" aria-hidden="true">@Notice</span>
+        </p>
+        @if (ShowSlider)
+        {
+            <span class="slider-end slider-end--max" aria-hidden="true">@FormatValue(SliderMax)</span>
+        }
+    </div>
+    <span class="visually-hidden" role="status">@Notice</span>
+
+    @if (Message is not null)
+    {
+        <p class="field-message" id="@($"{Id}-message")">@Message</p>
+    }
+
+    @if (RuleNotes.Count > 0)
+    {
+        @* On a narrow screen the results sit below the inputs, so the messages about this input are
+           repeated beside it (S8). They come after the slider, so one appearing never moves the
+           slider being dragged. Screen readers hear them once, from the results. *@
+        <ul class="field-rules" aria-hidden="true">
+            @foreach (var note in RuleNotes)
+            {
+                <li>@note</li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    private static readonly TimeSpan _typingPause = TimeSpan.FromMilliseconds(600);
+
+    private ElementReference _input;
+    private IJSObjectReference? _digitsModule;
+    private CancellationTokenSource? _typing;
+    private string _text = string.Empty;
+    private bool _isEditing;
+    private bool _typedSinceFocus;
+
+    // The page is first sent as static HTML and becomes live a moment later. Until then input is
+    // refused rather than taken: the live render would overwrite it with the settled value.
+    private bool _isLive;
+
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Unit { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public Func<decimal, string> FormatValue { get; set; } = IcelandicFormat.Number;
+    [Parameter, EditorRequired] public int MaxDigits { get; set; }
+
+    /// <summary>An amount in krónur, so a refused paste can show an amount as its example.</summary>
+    [Parameter] public bool IsAmount { get; set; }
+    [Parameter] public decimal? Value { get; set; }
+    [Parameter] public EventCallback<FieldCommit> OnCommit { get; set; }
+
+    /// <summary>Slider ends and step. A typed value outside them is kept; the slider sits at the nearest end.</summary>
+    [Parameter] public decimal Min { get; set; }
+    [Parameter] public decimal Max { get; set; }
+    [Parameter] public decimal Step { get; set; } = 1m;
+    [Parameter] public bool ShowSlider { get; set; } = true;
+    [Parameter] public bool SliderDisabled { get; set; }
+
+    /// <summary>A position on the slider to mark, with its label; null for no marker.</summary>
+    [Parameter] public decimal? MarkerValue { get; set; }
+    [Parameter] public bool ReservesMarkerSpace { get; set; }
+    [Parameter] public string? MarkerLabel { get; set; }
+
+    [Parameter] public string? Hint { get; set; }
+
+    /// <summary>Keeps the hint's line under the label even while the hint is empty.</summary>
+    [Parameter] public bool ReservesHintSpace { get; set; }
+    [Parameter] public string? Notice { get; set; }
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public bool Highlighted { get; set; }
+
+    /// <summary>The rule messages this input can fix, shown beside it on narrow screens.</summary>
+    [Parameter] public IReadOnlyList<string> RuleNotes { get; set; } = [];
+
+    private decimal SliderMax => Math.Max(Max, Min);
+    private decimal SliderValue => Math.Clamp(Value ?? Min, Min, SliderMax);
+    private string ValueText => Value is decimal value ? FormatValue(value) : "Ekkert gildi";
+
+    private string? DescribedBy
+    {
+        get
+        {
+            var ids = new List<string>();
+            if (ReservesHintSpace && Hint is not null) ids.Add($"{Id}-hint");
+            if (Message is not null) ids.Add($"{Id}-message");
+            return ids.Count == 0 ? null : string.Join(' ', ids);
+        }
+    }
+
+    // The slider is described by the same hint as the field (the down payment's share), and by the marker.
+    private string? SliderDescribedBy
+    {
+        get
+        {
+            var ids = new List<string>();
+            if (ReservesHintSpace && Hint is not null) ids.Add($"{Id}-hint");
+            if (MarkerValue is not null) ids.Add($"{Id}-marker");
+            return ids.Count == 0 ? null : string.Join(' ', ids);
+        }
+    }
+
+    private string SliderClass =>
+        string.Join(' ', new[]
+        {
+            "slider",
+            ReservesMarkerSpace ? "slider--marker-space" : null,
+            MarkerValue is null ? null : "slider--marked",
+            _isLive ? null : "slider--starting"
+        }.OfType<string>());
+
+    // Positions along the track as fractions, for the fill, the shaded part past the marker, and the marker.
+    private string SliderStyle =>
+        $"--fill: {Css(FractionAlong(SliderValue))}; --limit: {Css(MarkerValue is decimal marker ? FractionAlong(marker) : 1m)}";
+
+    protected override void OnParametersSet()
+    {
+        // Never rewrite what the user is typing (US-6 AC13); show the settled value otherwise.
+        if (!_isEditing)
+            _text = Value is decimal value ? IcelandicFormat.Number(value) : string.Empty;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _digitsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/digits-only.js");
+        await _digitsModule.InvokeVoidAsync("attach", _input, MaxDigits, new
+        {
+            digitsOnly = Labels.DigitsOnly,
+            noDecimals = Labels.NoDecimals,
+            // Only a field long enough for thousands shows dots; elsewhere a dot is a decimal point.
+            dotsAreAdded = MaxDigits > 3 ? Labels.DotsAreAdded : Labels.NoDecimals,
+            // An example that fits the field: an amount only where amounts go.
+            pasteRefused = IsAmount ? Labels.PasteRefused : Labels.PasteRefusedWholeNumber,
+            tooManyDigits = Labels.TooManyDigits,
+            groupThousands = MaxDigits > 3
+        });
+
+        _isLive = true;
+        StateHasChanged();
+    }
+
+    private void OnFocus()
+    {
+        _isEditing = true;
+        _typedSinceFocus = false;
+    }
+
+    private async Task OnTextInputAsync(ChangeEventArgs args)
+    {
+        _text = args.Value?.ToString() ?? string.Empty;
+        _typedSinceFocus = true;
+
+        CancelTyping();
+        var typing = _typing = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(_typingPause, typing.Token);
+        }
+        catch (TaskCanceledException)
+        {
+            return;
+        }
+
+        await OnCommit.InvokeAsync(new FieldCommit(IcelandicFormat.ParseDigits(_text), CommitSource.TypingPause));
+    }
+
+    private async Task OnBlurAsync()
+    {
+        CancelTyping();
+        _isEditing = false;
+
+        decimal? value = IcelandicFormat.ParseDigits(_text);
+        _text = value is decimal settled ? IcelandicFormat.Number(settled) : string.Empty;
+
+        // Passing through a field without typing in it is not a choice (S6).
+        if (_typedSinceFocus)
+            await OnCommit.InvokeAsync(new FieldCommit(value, CommitSource.LeftField));
+    }
+
+    private async Task OnSliderInputAsync(ChangeEventArgs args)
+    {
+        if (!decimal.TryParse(args.Value?.ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
+            return;
+
+        _text = IcelandicFormat.Number(value);
+        await OnCommit.InvokeAsync(new FieldCommit(value, CommitSource.Slider));
+    }
+
+    private decimal FractionAlong(decimal value) =>
+        SliderMax == Min ? 0m : Math.Round((Math.Clamp(value, Min, SliderMax) - Min) / (SliderMax - Min), 5);
+
+    private static string Css(decimal value) => value.ToString(CultureInfo.InvariantCulture);
+
+    private void CancelTyping()
+    {
+        _typing?.Cancel();
+        _typing?.Dispose();
+        _typing = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        CancelTyping();
+
+        if (_digitsModule is not null)
+        {
+            try
+            {
+                await _digitsModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The circuit is already gone; there is nothing left to release.
+            }
+        }
+    }
+}

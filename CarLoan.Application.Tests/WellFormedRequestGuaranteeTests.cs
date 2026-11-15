@@ -34,19 +34,66 @@ public class WellFormedRequestGuaranteeTests
         }
     }
 
+    /// <summary>
+    /// The far ends the Lykill schedules still price — a 90% loan on the largest price over the
+    /// longest term, and a 50% loan on the smallest over the shortest — so every amount exists.
+    /// </summary>
+    public static TheoryData<LoanRequest> PricedExtremeWellFormedRequests
+    {
+        get
+        {
+            var requests = new TheoryData<LoanRequest>();
+
+            foreach (var category in Enum.GetValues<RequestedVehicleCategory>())
+            {
+                foreach (var condition in Enum.GetValues<RequestedCarCondition>())
+                {
+                    requests.Add(new(1_000_000_000_000m, 100_000_000_000m, 84, condition, category, 0));
+                    requests.Add(new(0.02m, 0.01m, 6, condition, category, 0));
+                }
+            }
+
+            return requests;
+        }
+    }
+
     [Theory]
     [MemberData(nameof(ExtremeWellFormedRequests))]
+    [MemberData(nameof(PricedExtremeWellFormedRequests))]
     public void EvaluateLoanRequest_EvaluatesWithoutNegativeAmounts_WhenRequestHasNoInputErrors(LoanRequest request)
     {
         LoanRequestValidator.Validate(request).Should().BeEmpty();
 
-        var outcome = _service.EvaluateLoanRequest(request);
+        var evaluated = _service.EvaluateLoanRequest(request).Should().BeOfType<LoanEvaluationOutcome.Evaluated>().Subject;
 
-        var lenders = outcome.Should().BeOfType<LoanEvaluationOutcome.Evaluated>().Subject.Lenders;
-        lenders.Should().AllSatisfy(lender =>
-        {
-            lender.MonthlyPayment.Should().BeGreaterThanOrEqualTo(0m);
-            lender.OriginationFee.Amount.Should().BeGreaterThanOrEqualTo(0m);
-        });
+        Amounts(evaluated).Where(amount => amount is not null)
+            .Should().AllSatisfy(amount => amount.Should().BeGreaterThanOrEqualTo(0m));
     }
+
+    [Theory]
+    [MemberData(nameof(PricedExtremeWellFormedRequests))]
+    public void EvaluateLoanRequest_ReportsEveryAmount_WhenSchedulesPriceTheExtreme(LoanRequest request)
+    {
+        var evaluated = _service.EvaluateLoanRequest(request).Should().BeOfType<LoanEvaluationOutcome.Evaluated>().Subject;
+
+        evaluated.Lenders.Should().AllSatisfy(lender => lender.PricingGaps.Should().BeEmpty());
+        Amounts(evaluated).Should().NotContainNulls();
+    }
+
+    // A price the lender's schedule does not have is absent; every amount present is zero or more.
+    private static IEnumerable<decimal?> Amounts(LoanEvaluationOutcome.Evaluated evaluated) =>
+    [
+        evaluated.Loan.LoanAmount,
+        evaluated.Loan.FinancingRatioRoundedUp,
+        evaluated.Loan.DownPaymentPercentage,
+        .. evaluated.Lenders.SelectMany(lender => new[]
+        {
+            lender.MonthlyPayment,
+            lender.InterestRate,
+            lender.OriginationFee?.Amount,
+            lender.OriginationFee?.AmountSaved,
+            lender.FinancedAmount,
+            lender.TotalInterest
+        })
+    ];
 }

@@ -2,6 +2,9 @@
 bin/
 obj/
 
+# Per-user IDE settings
+*.user
+
 # Stryker mutation testing output
 StrykerOutput/
 

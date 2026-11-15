@@ -7,11 +7,29 @@ namespace CarLoan.Domain.Validators;
 /// <summary>
 /// Caps the car age plus the term. Used cars only — new cars are exempt.
 /// </summary>
-public class CarAgeValidator(CarAgeLimits limits) : ILoanRule
+public class CarAgeValidator(CarAgeLimits limits) : ILoanRule, ILoanPeriodCap
 {
     private const int MonthsPerYear = 12;
 
     private readonly CarAgeLimits _limits = Guard.NotNull(limits, nameof(limits));
+
+    /// <summary>
+    /// The years the cap leaves after the car's age, in months; 0 when the car alone reaches the
+    /// cap. Null for a new car, which the rule exempts.
+    /// </summary>
+    public int? MaximumLoanPeriodInMonths(Loan loan)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+
+        if (loan.Car.Condition == CarCondition.New)
+            return null;
+
+        int maximumCombinedYears = _limits.MaximumCombinedYearsFor(loan.Terms.LoanRatio);
+
+        return loan.Car.AgeInYears >= maximumCombinedYears
+            ? 0
+            : (maximumCombinedYears - loan.Car.AgeInYears) * MonthsPerYear;
+    }
 
     public LoanRuleResult Evaluate(Loan loan)
     {

@@ -1,0 +1,275 @@
+@page "/"
+@rendermode InteractiveServer
+@implements IDisposable
+@inject IMultiLenderLoanApplicationService Engine
+
+<PageTitle>Reiknivél fyrir bílalán · Lykill</PageTitle>
+
+<div class="page-intro">
+    <h1 tabindex="-1">Hvað kostar bílalánið á mánuði?</h1>
+    <p>Breyttu forsendunum og niðurstaðan uppfærist strax.</p>
+</div>
+
+<div class="vehicle-choices">
+    <SegmentedChoice TValue="RequestedVehicleCategory" Name="vehicle-category" Legend="Tegund bíls"
+                     Options="_vehicleCategories" Value="_category" ValueChanged="OnCategoryChanged" />
+
+    <SegmentedChoice TValue="RequestedCarCondition" Name="car-condition" Legend="Nýr eða notaður"
+                     Options="_conditions" Value="_condition" ValueChanged="OnConditionChanged" />
+</div>
+
+<div class="calculator">
+    <section class="inputs" aria-labelledby="inputs-title">
+        <h2 id="inputs-title" class="visually-hidden">Forsendur</h2>
+
+        <div class="group">
+            @if (_condition == RequestedCarCondition.Used)
+            {
+                <SliderField Id="car-age" Label="@Labels.CarAge" Unit="ár" FormatValue="Years" MaxDigits="CarAgeDigits"
+                             ShowSlider="false" Value="_carAge" OnCommit="OnCarAgeCommitted"
+                             Hint="Í heilum árum." ReservesHintSpace="true" />
+            }
+
+            <SliderField Id="purchase-price" Label="@Labels.PurchasePrice" Unit="kr." FormatValue="IcelandicFormat.Krona" IsAmount="true"
+                         MaxDigits="AmountDigits" Min="PriceSliderMin" Max="PriceSliderMax" Step="PriceSliderStep"
+                         Value="_price" OnCommit="OnPriceCommitted" Message="@FieldMessage(nameof(LoanRequest.PurchasePrice))" />
+        </div>
+
+        <div class="group">
+            <h3 class="group-title">Fjármögnun</h3>
+
+            <SliderField Id="down-payment" Label="@Labels.DownPayment" Unit="kr." FormatValue="IcelandicFormat.Krona" IsAmount="true"
+                         MaxDigits="AmountDigits" Min="DownPaymentSliderMin" Max="@(_price ?? DownPaymentSliderMin)"
+                         Step="DownPaymentSliderStep" SliderDisabled="@(_price is null or < DownPaymentSliderMin)"
+                         Value="_downPayment" OnCommit="OnDownPaymentCommitted"
+                         Hint="@DownPaymentShare" ReservesHintSpace="true" Notice="@_downPaymentNotice" Highlighted="_downPaymentHighlighted"
+                         RuleNotes="@_view.MessagesFor(InputField.DownPayment)" />
+
+            <SliderField Id="term" Label="@Labels.Term" Unit="mán." FormatValue="MonthsShort" MaxDigits="TermDigits"
+                         Min="TermSliderMin" Max="TermSliderMax" Step="1"
+                         Value="_term" OnCommit="OnTermCommitted" Message="@FieldMessage(nameof(LoanRequest.LoanPeriodInMonths))"
+                         MarkerValue="TermMarker" MarkerLabel="@TermMarkerLabel" ReservesMarkerSpace="true"
+                         RuleNotes="@_view.MessagesFor(InputField.Term)" />
+        </div>
+    </section>
+
+    <ResultsPanel View="_view" />
+</div>
+
+<div class="mobile-summary" aria-hidden="true">
+    <PaymentSummary View="_view" Compact="true" />
+</div>
+
+@code {
+    // Slider ends from US-6 AC5–7, and the step sizes settled in docs/ui-plans/loan-calculator.md.
+    private const decimal PriceSliderMin = 900_000m;
+    private const decimal PriceSliderMax = 20_000_000m;
+    private const decimal PriceSliderStep = 50_000m;
+    private const decimal DownPaymentSliderMin = 150_000m;
+    private const decimal DownPaymentSliderStep = 10_000m;
+    private const int TermSliderMin = 6;
+    private const int TermSliderMax = 84;
+
+    // Field lengths: no more digits than the engine's input bounds need (N5).
+    private static readonly int AmountDigits = LoanRequestValidator.MaximumPurchasePrice.ToString(System.Globalization.CultureInfo.InvariantCulture).Length;
+    private static readonly int TermDigits = LoanRequestValidator.MaximumLoanPeriodInMonths.ToString(System.Globalization.CultureInfo.InvariantCulture).Length;
+    private const int CarAgeDigits = 2;
+
+    private static readonly TimeSpan _highlightTime = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan _noticeTime = TimeSpan.FromSeconds(5);
+
+    private static readonly IReadOnlyList<ChoiceOption<RequestedVehicleCategory>> _vehicleCategories =
+    [
+        new(RequestedVehicleCategory.PetrolOrDiesel, "Bensín eða dísil"),
+        new(RequestedVehicleCategory.PlugInHybrid, "Tengiltvinnbíll"),
+        new(RequestedVehicleCategory.ElectricOrHydrogen, "Rafmagn eða vetni")
+    ];
+
+    private static readonly IReadOnlyList<ChoiceOption<RequestedCarCondition>> _conditions =
+    [
+        new(RequestedCarCondition.New, "Nýr"),
+        new(RequestedCarCondition.Used, "Notaður")
+    ];
+
+    // The starting state of US-1 AC4.
+    private RequestedVehicleCategory _category = RequestedVehicleCategory.ElectricOrHydrogen;
+    private RequestedCarCondition _condition = RequestedCarCondition.New;
+    private decimal? _price = 5_000_000m;
+    private decimal? _downPayment = 1_000_000m;
+    private decimal? _term = 60m;
+
+    // Kept while the car is new, so switching back to used restores it (US-4 AC4).
+    private decimal? _carAge;
+
+    // The down payment the user set. A lower price cuts the down payment to the price; this is
+    // what comes back when the price rises again (US-6 AC14, settled by human decision).
+    private decimal? _chosenDownPayment = 1_000_000m;
+
+    private LoanEvaluationOutcome? _outcome;
+    private ResultView _view = default!;
+
+    private bool _downPaymentHighlighted;
+    private string? _downPaymentNotice;
+    private CancellationTokenSource? _highlight;
+
+    protected override void OnInitialized() => Evaluate();
+
+    private void OnCategoryChanged(RequestedVehicleCategory category)
+    {
+        _category = category;
+        Evaluate();
+    }
+
+    private void OnConditionChanged(RequestedCarCondition condition)
+    {
+        _condition = condition;
+        Evaluate();
+    }
+
+    private void OnCarAgeCommitted(FieldCommit commit)
+    {
+        _carAge = commit.Value;
+        Evaluate();
+    }
+
+    private void OnPriceCommitted(FieldCommit commit)
+    {
+        _price = commit.Value;
+
+        // A typed price only cuts the down payment once the user leaves the field, so a
+        // half-typed price never takes their down payment with it.
+        if (commit.Source != CommitSource.TypingPause)
+            FitDownPaymentToPrice();
+
+        Evaluate();
+    }
+
+    private void OnDownPaymentCommitted(FieldCommit commit)
+    {
+        // The user has set it now, so a note about a change the screen made no longer applies.
+        ClearDownPaymentChange();
+
+        _downPayment = commit.Value;
+        _chosenDownPayment = commit.Value;
+
+        // US-6 AC15: a typed down payment above the price comes down to it when the user leaves the field.
+        if (commit.Source == CommitSource.LeftField && _price is decimal price && commit.Value > price)
+        {
+            _downPayment = price;
+            _chosenDownPayment = price;
+            ShowDownPaymentChange("Útborgunin var lækkuð niður í kaupverðið.");
+        }
+
+        Evaluate();
+    }
+
+    private void OnTermCommitted(FieldCommit commit)
+    {
+        _term = commit.Value;
+        Evaluate();
+    }
+
+    private void FitDownPaymentToPrice()
+    {
+        if (_price is not decimal price || _chosenDownPayment is not decimal chosen)
+            return;
+
+        decimal fitted = Math.Min(chosen, price);
+        if (fitted == _downPayment)
+            return;
+
+        bool lowered = _downPayment is decimal current && fitted < current;
+        _downPayment = fitted;
+        ShowDownPaymentChange(
+            lowered ? "Útborgunin var lækkuð niður í kaupverðið."
+            : fitted == chosen ? "Útborgunin er aftur sú sem þú valdir."
+            : "Útborgunin var hækkuð með kaupverðinu.");
+    }
+
+    private void Evaluate()
+    {
+        string? missing = MissingInputPrompt();
+
+        _outcome = missing is null
+            ? Engine.EvaluateLoanRequest(new LoanRequest(
+                _price!.Value,
+                _downPayment!.Value,
+                (int)_term!.Value,
+                _condition,
+                _category,
+                _condition == RequestedCarCondition.Used ? (int)_carAge!.Value : 0))
+            : null;
+
+        _view = ResultView.From(_outcome, missing, _category != RequestedVehicleCategory.PetrolOrDiesel);
+    }
+
+    // The UI's own check stops at "filled in" (docs/api-contract.md); ranges are the engine's.
+    private string? MissingInputPrompt() =>
+        _condition == RequestedCarCondition.Used && _carAge is null ? "Sláðu inn aldur bílsins."
+        : _price is null ? "Sláðu inn kaupverð."
+        : _downPayment is null ? "Sláðu inn útborgun."
+        : _term is null ? "Sláðu inn lánstíma."
+        : null;
+
+    private string? FieldMessage(string field) =>
+        _outcome is LoanEvaluationOutcome.InvalidRequest invalid
+            ? invalid.Errors
+                .Where(error => error.Field == field && error.Kind != InputErrorKind.MustBeLessThanPurchasePrice)
+                .Select(LoanText.InputErrorMessage)
+                .FirstOrDefault()
+            : null;
+
+    private string? DownPaymentShare =>
+        _view.Loan is LoanFigures loan ? $"{IcelandicFormat.Ratio(loan.DownPaymentPercentage)} af kaupverði" : null;
+
+    // US-6 AC8: mark the longest allowed term when it falls inside the slider, short of its end.
+    private decimal? TermMarker =>
+        _view.Lender?.MaximumLoanPeriodInMonths is int months && months >= TermSliderMin && months < TermSliderMax
+            ? months
+            : null;
+
+    private string? TermMarkerLabel => TermMarker is decimal months ? $"Hámark {MonthsShort(months)}" : null;
+
+    private static string MonthsShort(decimal months) => $"{IcelandicFormat.Number(months)} mán.";
+
+    private static string Years(decimal years) => $"{IcelandicFormat.Number(years)} ár";
+
+    private void ShowDownPaymentChange(string notice)
+    {
+        ClearDownPaymentChange();
+        var highlight = _highlight = new CancellationTokenSource();
+
+        _downPaymentNotice = notice;
+        _downPaymentHighlighted = true;
+        _ = ClearDownPaymentChangeAsync(highlight.Token);
+    }
+
+    private async Task ClearDownPaymentChangeAsync(CancellationToken cancellation)
+    {
+        try
+        {
+            await Task.Delay(_highlightTime, cancellation);
+            _downPaymentHighlighted = false;
+            await InvokeAsync(StateHasChanged);
+
+            await Task.Delay(_noticeTime - _highlightTime, cancellation);
+            _downPaymentNotice = null;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (TaskCanceledException)
+        {
+            // A newer change took over the highlight.
+        }
+    }
+
+    private void ClearDownPaymentChange()
+    {
+        _highlight?.Cancel();
+        _highlight?.Dispose();
+        _highlight = null;
+        _downPaymentHighlighted = false;
+        _downPaymentNotice = null;
+    }
+
+    public void Dispose() => ClearDownPaymentChange();
+}

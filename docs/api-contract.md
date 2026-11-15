@@ -3,7 +3,8 @@
 The one place the UI and the engine meet. Both builders read this file instead of guessing
 what the other side does, and either reviewer can check an implementation against it.
 
-**Status: defined** (decisions settled 2026-10-03).
+**Status: defined** (decisions settled 2026-10-03; amended 2026-11-02 for the calculator
+stories: `LoanFigures`, nullable prices, `PricingGaps`, `MaximumLoanPeriodInMonths`).
 
 ## Transport
 
@@ -27,7 +28,7 @@ LoanEvaluationOutcome EvaluateLoanRequest(LoanRequest request);
 | Outcome | Meaning | Carries |
 |---|---|---|
 | `LoanEvaluationOutcome.InvalidRequest` | The request is malformed; no lender evaluated it | `Errors`: `IReadOnlyList<InputError>` |
-| `LoanEvaluationOutcome.Evaluated` | Every lender evaluated it — accepted or declined | `Lenders`: one `LenderLoanEvaluationResult` per lender |
+| `LoanEvaluationOutcome.Evaluated` | Every lender evaluated it — accepted or declined | `Lenders`: one `LenderLoanEvaluationResult` per lender; `Loan`: the `LoanFigures` that are the same for every lender |
 
 These are different things and the UI tells them apart by type, never by catching an
 exception (N9). A `null` request is a programming error and still throws.
@@ -50,8 +51,18 @@ is part of the behaviour, its message wording is not.
 
 All amounts are `decimal` kr, with one exception: the limit
 `LoanRequestValidator.MaximumPurchasePrice` is a `long` in whole kr (see **Input errors**).
-Loan amount is `PurchasePrice - DownPayment` and excludes fees. The UI does not compute it
-for display purposes beyond echoing the user's inputs — see **Division of responsibility**.
+Loan amount is `PurchasePrice - DownPayment` and excludes fees. The UI does not compute it:
+it reads `LoanFigures.LoanAmount` — see **Division of responsibility**.
+
+### Response — `LoanFigures`, once per request
+
+| Field | Type | Notes |
+|---|---|---|
+| `LoanAmount` | decimal | kr, purchase price minus down payment, excludes fees |
+| `FinancingRatioRoundedUp` | decimal | percent, one decimal, always rounded **up**, as a screen shows it: `80.03` → `80.1`, `79.96` → `80.0`, so it never appears on the wrong side of a limit |
+| `DownPaymentPercentage` | decimal | percent, `100 − FinancingRatioRoundedUp` |
+
+The rules and rates use the exact ratio, never the rounded one.
 
 ### Response — one `LenderLoanEvaluationResult` per lender
 
@@ -59,9 +70,32 @@ for display purposes beyond echoing the user's inputs — see **Division of resp
 |---|---|---|
 | `LenderName` | string | |
 | `ValidationResults` | `IReadOnlyList<LoanRuleResult>` | every rule's result, not just failures, so the UI can show all reasons a loan was declined at once — see below |
-| `MonthlyPayment` | decimal | kr |
-| `InterestRate` | decimal | **percent**: `10.35` means 10.35 %, not `0.1035` |
-| `OriginationFee` | `OriginationFee` | |
+| `IsAccepted` | bool | every rule passed |
+| `MonthlyPayment` | decimal? | kr, rounded to 2 decimals as in `lykill.md` §7; null when `PricingGaps` is not empty |
+| `InterestRate` | decimal? | **percent**: `10.35` means 10.35 %, not `0.1035`; null when the lender has no rate for the financing ratio |
+| `OriginationFee` | `OriginationFee?` | null when the lender has no fee for the term |
+| `FinancedAmount` | decimal? | kr, loan amount plus the fee; null with `OriginationFee` |
+| `TotalInterest` | decimal? | kr, the monthly payment × the term in months, minus the financed amount; null with `MonthlyPayment` |
+| `PricingGaps` | `IReadOnlyList<PricingGap>` | why a price is missing; empty when the lender prices the loan |
+| `MaximumLoanPeriodInMonths` | int? | the longest term the lender's term and car-age rules allow for this car and financing ratio, `0` when no term is; null when no rule limits the term |
+
+A declined loan is still priced wherever the lender's schedule has a price for it. A null
+price means the schedule has none: there is no number to show, and the UI shows none.
+
+`OriginationFee` carries `Amount` (kr, after every discount and the minimum), `AmountSaved`
+(kr, F6), `EffectiveRate` (percent, the rate as it applies: a green discount is shown as the
+halved rate) and `MinimumFeeApplied` (the minimum fee raised the fee).
+
+### Pricing gaps — `PricingGap(Code, Minimum, Maximum)`
+
+The range the lender's schedule prices, reported when the loan falls outside it.
+
+| `Code` | Range | Meaning |
+|---|---|---|
+| `InterestRate` | financing ratio in percent, e.g. `0`–`90` | no rate band for this financing ratio, so no rate and no payment |
+| `OriginationFee` | term in months, e.g. `6`–`84` | no fee band for this term, so no fee, no financed amount and no payment |
+
+Both can be reported at once.
 
 ### Input errors — `InputError(Field, Kind)`
 
@@ -87,7 +121,8 @@ than repeating the numbers. Both are compile-time constants: `MaximumPurchasePri
 rules still decide every real case.
 
 **Guarantee:** a request with no input errors is always `Evaluated` — no exception, no
-negative amounts. `WellFormedRequestGuaranteeTests` enforces it.
+negative amounts: every amount present is zero or more. `WellFormedRequestGuaranteeTests`
+enforces it.
 
 ### Rule results — `LoanRuleResult`
 

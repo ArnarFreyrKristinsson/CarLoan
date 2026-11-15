@@ -1,0 +1,70 @@
+@* The monthly payment and its state. The results panel shows it in full; on a narrow screen a
+   compact copy stays in view at the bottom while the inputs scroll (N1). *@
+
+<div class="payment payment--@StateClass @(Compact ? "payment--compact" : null)">
+    <p class="payment-label">@Labels.MonthlyPayment</p>
+
+    @if (View.MonthlyPayment is not null)
+    {
+        <p class="payment-amount">@View.MonthlyPayment</p>
+
+        @if (!Compact)
+        {
+            <p class="payment-interest">
+                <span>@Labels.TotalInterest</span>
+                <span class="payment-interest-amount">@View.TotalInterest</span>
+            </p>
+        }
+
+        @if (View.State == PaymentState.Available)
+        {
+            <p class="payment-status payment-status--ok">
+                <svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.4 11.6 3 8.2l1.1-1.1 2.3 2.3 5.5-5.5L13 5z" /></svg>
+                Stenst lánareglur Lykils
+            </p>
+        }
+        else
+        {
+            <p class="payment-status payment-status--declined">@Labels.NotOnTheseTerms</p>
+        }
+    }
+    else if (View.State == PaymentState.AwaitingInput)
+    {
+        <p class="payment-prompt">@View.Reasons[0].Text</p>
+    }
+    else
+    {
+        <p class="payment-none">@Labels.CannotCalculate</p>
+
+        @if (!Compact && View.Reasons.Count > 0)
+        {
+            <ul class="payment-reasons">
+                @foreach (var reason in View.Reasons)
+                {
+                    <li>@reason.Text</li>
+                }
+            </ul>
+        }
+    }
+
+    @if (!Compact && View.MonthlyPayment is null)
+    {
+        @* Total interest keeps its row; with no payment there is no number for it (US-2 AC1, US-5 AC8). *@
+        <p class="payment-interest">
+            <span>@Labels.TotalInterest</span>
+            <span class="payment-interest-amount payment-interest-amount--none">—</span>
+        </p>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ResultView View { get; set; } = default!;
+    [Parameter] public bool Compact { get; set; }
+
+    private string StateClass => View.State switch
+    {
+        PaymentState.Available => "available",
+        PaymentState.NotOnTheseTerms => "declined",
+        _ => "none"
+    };
+}

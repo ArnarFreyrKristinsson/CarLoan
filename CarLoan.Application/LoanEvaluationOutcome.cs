@@ -14,5 +14,5 @@ public abstract record LoanEvaluationOutcome
 
     public sealed record InvalidRequest(IReadOnlyList<InputError> Errors) : LoanEvaluationOutcome;
 
-    public sealed record Evaluated(IReadOnlyList<LenderLoanEvaluationResult> Lenders) : LoanEvaluationOutcome;
+    public sealed record Evaluated(IReadOnlyList<LenderLoanEvaluationResult> Lenders, LoanFigures Loan) : LoanEvaluationOutcome;
 }

@@ -30,9 +30,9 @@ public class LykillRuleSpecificationTests
 
         result.ValidationResults.Should().OnlyContain(rule => rule.IsValid);
         result.InterestRate.Should().Be(10.75m);
-        result.OriginationFee.EffectiveRate.Should().Be(1.60m);
-        result.OriginationFee.Amount.Should().Be(64_000m);
-        result.OriginationFee.AmountSaved.Should().Be(64_000m);
+        result.OriginationFee!.EffectiveRate.Should().Be(1.60m);
+        result.OriginationFee!.Amount.Should().Be(64_000m);
+        result.OriginationFee!.AmountSaved.Should().Be(64_000m);
         result.MonthlyPayment.Should().Be(69_052.53m);
     }
 
@@ -47,9 +47,9 @@ public class LykillRuleSpecificationTests
 
         result.ValidationResults.Should().OnlyContain(rule => rule.IsValid);
         result.InterestRate.Should().Be(11.45m);
-        result.OriginationFee.EffectiveRate.Should().Be(2.00m);
-        result.OriginationFee.Amount.Should().Be(64_000m);
-        result.OriginationFee.AmountSaved.Should().Be(32_000m);
+        result.OriginationFee!.EffectiveRate.Should().Be(2.00m);
+        result.OriginationFee!.Amount.Should().Be(64_000m);
+        result.OriginationFee!.AmountSaved.Should().Be(32_000m);
         result.MonthlyPayment.Should().Be(71_701.97m);
     }
 
@@ -149,7 +149,7 @@ public class LykillRuleSpecificationTests
         var result = Evaluate(request);
 
         result.ValidationResults.Should().OnlyContain(rule => rule.IsValid);
-        result.OriginationFee.Amount.Should().Be(18_000m);
-        result.OriginationFee.AmountSaved.Should().Be(0m);
+        result.OriginationFee!.Amount.Should().Be(18_000m);
+        result.OriginationFee!.AmountSaved.Should().Be(0m);
     }
 }

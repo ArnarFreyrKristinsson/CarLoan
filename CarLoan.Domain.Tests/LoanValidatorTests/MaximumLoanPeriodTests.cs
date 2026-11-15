@@ -167,4 +167,43 @@ public class MaximumLoanPeriodTests
             [LoanRuleParameter.MaximumLoanPeriodMonths] = 60m
         });
     }
+
+    [Theory]
+    [InlineData(CarCondition.New, 300000, 84)]
+    [InlineData(CarCondition.Used, 400000, 84)]
+    [InlineData(CarCondition.Used, 300000, 72)]
+    public void MaximumLoanPeriodInMonths_ReturnsLongestAllowedTerm_WhenLoanTermsProvided(
+        CarCondition carCondition, decimal downPayment, int expectedMonths)
+    {
+        // T1 new: 84. T2 used at 80%: 84. T3 used at 85%: 72. The loan's own 84-month term plays no part.
+        var loan = new Loan(_defaultLoanTerms with { DownPayment = downPayment }, new Car(carCondition, VehicleCategory.PetrolOrDiesel, 0));
+
+        Assert.Equal(expectedMonths, _validator.MaximumLoanPeriodInMonths(loan));
+    }
+
+    [Fact]
+    public void MaximumLoanPeriodInMonths_ThrowsArgumentNullException_WhenLoanIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _validator.MaximumLoanPeriodInMonths(null!));
+    }
+
+    [Theory]
+    [InlineData(80, 84, 72, CarCondition.New, 300000)]
+    [InlineData(80, 84, 72, CarCondition.Used, 400000)]
+    [InlineData(80, 84, 72, CarCondition.Used, 300000)]
+    [InlineData(80, 84, 96, CarCondition.Used, 300000)]
+    [InlineData(70, 60, 36, CarCondition.Used, 500000)]
+    [InlineData(70, 60, 36, CarCondition.Used, 700000)]
+    public void MaximumLoanPeriodInMonths_ReturnsTermWhereEvaluateStartsFailing_WhenLimitsVary(
+        int usedCarLoanRatioThreshold, int maximumMonths, int usedCarMaximumMonths, CarCondition carCondition, decimal downPayment)
+    {
+        var validator = new MaximumLoanPeriodValidator(new LoanPeriodLimits(usedCarLoanRatioThreshold, maximumMonths, usedCarMaximumMonths));
+        Loan LoanOver(int months) =>
+            new(_defaultLoanTerms with { DownPayment = downPayment, LoanPeriodInMonths = months }, new Car(carCondition, VehicleCategory.PetrolOrDiesel, 0));
+
+        int longest = validator.MaximumLoanPeriodInMonths(LoanOver(12))!.Value;
+
+        validator.Evaluate(LoanOver(longest)).IsValid.Should().BeTrue();
+        validator.Evaluate(LoanOver(longest + 1)).IsValid.Should().BeFalse();
+    }
 }
